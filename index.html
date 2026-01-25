@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passport Photo Maker</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #16161f;
+    --surface2: #1e1e2a;
+    --border: #2a2a3a;
+    --primary: #6366f1;
+    --primary-hover: #818cf8;
+    --text: #e4e4e7;
+    --text-dim: #a1a1aa;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  header {
+    width: 100%;
+    padding: 20px 24px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  header h1 span { color: var(--primary); }
+
+  header p {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+
+  main {
+    width: 100%;
+    max-width: 900px;
+    padding: 24px;
+    flex: 1;
+  }
+
+  /* Upload Area */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 60px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    position: relative;
+  }
+
+  .upload-area:hover, .upload-area.dragover {
+    border-color: var(--primary);
+    background: var(--surface2);
+  }
+
+  .upload-area svg {
+    width: 48px;
+    height: 48px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+
+  .upload-area h2 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .upload-area p {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+  }
+
+  .upload-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+
+  .btn-primary:hover { background: var(--primary-hover); }
+
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover { border-color: var(--primary); }
+
+  .btn-success {
+    background: var(--success);
+    color: white;
+  }
+
+  .btn-success:hover { opacity: 0.9; }
+
+  .btn svg { width: 18px; height: 18px; }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  #fileInput { display: none; }
+
+  /* Camera Modal */
+  .camera-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(0,0,0,0.85);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .camera-modal.active { display: flex; }
+
+  .camera-modal video {
+    max-width: 90vw;
+    max-height: 60vh;
+    border-radius: var(--radius);
+    transform: scaleX(-1);
+  }
+
+  .camera-controls {
+    display: flex;
+    gap: 12px;
+  }
+
+  /* Steps */
+  .step { display: none; }
+  .step.active { display: block; }
+
+  /* Editor */
+  .editor-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 16px;
+  }
+
+  @media (max-width: 700px) {
+    .editor-layout { grid-template-columns: 1fr; }
+  }
+
+  .editor-panel {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .panel-body {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    position: relative;
+  }
+
+  .source-preview {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 8px;
+  }
+
+  .passport-preview {
+    width: 200px;
+    height: 200px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: white;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+
+  .passport-preview:active {
+    cursor: grabbing;
+  }
+
+  .drag-hint {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    background: rgba(99,102,241,0.15);
+    color: var(--primary);
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .face-status {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+
+  .face-status.found {
+    background: rgba(34,197,94,0.15);
+    color: var(--success);
+  }
+
+  .face-status.not-found {
+    background: rgba(239,68,68,0.15);
+    color: var(--danger);
+  }
+
+  .face-status.detecting {
+    background: rgba(245,158,11,0.15);
+    color: var(--warning);
+  }
+
+  /* Controls */
+  .controls {
+    margin-top: 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .control-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .control-row:last-child { margin-bottom: 0; }
+
+  .control-row label {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    min-width: 100px;
+  }
+
+  .control-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--primary);
+  }
+
+  .control-row .value {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .control-row select {
+    flex: 1;
+    padding: 6px 10px;
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+  }
+
+  /* Output */
+  .output-section {
+    margin-top: 24px;
+    text-align: center;
+  }
+
+  .sheet-preview {
+    background: white;
+    border-radius: 8px;
+    margin: 16px auto;
+    max-width: 100%;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  .output-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  /* Loading */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .loading-overlay.active { display: flex; }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text {
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+
+  /* Back button */
+  .back-row {
+    margin-bottom: 16px;
+  }
+
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 0;
+  }
+
+  .back-btn:hover { color: var(--text); }
+
+  /* Spec Info */
+  .spec-info {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .spec-info strong { color: var(--text); }
+
+  /* Print styles */
+  @media print {
+    body { background: white; }
+    header, .controls, .output-actions, .back-row, .spec-info, .editor-layout { display: none !important; }
+    .sheet-preview {
+      box-shadow: none;
+      margin: 0;
+      max-width: none;
+      width: 6in;
+      height: 4in;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📸 Passport <span>Photo Maker</span></h1>
+  <p>Upload a photo → auto-detect face → get printable passport photos</p>
+</header>
+
+<main>
+  <!-- Step 1: Upload -->
+  <div id="step-upload" class="step active">
+    <div class="upload-area" id="dropZone">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 16V4m0 0L8 8m4-4l4 4M4 14v4a2 2 0 002 2h12a2 2 0 002-2v-4"/>
+      </svg>
+      <h2>Drop your photo here</h2>
+      <p>or use the buttons below</p>
+      <div class="upload-actions">
+        <button class="btn btn-primary" id="btnUpload">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          Upload Photo
+        </button>
+        <button class="btn btn-secondary" id="btnCamera">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Take Photo
+        </button>
+      </div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*">
+
+    <div class="spec-info">
+      <strong>🇺🇸 US Passport Photo Specs:</strong> 2×2 inches · Head height 1"–1⅜" · 
+      White background · Front-facing · Eyes open · Neutral expression<br>
+      <strong>📄 Output:</strong> 4×6 inch printable sheet with 6 photos · 300 DPI
+    </div>
+  </div>
+
+  <!-- Step 2: Edit -->
+  <div id="step-edit" class="step">
+    <div class="back-row">
+      <button class="back-btn" id="btnBack">← Start over</button>
+    </div>
+
+    <div class="editor-layout">
+      <div class="editor-panel">
+        <div class="panel-header">Original Photo</div>
+        <div class="panel-body">
+          <img id="sourceImg" class="source-preview" alt="Source">
+          <div id="faceStatus" class="face-status detecting">Detecting...</div>
+        </div>
+      </div>
+      <div class="editor-panel">
+        <div class="panel-header">Passport Photo Preview</div>
+        <div class="panel-body">
+          <canvas id="passportPreview" class="passport-preview" width="600" height="600"></canvas>
+          <div class="drag-hint" id="dragHint">✋ Drag to reposition</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="control-row">
+        <label>Photo Standard</label>
+        <select id="photoStandard">
+          <option value="us" selected>🇺🇸 US Passport (2×2 in)</option>
+          <option value="eu">🇪🇺 EU/Schengen (35×45 mm)</option>
+          <option value="uk">🇬🇧 UK Passport (35×45 mm)</option>
+          <option value="india">🇮🇳 India Passport (2×2 in)</option>
+          <option value="canada">🇨🇦 Canada (50×70 mm)</option>
+        </select>
+      </div>
+      <div class="control-row">
+        <label>Zoom</label>
+        <input type="range" id="zoomSlider" min="50" max="200" value="100" step="1">
+        <span class="value" id="zoomValue">100%</span>
+      </div>
+      <div class="control-row">
+        <label>Brightness</label>
+        <input type="range" id="brightnessSlider" min="50" max="150" value="100" step="1">
+        <span class="value" id="brightnessValue">100%</span>
+      </div>
+    </div>
+
+    <div class="output-actions" style="margin-top:16px">
+      <button class="btn btn-success" id="btnGenerate">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+        Generate Printable Sheet
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 3: Output -->
+  <div id="step-output" class="step">
+    <div class="back-row">
+      <button class="back-btn" id="btnBackEdit">← Back to editor</button>
+    </div>
+
+    <div class="output-section">
+      <h2 style="margin-bottom: 4px;">Your Passport Photos</h2>
+      <p style="color: var(--text-dim); font-size: 0.85rem;">4×6 inch sheet · Print at 100% scale on 4×6 glossy paper</p>
+      <canvas id="sheetCanvas" class="sheet-preview"></canvas>
+
+      <div class="output-actions">
+        <button class="btn btn-primary" id="btnDownload">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          Download Sheet
+        </button>
+        <button class="btn btn-primary" id="btnDownloadSingle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M6 21v-1a6 6 0 0112 0v1"/></svg>
+          Download Single Photo
+        </button>
+        <button class="btn btn-secondary" id="btnPrint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+          Print
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Camera Modal -->
+<div id="cameraModal" class="camera-modal">
+  <video id="cameraVideo" autoplay playsinline></video>
+  <div class="camera-controls">
+    <button class="btn btn-primary" id="btnCapture">📸 Capture</button>
+    <button class="btn btn-secondary" id="btnCancelCamera">Cancel</button>
+  </div>
+</div>
+
+<!-- Loading -->
+<div id="loadingOverlay" class="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Detecting face...</div>
+</div>
+
+<script type="module">
+// ============================================================
+// Passport Photo Maker - Core Logic
+// ============================================================
+import { FaceDetector as MP_FaceDetector, FilesetResolver as MP_FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest';
+
+// --- Photo standard specs ---
+const STANDARDS = {
+  us:     { name: 'US Passport',     w: 2,    h: 2,    unit: 'in', headMin: 1, headMax: 1.375, eyeFromBottom: 1.25 },
+  eu:     { name: 'EU/Schengen',     w: 35,   h: 45,   unit: 'mm', headMin: 32, headMax: 36, eyeFromBottom: 30 },
+  uk:     { name: 'UK Passport',     w: 35,   h: 45,   unit: 'mm', headMin: 29, headMax: 34, eyeFromBottom: 30 },
+  india:  { name: 'India Passport',  w: 2,    h: 2,    unit: 'in', headMin: 1, headMax: 1.375, eyeFromBottom: 1.25 },
+  canada: { name: 'Canada Passport', w: 50,   h: 70,   unit: 'mm', headMin: 31, headMax: 36, eyeFromBottom: 42 },
+};
+
+const DPI = 300;
+const SHEET_W_IN = 6;
+const SHEET_H_IN = 4;
+
+function specToPx(spec) {
+  const scale = spec.unit === 'mm' ? DPI / 25.4 : DPI;
+  return {
+    w: Math.round(spec.w * scale),
+    h: Math.round(spec.h * scale),
+    headMin: Math.round(spec.headMin * scale),
+    headMax: Math.round(spec.headMax * scale),
+    headTarget: Math.round(((spec.headMin + spec.headMax) / 2) * scale),
+    eyeFromBottom: Math.round(spec.eyeFromBottom * scale),
+  };
+}
+
+// --- State ---
+let sourceImage = null;
+let faceData = null; // { x, y, w, h, leftEye, rightEye } in source image coordinates
+let userZoom = 100;
+let userH = 0;
+let userV = 0;
+let userBrightness = 100;
+let currentStandard = 'us';
+
+// --- DOM ---
+const $ = (s) => document.querySelector(s);
+const dropZone = $('#dropZone');
+const fileInput = $('#fileInput');
+const sourceImg = $('#sourceImg');
+const passportCanvas = $('#passportPreview');
+const sheetCanvas = $('#sheetCanvas');
+const faceStatus = $('#faceStatus');
+const loadingOverlay = $('#loadingOverlay');
+const loadingText = $('#loadingText');
+
+// --- Face Detection using MediaPipe ---
+let faceDetector = null;
+
+async function initFaceDetector() {
+  showLoading('Loading face detection model...');
+
+  try {
+    const vision = await MP_FilesetResolver.forVisionTasks(
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+    );
+    faceDetector = await MP_FaceDetector.createFromOptions(vision, {
+      baseOptions: {
+        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/latest/blaze_face_short_range.tflite',
+        delegate: 'GPU'
+      },
+      runningMode: 'IMAGE',
+      minDetectionConfidence: 0.5,
+    });
+  } catch (e) {
+    console.error('Face detector init failed (GPU), trying CPU:', e);
+    try {
+      const vision = await MP_FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
+      );
+      faceDetector = await MP_FaceDetector.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/latest/blaze_face_short_range.tflite',
+        },
+        runningMode: 'IMAGE',
+        minDetectionConfidence: 0.5,
+      });
+    } catch (e2) {
+      console.error('Face detector CPU fallback also failed:', e2);
+    }
+  }
+  hideLoading();
+}
+
+async function detectFace(imgElement) {
+  if (!faceDetector) {
+    // Fallback: center crop
+    return null;
+  }
+
+  const results = faceDetector.detect(imgElement);
+  if (!results || !results.detections || results.detections.length === 0) {
+    return null;
+  }
+
+  // Take the most confident / largest face
+  const det = results.detections.sort((a, b) => {
+    const areaA = a.boundingBox.width * a.boundingBox.height;
+    const areaB = b.boundingBox.width * b.boundingBox.height;
+    return areaB - areaA;
+  })[0];
+
+  const bb = det.boundingBox;
+  const keypoints = det.keypoints || [];
+
+  // MediaPipe keypoints: 0=leftEye, 1=rightEye, 2=noseTip, 3=mouth, 4=leftEarTragion, 5=rightEarTragion
+  let leftEye = null, rightEye = null;
+  for (const kp of keypoints) {
+    if (kp.x !== undefined && kp.y !== undefined) {
+      const px = kp.x * imgElement.naturalWidth;
+      const py = kp.y * imgElement.naturalHeight;
+      if (kp.label === 'leftEye' || kp.index === 0) leftEye = { x: px, y: py };
+      if (kp.label === 'rightEye' || kp.index === 1) rightEye = { x: px, y: py };
+    }
+  }
+
+  return {
+    x: bb.originX,
+    y: bb.originY,
+    w: bb.width,
+    h: bb.height,
+    leftEye,
+    rightEye,
+  };
+}
+
+// --- Passport photo generation ---
+function generatePassportPhoto() {
+  const spec = specToPx(STANDARDS[currentStandard]);
+  const ctx = passportCanvas.getContext('2d');
+  passportCanvas.width = spec.w;
+  passportCanvas.height = spec.h;
+
+  // White background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, spec.w, spec.h);
+
+  if (!sourceImage) return;
+
+  const srcW = sourceImage.naturalWidth;
+  const srcH = sourceImage.naturalHeight;
+
+  let cropX, cropY, cropW, cropH;
+
+  if (faceData) {
+    // Calculate crop based on face position
+    const face = faceData;
+
+    // Face bounding box center
+    const faceCenterX = face.x + face.w / 2;
+
+    // Eye line Y (average of both eyes, or face center if no eyes detected)
+    let eyeY;
+    if (face.leftEye && face.rightEye) {
+      eyeY = (face.leftEye.y + face.rightEye.y) / 2;
+    } else {
+      // Estimate: eyes are roughly at 35% from top of face bbox
+      eyeY = face.y + face.h * 0.35;
+    }
+
+    // Estimate chin position (bottom of face bbox)
+    const chinY = face.y + face.h;
+
+    // MediaPipe face bbox covers forehead to chin, but NOT the top of the skull.
+    // Full head (chin to crown) is approximately 1.35x the face bbox height.
+    const estimatedHeadH = face.h * 1.35;
+
+    // We want the head to be spec.headTarget pixels tall in output
+    const scale = spec.headTarget / estimatedHeadH;
+
+    // How many source pixels correspond to the output dimensions
+    cropW = spec.w / scale;
+    cropH = spec.h / scale;
+
+    // Center horizontally on face
+    cropX = faceCenterX - cropW / 2;
+
+    // Position vertically: place eye line at correct position from bottom
+    // eye should be spec.eyeFromBottom from the bottom of the output
+    const targetEyeFromTop = spec.h - spec.eyeFromBottom;
+    const eyeFromTopInSrc = targetEyeFromTop / scale;
+    cropY = eyeY - eyeFromTopInSrc;
+  } else {
+    // Fallback: center crop with aspect ratio
+    const aspect = spec.w / spec.h;
+    if (srcW / srcH > aspect) {
+      cropH = srcH;
+      cropW = srcH * aspect;
+      cropX = (srcW - cropW) / 2;
+      cropY = 0;
+    } else {
+      cropW = srcW;
+      cropH = srcW / aspect;
+      cropX = 0;
+      cropY = (srcH - cropH) / 2;
+    }
+  }
+
+  // Apply user adjustments
+  const zoomFactor = 100 / userZoom;
+  const adjCropW = cropW * zoomFactor;
+  const adjCropH = cropH * zoomFactor;
+  const adjCropX = cropX + (cropW - adjCropW) / 2 - userH * (cropW / spec.w);
+  const adjCropY = cropY + (cropH - adjCropH) / 2 - userV * (cropH / spec.h);
+
+  // Brightness
+  if (userBrightness !== 100) {
+    ctx.filter = `brightness(${userBrightness}%)`;
+  } else {
+    ctx.filter = 'none';
+  }
+
+  ctx.drawImage(sourceImage, adjCropX, adjCropY, adjCropW, adjCropH, 0, 0, spec.w, spec.h);
+  ctx.filter = 'none';
+}
+
+function generateSheet() {
+  const spec = specToPx(STANDARDS[currentStandard]);
+
+  const sheetW = SHEET_W_IN * DPI; // 1800
+  const sheetH = SHEET_H_IN * DPI; // 1200
+
+  sheetCanvas.width = sheetW;
+  sheetCanvas.height = sheetH;
+  const ctx = sheetCanvas.getContext('2d');
+
+  // White background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, sheetW, sheetH);
+
+  // Calculate grid
+  const cols = Math.floor(sheetW / spec.w);
+  const rows = Math.floor(sheetH / spec.h);
+  const offsetX = Math.floor((sheetW - cols * spec.w) / 2);
+  const offsetY = Math.floor((sheetH - rows * spec.h) / 2);
+
+  // Draw passport photos in grid
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const x = offsetX + c * spec.w;
+      const y = offsetY + r * spec.h;
+      ctx.drawImage(passportCanvas, x, y);
+
+      // Light cut lines
+      ctx.strokeStyle = '#cccccc';
+      ctx.lineWidth = 0.5;
+      ctx.setLineDash([5, 5]);
+      ctx.strokeRect(x, y, spec.w, spec.h);
+    }
+  }
+
+  // Scale down for display
+  sheetCanvas.style.width = '100%';
+  sheetCanvas.style.maxWidth = '600px';
+  sheetCanvas.style.height = 'auto';
+}
+
+// --- UI Helpers ---
+function showLoading(text) {
+  loadingText.textContent = text;
+  loadingOverlay.classList.add('active');
+}
+
+function hideLoading() {
+  loadingOverlay.classList.remove('active');
+}
+
+function showStep(step) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  $(`#step-${step}`).classList.add('active');
+}
+
+// --- Event Handlers ---
+
+// File upload
+$('#btnUpload').addEventListener('click', (e) => {
+  e.stopPropagation();
+  fileInput.click();
+});
+
+dropZone.addEventListener('click', () => fileInput.click());
+
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) loadImage(e.target.files[0]);
+});
+
+// Drag & drop
+dropZone.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  dropZone.classList.add('dragover');
+});
+
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('dragover');
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]);
+});
+
+// Camera
+$('#btnCamera').addEventListener('click', async (e) => {
+  e.stopPropagation();
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 1920 }, height: { ideal: 1080 } }
+    });
+    const video = $('#cameraVideo');
+    video.srcObject = stream;
+    $('#cameraModal').classList.add('active');
+  } catch (err) {
+    alert('Camera access denied or not available.');
+  }
+});
+
+$('#btnCapture').addEventListener('click', () => {
+  const video = $('#cameraVideo');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  // Mirror the capture to match preview
+  ctx.translate(canvas.width, 0);
+  ctx.scale(-1, 1);
+  ctx.drawImage(video, 0, 0);
+  canvas.toBlob((blob) => {
+    closeCamera();
+    loadImage(blob);
+  }, 'image/jpeg', 0.95);
+});
+
+$('#btnCancelCamera').addEventListener('click', closeCamera);
+
+function closeCamera() {
+  const video = $('#cameraVideo');
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach(t => t.stop());
+    video.srcObject = null;
+  }
+  $('#cameraModal').classList.remove('active');
+}
+
+// Load image
+async function loadImage(fileOrBlob) {
+  showLoading('Loading image...');
+  const url = URL.createObjectURL(fileOrBlob);
+  sourceImg.onload = async () => {
+    // Reset adjustments
+    userZoom = 100;
+    userH = 0;
+    userV = 0;
+    userBrightness = 100;
+    $('#zoomSlider').value = 100;
+    $('#brightnessSlider').value = 100;
+    updateSliderLabels();
+    // Reset drag hint
+    const hint = $('#dragHint');
+    if (hint) hint.style.opacity = '1';
+
+    showStep('edit');
+    showLoading('Detecting face...');
+    faceStatus.className = 'face-status detecting';
+    faceStatus.textContent = 'Detecting...';
+
+    // Need to also set as source for canvas drawing
+    sourceImage = sourceImg;
+
+    try {
+      faceData = await detectFace(sourceImg);
+      if (faceData) {
+        faceStatus.className = 'face-status found';
+        faceStatus.textContent = '✓ Face detected';
+      } else {
+        faceStatus.className = 'face-status not-found';
+        faceStatus.textContent = '✗ No face found (using center crop)';
+      }
+    } catch (e) {
+      console.error('Detection error:', e);
+      faceStatus.className = 'face-status not-found';
+      faceStatus.textContent = '✗ Detection failed';
+      faceData = null;
+    }
+
+    generatePassportPhoto();
+    hideLoading();
+  };
+  sourceImg.src = url;
+}
+
+// --- Drag to reposition ---
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragStartH = 0;
+let dragStartV = 0;
+
+function getPointerPos(e) {
+  if (e.touches && e.touches.length > 0) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+  return { x: e.clientX, y: e.clientY };
+}
+
+passportCanvas.addEventListener('mousedown', onDragStart);
+passportCanvas.addEventListener('touchstart', onDragStart, { passive: false });
+
+function onDragStart(e) {
+  e.preventDefault();
+  isDragging = true;
+  const pos = getPointerPos(e);
+  dragStartX = pos.x;
+  dragStartY = pos.y;
+  dragStartH = userH;
+  dragStartV = userV;
+  // Hide hint after first drag
+  const hint = $('#dragHint');
+  if (hint) hint.style.opacity = '0';
+}
+
+window.addEventListener('mousemove', onDragMove);
+window.addEventListener('touchmove', onDragMove, { passive: false });
+
+function onDragMove(e) {
+  if (!isDragging) return;
+  e.preventDefault();
+  const pos = getPointerPos(e);
+  // Scale drag pixels to adjustment units — canvas display size vs logical range
+  const canvasRect = passportCanvas.getBoundingClientRect();
+  const scaleX = 400 / canvasRect.width;  // sensitivity factor
+  const scaleY = 400 / canvasRect.height;
+  userH = dragStartH + (pos.x - dragStartX) * scaleX;
+  userV = dragStartV + (pos.y - dragStartY) * scaleY;
+  // Clamp
+  userH = Math.max(-300, Math.min(300, userH));
+  userV = Math.max(-300, Math.min(300, userV));
+  generatePassportPhoto();
+}
+
+window.addEventListener('mouseup', onDragEnd);
+window.addEventListener('touchend', onDragEnd);
+
+function onDragEnd() {
+  isDragging = false;
+}
+
+// Scroll to zoom on preview
+passportCanvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  const delta = e.deltaY > 0 ? -3 : 3;
+  userZoom = Math.max(50, Math.min(200, userZoom + delta));
+  $('#zoomSlider').value = userZoom;
+  updateSliderLabels();
+  generatePassportPhoto();
+}, { passive: false });
+
+// Sliders (zoom + brightness only now)
+function updateSliderLabels() {
+  $('#zoomValue').textContent = userZoom + '%';
+  $('#brightnessValue').textContent = userBrightness + '%';
+}
+
+$('#zoomSlider').addEventListener('input', (e) => {
+  userZoom = parseInt(e.target.value);
+  updateSliderLabels();
+  generatePassportPhoto();
+});
+
+$('#brightnessSlider').addEventListener('input', (e) => {
+  userBrightness = parseInt(e.target.value);
+  updateSliderLabels();
+  generatePassportPhoto();
+});
+
+$('#photoStandard').addEventListener('change', (e) => {
+  currentStandard = e.target.value;
+  generatePassportPhoto();
+});
+
+// Navigation
+$('#btnBack').addEventListener('click', () => {
+  sourceImage = null;
+  faceData = null;
+  showStep('upload');
+});
+
+$('#btnBackEdit').addEventListener('click', () => showStep('edit'));
+
+// Generate
+$('#btnGenerate').addEventListener('click', () => {
+  generatePassportPhoto();
+  generateSheet();
+  showStep('output');
+});
+
+// Download sheet
+$('#btnDownload').addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'passport-photos-sheet.jpg';
+  link.href = sheetCanvas.toDataURL('image/jpeg', 0.95);
+  link.click();
+});
+
+// Download single
+$('#btnDownloadSingle').addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'passport-photo.jpg';
+  link.href = passportCanvas.toDataURL('image/jpeg', 0.95);
+  link.click();
+});
+
+// Print
+$('#btnPrint').addEventListener('click', () => window.print());
+
+// --- Init ---
+(async () => {
+  await initFaceDetector();
+})();
+</script>
+
+</body>
+</html>

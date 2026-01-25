@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+
+# Important pages
+Allow: /
+Allow: /app
+
+# Sitemap location
+Sitemap: https://photoid.app/sitemap.xml
+
+# Block development/admin paths (if any)
+Disallow: /api/
+Disallow: /_next/
+Disallow: /.well-known/
+
+# Crawl-delay for good behavior
+Crawl-delay: 1
