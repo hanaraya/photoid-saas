@@ -173,9 +173,9 @@ export function checkCompliance(
   if (usStandards.includes(standard.id)) {
     checks.push({
       id: 'glasses',
-      label: 'No Glasses',
-      status: 'warn',
-      message: 'US requires no glasses — remove before photo',
+      label: 'Glasses Policy',
+      status: 'pass',
+      message: 'Reminder: US photos require no glasses (since 2016)',
     });
   }
 
