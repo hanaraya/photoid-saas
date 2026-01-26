@@ -7,6 +7,11 @@ import { Badge } from '@/components/ui/badge';
 // CountrySelector removed - standard is now read-only in editor
 import { ComplianceChecker } from './compliance-checker';
 import {
+  ComplianceOverlay,
+  calculateMeasurementState,
+  type MeasurementState,
+} from './compliance-overlay';
+import {
   type FaceData,
   initFaceDetector,
   detectFace,
@@ -98,6 +103,8 @@ export function PhotoEditor({
     []
   );
   const [showDragHint, setShowDragHint] = useState(true);
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [measurementState, setMeasurementState] = useState<MeasurementState | null>(null);
   const [sheetDataUrl, setSheetDataUrl] = useState<string | null>(null);
   const [imageReady, setImageReady] = useState(false); // Track when source image is loaded
   const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(null);
@@ -363,6 +370,34 @@ export function PhotoEditor({
     );
     setComplianceChecks(checks);
   }, [faceData, standard, bgRemoved, bgAnalysis, userZoom, imageAnalysis]);
+
+  // Update measurement state for overlay
+  useEffect(() => {
+    const canvas = passportCanvasRef.current;
+    if (!faceData || !canvas) {
+      setMeasurementState(null);
+      return;
+    }
+
+    // Calculate canvas display dimensions
+    const canvasWidth =
+      standard.w >= standard.h
+        ? 200
+        : Math.round(200 * (standard.w / standard.h));
+    const canvasHeight =
+      standard.h >= standard.w
+        ? 200
+        : Math.round(200 * (standard.h / standard.w));
+
+    const state = calculateMeasurementState(
+      faceData,
+      standard,
+      canvasWidth,
+      canvasHeight,
+      userZoom
+    );
+    setMeasurementState(state);
+  }, [faceData, standard, userZoom]);
 
   // Background removal
   const handleBgRemoval = async () => {
@@ -692,26 +727,53 @@ export function PhotoEditor({
             </span>
           </div>
           <div className="relative flex items-center justify-center p-4 min-h-[300px]">
-            <canvas
-              ref={passportCanvasRef}
-              className="rounded border border-border bg-white cursor-grab active:cursor-grabbing"
-              style={{
-                touchAction: 'none',
-                userSelect: 'none',
-                // Dynamic size based on aspect ratio, max 200px on longest side
-                width:
-                  standard.w >= standard.h
-                    ? '200px'
-                    : `${Math.round(200 * (standard.w / standard.h))}px`,
-                height:
-                  standard.h >= standard.w
-                    ? '200px'
-                    : `${Math.round(200 * (standard.h / standard.w))}px`,
-              }}
-              onMouseDown={onDragStart}
-              onTouchStart={onDragStart}
-              onWheel={onWheel}
-            />
+            <div className="relative">
+              <canvas
+                ref={passportCanvasRef}
+                className="rounded border border-border bg-white cursor-grab active:cursor-grabbing"
+                style={{
+                  touchAction: 'none',
+                  userSelect: 'none',
+                  // Dynamic size based on aspect ratio, max 200px on longest side
+                  width:
+                    standard.w >= standard.h
+                      ? '200px'
+                      : `${Math.round(200 * (standard.w / standard.h))}px`,
+                  height:
+                    standard.h >= standard.w
+                      ? '200px'
+                      : `${Math.round(200 * (standard.h / standard.w))}px`,
+                }}
+                onMouseDown={onDragStart}
+                onTouchStart={onDragStart}
+                onWheel={onWheel}
+              />
+              {/* Compliance Measurement Overlay */}
+              {measurementState && (
+                <ComplianceOverlay
+                  faceData={faceData}
+                  standard={standard}
+                  canvasWidth={
+                    standard.w >= standard.h
+                      ? 200
+                      : Math.round(200 * (standard.w / standard.h))
+                  }
+                  canvasHeight={
+                    standard.h >= standard.w
+                      ? 200
+                      : Math.round(200 * (standard.h / standard.w))
+                  }
+                  headHeightPercent={measurementState.headHeightPercent}
+                  eyePositionPercent={measurementState.eyePositionPercent}
+                  topMarginPercent={measurementState.topMarginPercent}
+                  bottomMarginPercent={measurementState.bottomMarginPercent}
+                  complianceStatus={measurementState.complianceStatus}
+                  visible={showOverlay}
+                  showToggle={true}
+                  onToggle={() => setShowOverlay((prev) => !prev)}
+                />
+              )}
+            </div>
             {showDragHint && (
               <span className="absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full bg-primary/15 px-3 py-1 text-xs font-medium text-primary pointer-events-none">
                 ✋ Drag to reposition · Scroll to zoom
