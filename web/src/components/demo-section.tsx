@@ -7,22 +7,30 @@ const demos = [
   {
     id: 1,
     name: 'Sarah',
+    scene: 'Street photo',
     before: '/demo/before-1.jpg',
+    after: '/demo/after-1.png', // Will use real processed image when available
   },
   {
     id: 2,
     name: 'Michael',
+    scene: 'Indoor shot',
     before: '/demo/before-2.jpg',
+    after: '/demo/after-2.png',
   },
   {
     id: 3,
     name: 'Emma',
+    scene: 'Outdoor by lake',
     before: '/demo/before-3.jpg',
+    after: '/demo/after-3.png',
   },
   {
     id: 4,
     name: 'James',
+    scene: 'Studio portrait',
     before: '/demo/before-4.jpg',
+    after: '/demo/after-4.png',
   },
 ];
 
@@ -49,7 +57,7 @@ export function DemoSection() {
               {/* Before */}
               <div className="text-center">
                 <p className="text-sm font-medium text-muted-foreground mb-3">
-                  📷 Your Photo
+                  📷 {demos[activeDemo].scene}
                 </p>
                 <div className="relative w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] rounded-xl overflow-hidden shadow-lg border-2 border-dashed border-muted-foreground/30">
                   <Image
