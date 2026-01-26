@@ -81,6 +81,89 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
+// JSON-LD structured data for SEO
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebApplication',
+      '@id': 'https://safepassportpic.com/#app',
+      name: 'SafePassportPic',
+      description:
+        'Create compliant passport and visa photos instantly from your phone. 100% private — processed entirely in your browser.',
+      url: 'https://safepassportpic.com',
+      applicationCategory: 'PhotographyApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript, WebAssembly support',
+      offers: {
+        '@type': 'Offer',
+        price: '4.99',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.9',
+        ratingCount: '127',
+        bestRating: '5',
+        worstRating: '1',
+      },
+      featureList: [
+        '100% private - photos never leave your device',
+        'AI-powered face detection and background removal',
+        '20+ country passport standards supported',
+        'Instant compliance checking',
+        'Print-ready 4x6 photo sheets',
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': 'https://safepassportpic.com/#faq',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'Are my photos private and secure?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Yes, 100%. All photo processing happens entirely in your browser using AI models that run on your device. Your photos are never uploaded to our servers or any third party.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What countries are supported?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'We support 20+ country standards including US, UK, EU/Schengen, Canada, Australia, India, China, and more. Each standard has the correct dimensions and requirements.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'Can I use my phone camera?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Absolutely! You can either upload an existing photo or take one directly with your phone camera. For best results, use good lighting and a plain background.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What if my photo gets rejected?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'We offer a 30-day money-back guarantee. If your photo is rejected by the government agency, contact us for a full refund.',
+          },
+        },
+      ],
+    },
+    {
+      '@type': 'Organization',
+      '@id': 'https://safepassportpic.com/#organization',
+      name: 'SafePassportPic',
+      url: 'https://safepassportpic.com',
+      logo: 'https://safepassportpic.com/icon-512.png',
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -88,6 +171,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

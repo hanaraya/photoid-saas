@@ -1,0 +1,60 @@
+# SafePassportPic - AI-Friendly Summary
+
+> Create compliant passport and visa photos in 60 seconds. 100% private — all processing happens in your browser.
+
+## What is SafePassportPic?
+
+SafePassportPic is a web application that creates government-compliant passport and visa photos instantly. Unlike traditional services, all photo processing happens entirely in the user's browser using on-device AI — photos are never uploaded to any server.
+
+## Key Features
+
+- **100% Private**: Photos never leave your device. All AI processing runs locally in browser.
+- **60-Second Process**: Upload photo → AI removes background → download print-ready result.
+- **20+ Country Standards**: US, UK, EU, Canada, Australia, India, China, Schengen, and more.
+- **AI-Powered**: Automatic face detection, background removal, and compliance checking.
+- **One-Time Price**: $4.99 for unlimited photos in a session (no subscription).
+- **Mobile-First**: Works on any phone or computer with a modern browser.
+
+## Supported Photo Types
+
+- US Passport (2x2 inches, 600x600px)
+- US Visa
+- UK Passport (35x45mm)
+- EU/Schengen Passport (35x45mm)
+- Canadian Passport (50x70mm)
+- Australian Passport (35x45mm)
+- Indian Passport (51x51mm)
+- Chinese Visa (33x48mm)
+- Green Card
+- Driver's License photos
+
+## How It Works
+
+1. User uploads or takes a photo
+2. AI detects face and validates positioning
+3. Background is automatically removed and replaced with compliant white/off-white
+4. User can adjust zoom and position
+5. Compliance checks verify head size, eye position, resolution
+6. Download print-ready 4x6 sheet or individual digital photos
+
+## Privacy Commitment
+
+- No server uploads — processing uses WebAssembly AI models in browser
+- No accounts required
+- No photo storage
+- No third-party tracking
+- GDPR compliant
+
+## Pricing
+
+- $4.99 one-time payment via Stripe
+- Unlimited photos per session
+- 30-day money-back guarantee
+
+## Website
+
+https://safepassportpic.com
+
+## Contact
+
+For support or inquiries, visit https://safepassportpic.com/refund

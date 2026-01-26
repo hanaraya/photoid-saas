@@ -4,14 +4,33 @@ Allow: /
 # Important pages
 Allow: /
 Allow: /app
+Allow: /privacy
+Allow: /terms
+Allow: /refund
 
 # Sitemap location
-Sitemap: https://photoid.app/sitemap.xml
+Sitemap: https://safepassportpic.com/sitemap.xml
 
-# Block development/admin paths (if any)
+# Block development/admin paths
 Disallow: /api/
 Disallow: /_next/
 Disallow: /.well-known/
+
+# AI crawlers welcome
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
 
 # Crawl-delay for good behavior
 Crawl-delay: 1
