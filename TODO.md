@@ -1,8 +1,8 @@
 # Passport Photo App - TODO
 
-## 🎯 Current Task: Measurement Overlay on Preview
+## 🎯 Current Task: Camera Capture Guides
 
-**Status:** 🔄 In Progress (Sub-agent spawned)
+**Status:** 🔄 In Progress (Sub-agent: camera-guides)
 
 ### Task Breakdown
 1. [ ] **Spec** - Define overlay requirements for all supported countries
@@ -61,6 +61,13 @@
 - [x] Source headroom warning
 - [x] Automated visual testing setup
 - [x] Competitor research & roadmap
+- [x] **Measurement overlay on preview** ✨
+  - Head height % indicator (59.3% shown correctly)
+  - Eye line position marker
+  - Color-coded compliance (green/yellow/red)
+  - Toggle button to show/hide
+  - Works for all 20 country standards
+  - 71 tests, 96% coverage
 
 ---
 

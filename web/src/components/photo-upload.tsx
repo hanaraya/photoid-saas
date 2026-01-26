@@ -2,17 +2,25 @@
 
 import { useCallback, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { CameraGuides, CameraConditions } from '@/components/camera-guides';
 
 interface PhotoUploadProps {
   onImageLoaded: (file: Blob) => void;
+  countryCode?: string;
+  enableCameraGuides?: boolean;
 }
 
-export function PhotoUpload({ onImageLoaded }: PhotoUploadProps) {
+export function PhotoUpload({ 
+  onImageLoaded, 
+  countryCode = 'us',
+  enableCameraGuides = true,
+}: PhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [cameraConditions, setCameraConditions] = useState<CameraConditions | null>(null);
 
   const handleFile = useCallback(
     (file: File | Blob) => {
@@ -176,16 +184,31 @@ export function PhotoUpload({ onImageLoaded }: PhotoUploadProps) {
       {showCamera && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85">
           <div className="flex flex-col items-center gap-4">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="max-w-[90vw] max-h-[60vh] rounded-xl"
-              style={{ transform: 'scaleX(-1)' }}
-            />
+            <div className="relative">
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                className="max-w-[90vw] max-h-[60vh] rounded-xl"
+                style={{ transform: 'scaleX(-1)' }}
+              />
+              {/* Camera Guides Overlay */}
+              {enableCameraGuides && (
+                <CameraGuides
+                  videoRef={videoRef}
+                  countryCode={countryCode}
+                  isActive={showCamera}
+                  onConditionsChange={setCameraConditions}
+                />
+              )}
+            </div>
             <div className="flex gap-3">
-              <Button onClick={capturePhoto} className="gap-2">
-                📸 Capture
+              <Button 
+                onClick={capturePhoto} 
+                className="gap-2"
+                variant={cameraConditions?.allGood ? 'default' : 'secondary'}
+              >
+                📸 {cameraConditions?.allGood ? 'Capture Now!' : 'Capture'}
               </Button>
               <Button variant="secondary" onClick={closeCamera}>
                 Cancel
