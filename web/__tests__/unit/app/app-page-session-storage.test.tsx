@@ -66,7 +66,7 @@ jest.mock('@/components/photo-upload', () => ({
         data-testid="upload-button"
         onClick={() => onImageLoaded(createMockBlob())}
       >
-        Upload Photo
+        Select Photo
       </button>
     </div>
   ),

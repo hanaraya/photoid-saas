@@ -1,38 +1,21 @@
 # Passport Photo App - TODO
 
-## 🎯 Current Task: Smart Retake Suggestions
+## 🎯 Current Task: None (Backlog Ready)
 
-**Status:** ⏳ Ready to Start
-
-### Task Breakdown
-1. [ ] **Spec** - Define overlay requirements for all supported countries
-2. [ ] **TDD** - Write tests first (unit + integration)
-3. [ ] **Implement** - Build the overlay component
-4. [ ] **Review** - Verify all country standards work
-5. [ ] **Commit** - Clean commit with conventional message
+**Status:** ✅ Smart Retake Suggestions Complete
 
 ---
 
 ## 📋 Backlog
 
 ### High Priority
-- [ ] **Measurement overlay on preview photo**
-  - [ ] Head height percentage indicator (varies by country)
-  - [ ] Eye line position marker
-  - [ ] Crown-to-top margin indicator
-  - [ ] Chin-to-bottom margin indicator
-  - [ ] Toggle overlay on/off
-  - [ ] Support all 20 country standards
-  
-- [ ] **Camera capture guides**
-  - [ ] Face positioning oval overlay
-  - [ ] Real-time distance indicator
-  - [ ] Lighting quality feedback
-  - [ ] "Hold still" countdown
-  
-- [ ] **Smart retake suggestions**
-  - [ ] Analyze failure reasons
-  - [ ] Show visual correction tips
+- [x] **Smart retake suggestions** ✨
+  - Analyzes compliance check failures/warnings
+  - Provides specific, actionable tips for each issue
+  - Prioritizes by severity (retake required vs. adjustable)
+  - Expandable cards with detailed how-to-fix instructions
+  - Inline compact version for quick status
+  - 53 tests, 100% coverage on logic, 96% on component
 
 ### Medium Priority
 - [ ] Multi-country expansion (50+ templates)

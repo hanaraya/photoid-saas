@@ -29,7 +29,7 @@ describe('PhotoUpload Component - Basic Functionality', () => {
       render(<PhotoUpload onImageLoaded={mockOnImageLoaded} />);
 
       expect(screen.getByText('Drop your photo here')).toBeInTheDocument();
-      expect(screen.getByText('Upload Photo')).toBeInTheDocument();
+      expect(screen.getByText('Select Photo')).toBeInTheDocument();
       expect(screen.getByText('Take Photo')).toBeInTheDocument();
     });
 
@@ -37,7 +37,7 @@ describe('PhotoUpload Component - Basic Functionality', () => {
       render(<PhotoUpload onImageLoaded={mockOnImageLoaded} />);
 
       const uploadButton = screen.getByRole('button', {
-        name: /upload photo/i,
+        name: /select photo/i,
       });
       expect(uploadButton).toBeInTheDocument();
 

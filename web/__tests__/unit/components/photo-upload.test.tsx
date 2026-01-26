@@ -37,7 +37,7 @@ describe('PhotoUpload Component', () => {
       render(<PhotoUpload onImageLoaded={mockOnImageLoaded} />);
 
       expect(screen.getByText('Drop your photo here')).toBeInTheDocument();
-      expect(screen.getByText('Upload Photo')).toBeInTheDocument();
+      expect(screen.getByText('Select Photo')).toBeInTheDocument();
       expect(screen.getByText('Take Photo')).toBeInTheDocument();
     });
 
@@ -45,7 +45,7 @@ describe('PhotoUpload Component', () => {
       render(<PhotoUpload onImageLoaded={mockOnImageLoaded} />);
 
       const uploadButton = screen.getByRole('button', {
-        name: /upload photo/i,
+        name: /select photo/i,
       });
       expect(uploadButton).toBeInTheDocument();
 
@@ -335,7 +335,7 @@ describe('PhotoUpload Component', () => {
       const clickSpy = jest.spyOn(fileInput, 'click');
 
       const uploadButton = screen.getByRole('button', {
-        name: /upload photo/i,
+        name: /select photo/i,
       });
       await user.click(uploadButton);
 

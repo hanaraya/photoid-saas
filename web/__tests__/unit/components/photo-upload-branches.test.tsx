@@ -245,7 +245,7 @@ describe('PhotoUpload Branch Coverage Tests', () => {
       render(<PhotoUpload onImageLoaded={mockOnImageLoaded} />);
 
       const uploadButton = screen.getByRole('button', {
-        name: /upload photo/i,
+        name: /select photo/i,
       });
       await user.click(uploadButton);
 

@@ -21,7 +21,7 @@ jest.mock('@/components/photo-upload', () => ({
           onImageLoaded(new Blob(['test'], { type: 'image/jpeg' }))
         }
       >
-        Upload Photo
+        Select Photo
       </button>
     </div>
   ),
@@ -77,7 +77,7 @@ describe('AppPage', () => {
   it('should show photo editor after upload', async () => {
     render(<AppPage />);
 
-    const uploadButton = screen.getByText('Upload Photo');
+    const uploadButton = screen.getByText('Select Photo');
     fireEvent.click(uploadButton);
 
     await waitFor(() => {
@@ -89,7 +89,7 @@ describe('AppPage', () => {
     render(<AppPage />);
 
     // Upload photo first
-    const uploadButton = screen.getByText('Upload Photo');
+    const uploadButton = screen.getByText('Select Photo');
     fireEvent.click(uploadButton);
 
     await waitFor(() => {
@@ -198,7 +198,7 @@ describe('AppPage with payment', () => {
     render(<AppPage />);
 
     // Upload to show editor
-    const uploadButton = screen.getByText('Upload Photo');
+    const uploadButton = screen.getByText('Select Photo');
     fireEvent.click(uploadButton);
 
     await waitFor(() => {

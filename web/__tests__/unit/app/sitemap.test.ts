@@ -34,7 +34,7 @@ describe('Sitemap', () => {
     const result = sitemap();
     const appPage = result.find((entry) => entry.url.includes('/app'));
     expect(appPage).toBeDefined();
-    expect(appPage?.priority).toBe(0.8);
+    expect(appPage?.priority).toBe(0.9);
   });
 
   it('should use NEXT_PUBLIC_BASE_URL when set', () => {
@@ -46,7 +46,7 @@ describe('Sitemap', () => {
   it('should use default URL when NEXT_PUBLIC_BASE_URL is not set', () => {
     delete process.env.NEXT_PUBLIC_BASE_URL;
     const result = sitemap();
-    expect(result[0].url).toContain('photoid.app');
+    expect(result[0].url).toContain('safepassportpic.com');
   });
 
   it('should have lastModified dates', () => {
