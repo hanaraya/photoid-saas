@@ -2,8 +2,8 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Terms of Service | PhotoID',
-  description: 'Terms of service for PhotoID passport photo service',
+  title: 'Terms of Service | SafePassportPic',
+  description: 'Terms of service for SafePassportPic passport photo service',
 };
 
 export default function TermsPage() {
@@ -24,7 +24,7 @@ export default function TermsPage() {
               1. Service Description
             </h2>
             <p>
-              PhotoID provides a browser-based tool for creating passport and
+              SafePassportPic provides a browser-based tool for creating passport and
               visa photos that meet official government specifications. Our
               service processes your photos entirely on your device — no images
               are uploaded to our servers.
@@ -36,7 +36,7 @@ export default function TermsPage() {
               2. Acceptance of Terms
             </h2>
             <p>
-              By accessing or using PhotoID, you agree to be bound by these
+              By accessing or using SafePassportPic, you agree to be bound by these
               Terms of Service. If you do not agree to these terms, please do
               not use our service.
             </p>
@@ -81,7 +81,7 @@ export default function TermsPage() {
               5. Disclaimer
             </h2>
             <p>
-              While we strive to meet official photo specifications, PhotoID
+              While we strive to meet official photo specifications, SafePassportPic
               does not guarantee that photos will be accepted by any government
               agency. Photo requirements may change, and acceptance is
               ultimately at the discretion of the reviewing authority.
@@ -93,7 +93,7 @@ export default function TermsPage() {
               6. Limitation of Liability
             </h2>
             <p>
-              PhotoID is provided &quot;as is&quot; without warranties of any
+              SafePassportPic is provided &quot;as is&quot; without warranties of any
               kind. We are not liable for any damages arising from the use of
               our service, including but not limited to rejected photo
               applications or delays in document processing.
@@ -106,7 +106,7 @@ export default function TermsPage() {
             </h2>
             <p>
               For questions about these terms, please contact us at
-              legal@photoid.app
+              legal@safepassportpic.com
             </p>
           </section>
         </div>

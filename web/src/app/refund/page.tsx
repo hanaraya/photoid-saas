@@ -2,8 +2,8 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Refund Policy | PhotoID',
-  description: 'Refund policy for PhotoID passport photo service',
+  title: 'Refund Policy | SafePassportPic',
+  description: 'Refund policy for SafePassportPic passport photo service',
 };
 
 export default function RefundPage() {
@@ -70,7 +70,7 @@ export default function RefundPage() {
             <ol className="list-decimal pl-6 space-y-2">
               <li>
                 Email us at{' '}
-                <strong className="text-foreground">refunds@photoid.app</strong>
+                <strong className="text-foreground">refunds@safepassportpic.com</strong>
               </li>
               <li>Include your payment confirmation or transaction ID</li>
               <li>
@@ -97,7 +97,7 @@ export default function RefundPage() {
             <h2 className="text-xl font-semibold text-foreground">Contact</h2>
             <p>
               For refund requests or questions, please contact us at
-              refunds@photoid.app
+              refunds@safepassportpic.com
             </p>
           </section>
         </div>

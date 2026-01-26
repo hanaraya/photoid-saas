@@ -150,7 +150,7 @@ function drawWatermark(
   ctx.translate(width / 2, height / 2);
   ctx.rotate(-Math.PI / 4);
   ctx.fillText('PREVIEW', 0, 0);
-  ctx.fillText('photoid.app', 0, Math.max(width / 6, 30));
+  ctx.fillText('safepassportpic.com', 0, Math.max(width / 6, 30));
   ctx.restore();
 }
 
@@ -205,7 +205,7 @@ export function renderSheet(
     ctx.textBaseline = 'middle';
     ctx.translate(sheetW / 2, sheetH / 2);
     ctx.rotate(-Math.PI / 6);
-    ctx.fillText('PREVIEW — photoid.app', 0, 0);
+    ctx.fillText('PREVIEW — safepassportpic.com', 0, 0);
     ctx.restore();
   }
 }

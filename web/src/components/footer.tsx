@@ -9,7 +9,7 @@ export function Footer() {
             <Link href="/" className="flex items-center gap-2 mb-4">
               <span className="text-2xl">📸</span>
               <span className="text-lg font-bold tracking-tight">
-                Photo<span className="text-primary">ID</span>
+                Safe<span className="text-primary">PassportPic</span>
               </span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">

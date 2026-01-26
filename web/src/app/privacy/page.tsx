@@ -2,8 +2,8 @@ import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
 export const metadata = {
-  title: 'Privacy Policy | PhotoID',
-  description: 'Privacy policy for PhotoID passport photo service',
+  title: 'Privacy Policy | SafePassportPic',
+  description: 'Privacy policy for SafePassportPic passport photo service',
 };
 
 export default function PrivacyPage() {
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
               Our Privacy Promise
             </h2>
             <p>
-              PhotoID is designed with privacy as a core principle.{' '}
+              SafePassportPic is designed with privacy as a core principle.{' '}
               <strong className="text-foreground">
                 Your photos never leave your device.
               </strong>{' '}
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-foreground">Contact</h2>
             <p>
               If you have questions about this privacy policy, please contact us
-              at privacy@photoid.app
+              at privacy@safepassportpic.com
             </p>
           </section>
         </div>

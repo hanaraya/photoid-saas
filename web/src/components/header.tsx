@@ -7,7 +7,7 @@ export function Header() {
         <Link href="/" className="flex items-center gap-2">
           <span className="text-2xl">📸</span>
           <span className="text-lg font-bold tracking-tight">
-            Photo<span className="text-primary">ID</span>
+            Safe<span className="text-primary">PassportPic</span>
           </span>
         </Link>
         <nav className="flex items-center gap-4">
