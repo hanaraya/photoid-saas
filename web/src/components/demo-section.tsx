@@ -9,28 +9,28 @@ const demos = [
     name: 'Sarah',
     scene: 'Street photo',
     before: '/demo/before-1.jpg',
-    after: '/demo/after-1.png', // Will use real processed image when available
+    after: '/demo/after-1.jpg',
   },
   {
     id: 2,
     name: 'Michael',
     scene: 'Indoor shot',
     before: '/demo/before-2.jpg',
-    after: '/demo/after-2.png',
+    after: '/demo/after-2.jpg',
   },
   {
     id: 3,
     name: 'Emma',
     scene: 'Outdoor by lake',
     before: '/demo/before-3.jpg',
-    after: '/demo/after-3.png',
+    after: '/demo/after-3.jpg',
   },
   {
     id: 4,
     name: 'James',
     scene: 'Studio portrait',
     before: '/demo/before-4.jpg',
-    after: '/demo/after-4.png',
+    after: '/demo/after-4.jpg',
   },
 ];
 
@@ -90,10 +90,10 @@ export function DemoSection() {
                     <div className="w-[100px] h-[125px] sm:w-[120px] sm:h-[150px] bg-white rounded-lg shadow-lg overflow-hidden border-4 border-white ring-1 ring-gray-200">
                       <div className="w-full h-full relative">
                         <Image
-                          src={demos[activeDemo].before}
+                          src={demos[activeDemo].after}
                           alt="Passport photo"
                           fill
-                          className="object-cover object-top scale-125"
+                          className="object-cover object-top"
                         />
                       </div>
                     </div>
@@ -110,10 +110,10 @@ export function DemoSection() {
                             className="relative bg-gray-100 rounded-sm overflow-hidden"
                           >
                             <Image
-                              src={demos[activeDemo].before}
+                              src={demos[activeDemo].after}
                               alt=""
                               fill
-                              className="object-cover object-top scale-125"
+                              className="object-cover object-top"
                             />
                           </div>
                         ))}

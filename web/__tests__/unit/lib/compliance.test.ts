@@ -432,8 +432,8 @@ describe('Compliance Checking', () => {
       );
 
       // Should not crash and should return valid compliance checks
-      expect(result1).toHaveLength(5);
-      expect(result2).toHaveLength(5);
+      expect(result1).toHaveLength(7);
+      expect(result2).toHaveLength(7);
 
       result1.forEach((check) => {
         expect(['pass', 'fail', 'warn', 'pending']).toContain(check.status);
@@ -478,7 +478,7 @@ describe('Compliance Checking', () => {
       );
 
       // Should not crash and should return valid checks
-      expect(result).toHaveLength(5);
+      expect(result).toHaveLength(7);
       result.forEach((check) => {
         expect(check.id).toBeDefined();
         expect(check.label).toBeDefined();
@@ -501,6 +501,8 @@ describe('Compliance Checking', () => {
         'face',
         'head_size',
         'eye_position',
+        'head_framing',
+        'head_centering',
         'background',
         'resolution',
       ];
@@ -519,8 +521,11 @@ describe('Compliance Checking', () => {
       ];
 
       // Should all complete successfully without interference
-      promises.forEach((result) => {
-        expect(result).toHaveLength(5);
+      promises.forEach((result, idx) => {
+        // With face data: 7 checks (includes head_framing, head_centering)
+        // Without face data: 5 checks (no head_framing, head_centering)
+        const expectedLen = idx === 1 ? 5 : 7;
+        expect(result).toHaveLength(expectedLen);
         result.forEach((check) => {
           expect(check.id).toBeDefined();
           expect(check.status).toBeDefined();
@@ -553,7 +558,16 @@ describe('Compliance Checking', () => {
       );
       const result2 = checkCompliance(500, 600, null, mockStandard, false, 150);
 
-      const expectedOrder = [
+      const expectedOrderWithFace = [
+        'face',
+        'head_size',
+        'eye_position',
+        'head_framing',
+        'head_centering',
+        'background',
+        'resolution',
+      ];
+      const expectedOrderNoFace = [
         'face',
         'head_size',
         'eye_position',
@@ -561,8 +575,8 @@ describe('Compliance Checking', () => {
         'resolution',
       ];
 
-      expect(result1.map((c) => c.id)).toEqual(expectedOrder);
-      expect(result2.map((c) => c.id)).toEqual(expectedOrder);
+      expect(result1.map((c) => c.id)).toEqual(expectedOrderWithFace);
+      expect(result2.map((c) => c.id)).toEqual(expectedOrderNoFace);
     });
   });
 });

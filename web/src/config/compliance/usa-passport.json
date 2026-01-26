@@ -1,0 +1,57 @@
+{
+  "country": "USA",
+  "document": "passport",
+  "photo_requirements": {
+    "size_inches": [2, 2],
+    "aspect_ratio": "1:1",
+    "color": true,
+    "head": {
+      "top_visible": true,
+      "chin_visible": true,
+      "head_height_inches": {
+        "min": 1.0,
+        "max": 1.375
+      },
+      "head_height_percentage": {
+        "min": 50,
+        "max": 69
+      },
+      "centered": true,
+      "tilt_allowed": false
+    },
+    "expression": {
+      "neutral": true,
+      "mouth_closed": true,
+      "eyes_open": true,
+      "direct_gaze": true
+    },
+    "accessories": {
+      "glasses_allowed": false,
+      "headphones_allowed": false,
+      "jewelry_allowed": true
+    },
+    "head_covering": {
+      "allowed_only_if": ["religious", "medical"],
+      "face_visible": true,
+      "no_shadows": true
+    },
+    "background": {
+      "color": ["white", "off-white"],
+      "plain": true,
+      "no_shadows": true
+    },
+    "editing": {
+      "filters": false,
+      "retouching": false,
+      "ai_enhancement": false
+    },
+    "clothing": {
+      "uniforms_allowed": false,
+      "camouflage_allowed": false
+    },
+    "children": {
+      "infant_eyes_open_required": false,
+      "no_support_visible": true
+    }
+  }
+}

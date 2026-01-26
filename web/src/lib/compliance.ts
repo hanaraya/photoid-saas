@@ -102,6 +102,95 @@ export function checkCompliance(
         message: 'Could not verify eye positions',
       });
     }
+
+    // 3b. Head framing check - ensure crown and chin are visible
+    const cropParams = calculateCrop(
+      sourceWidth,
+      sourceHeight,
+      faceData,
+      standard
+    );
+    const zoomFactorFrame = 100 / userZoom;
+    const adjCropY =
+      cropParams.cropY +
+      (cropParams.cropH - cropParams.cropH * zoomFactorFrame) / 2;
+    const adjCropH = cropParams.cropH * zoomFactorFrame;
+
+    // Crown position in source (0.5 accounts for hair volume above face bbox)
+    const crownY = faceData.y - faceData.h * 0.5;
+    // Chin position in source
+    const chinY = faceData.y + faceData.h;
+
+    // Check if source image itself has insufficient headroom
+    const minRequiredHeadroom = spec.h * 0.08; // 8% of output
+    const scale = spec.w / (cropParams.cropW * zoomFactorFrame);
+    const requiredHeadroomSrc = minRequiredHeadroom / scale;
+    const sourceHasInsufficientHeadroom = crownY < requiredHeadroomSrc;
+
+    const crownVisible = crownY >= adjCropY;
+    const chinVisible = chinY <= adjCropY + adjCropH;
+
+    if (sourceHasInsufficientHeadroom) {
+      checks.push({
+        id: 'head_framing',
+        label: 'Head Framing',
+        status: 'fail',
+        message: 'Source photo has head too close to top — retake with more space above head',
+      });
+    } else if (crownVisible && chinVisible) {
+      checks.push({
+        id: 'head_framing',
+        label: 'Head Framing',
+        status: 'pass',
+        message: 'Full head visible (crown to chin)',
+      });
+    } else if (!crownVisible) {
+      checks.push({
+        id: 'head_framing',
+        label: 'Head Framing',
+        status: 'fail',
+        message: 'Top of head may be cropped — zoom out or reposition',
+      });
+    } else {
+      checks.push({
+        id: 'head_framing',
+        label: 'Head Framing',
+        status: 'fail',
+        message: 'Chin may be cropped — zoom out or reposition',
+      });
+    }
+
+    // 3c. Head centering check - face should be horizontally centered
+    const adjCropX =
+      cropParams.cropX +
+      (cropParams.cropW - cropParams.cropW * zoomFactorFrame) / 2;
+    const adjCropW = cropParams.cropW * zoomFactorFrame;
+    const faceCenterX = faceData.x + faceData.w / 2;
+    const cropCenterX = adjCropX + adjCropW / 2;
+    const centerOffset = Math.abs(faceCenterX - cropCenterX) / adjCropW;
+
+    if (centerOffset < 0.05) {
+      checks.push({
+        id: 'head_centering',
+        label: 'Head Centering',
+        status: 'pass',
+        message: 'Head is centered horizontally',
+      });
+    } else if (centerOffset < 0.1) {
+      checks.push({
+        id: 'head_centering',
+        label: 'Head Centering',
+        status: 'warn',
+        message: 'Head is slightly off-center — adjust position',
+      });
+    } else {
+      checks.push({
+        id: 'head_centering',
+        label: 'Head Centering',
+        status: 'fail',
+        message: 'Head is not centered — adjust horizontal position',
+      });
+    }
   }
 
   // 4. Background
@@ -166,9 +255,43 @@ export function checkCompliance(
         message: 'Face is straight and front-facing',
       });
     }
+
+    // 8. Color photo check (must not be grayscale)
+    if (imageAnalysis.isGrayscale) {
+      checks.push({
+        id: 'color_photo',
+        label: 'Color Photo',
+        status: 'fail',
+        message: 'Photo must be in color — black & white not accepted',
+      });
+    } else {
+      checks.push({
+        id: 'color_photo',
+        label: 'Color Photo',
+        status: 'pass',
+        message: 'Photo is in color',
+      });
+    }
+
+    // 9. Face lighting/shadow check
+    if (imageAnalysis.hasUnevenLighting) {
+      checks.push({
+        id: 'lighting',
+        label: 'Face Lighting',
+        status: 'warn',
+        message: `Uneven lighting detected (${imageAnalysis.faceLightingScore}%) — avoid shadows on face`,
+      });
+    } else {
+      checks.push({
+        id: 'lighting',
+        label: 'Face Lighting',
+        status: 'pass',
+        message: 'Face lighting is even',
+      });
+    }
   }
 
-  // 8. Glasses reminder (US requirement since 2016)
+  // 10. Glasses reminder (US requirement since 2016)
   const usStandards = ['us', 'us_visa', 'us_drivers', 'green_card'];
   if (usStandards.includes(standard.id)) {
     checks.push({

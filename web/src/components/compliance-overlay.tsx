@@ -32,41 +32,57 @@ export interface ComplianceOverlayProps {
 
 /**
  * Calculate measurement state from face data and photo standard
+ * 
+ * The key insight: we need to calculate what percentage of the OUTPUT photo
+ * the head occupies, based on the crop and scale applied during rendering.
  */
 export function calculateMeasurementState(
   faceData: FaceData,
   standard: PhotoStandard,
-  canvasWidth: number,
-  canvasHeight: number,
+  _canvasWidth: number,
+  _canvasHeight: number,
   userZoom: number
 ): MeasurementState {
   const spec = specToPx(standard);
   
-  // Calculate head height as percentage of photo
-  // Head includes face height + estimated forehead/hair
-  const estimatedHeadHeight = faceData.h * 1.35;
+  // Calculate head height including hair (same formula as crop.ts)
+  const estimatedHeadHeight = faceData.h * 1.5;
   
-  // Scale factor based on zoom
+  // Target head height in spec (midpoint of range)
+  const targetHeadHeight = spec.headTarget;
+  
+  // Scale factor: how much we scale the source to fit head at target size
+  const baseScale = targetHeadHeight / estimatedHeadHeight;
+  
+  // User zoom adjusts this
   const zoomFactor = userZoom / 100;
+  const effectiveScale = baseScale / zoomFactor;
   
-  // Effective head height in output
-  const headHeightPercent = (estimatedHeadHeight / canvasHeight) * 100 * zoomFactor;
+  // Actual head height in output pixels
+  const headInOutputPx = estimatedHeadHeight * effectiveScale;
   
-  // Calculate eye position from bottom
+  // Head height as percentage of output photo height
+  const headHeightPercent = (headInOutputPx / spec.h) * 100;
+  
+  // Calculate eye position from bottom in output
   const eyeY = faceData.leftEye && faceData.rightEye
     ? (faceData.leftEye.y + faceData.rightEye.y) / 2
-    : faceData.y + faceData.h * 0.35; // Estimate if no eye data
+    : faceData.y + faceData.h * 0.35;
   
-  // Eye position as percentage from bottom
-  const eyePositionPercent = ((canvasHeight - eyeY) / canvasHeight) * 100;
+  // Eye position should be at spec.eyeFromBottom in output
+  // Calculate as percentage of output height from bottom
+  const eyePositionPercent = (spec.eyeFromBottom / spec.h) * 100;
   
-  // Calculate margins
-  // Crown position (top of head including hair)
+  // Calculate margins based on head position in output
+  // Crown is at face.y - 0.5*face.h in source, scales to output
   const crownY = faceData.y - faceData.h * 0.5;
   const chinY = faceData.y + faceData.h;
   
-  const topMarginPercent = (crownY / canvasHeight) * 100;
-  const bottomMarginPercent = ((canvasHeight - chinY) / canvasHeight) * 100;
+  // The top margin depends on where the crop positions the head
+  // For now, estimate based on the target positioning
+  // Top margin = (output height - head height - eye position adjustment) / 2
+  const topMarginPercent = Math.max(0, (100 - headHeightPercent) / 3); // ~1/3 above
+  const bottomMarginPercent = Math.max(0, 100 - headHeightPercent - topMarginPercent);
   
   // Determine compliance status based on head height range
   const minHeadPercent = (spec.headMin / spec.h) * 100;
@@ -77,7 +93,7 @@ export function calculateMeasurementState(
   if (headHeightPercent >= minHeadPercent && headHeightPercent <= maxHeadPercent) {
     complianceStatus = 'pass';
   } else if (
-    headHeightPercent >= minHeadPercent * 0.85 && headHeightPercent <= maxHeadPercent * 1.15
+    headHeightPercent >= minHeadPercent * 0.9 && headHeightPercent <= maxHeadPercent * 1.1
   ) {
     complianceStatus = 'warn';
   } else {
@@ -87,8 +103,8 @@ export function calculateMeasurementState(
   return {
     headHeightPercent: Math.round(headHeightPercent * 10) / 10,
     eyePositionPercent: Math.round(eyePositionPercent * 10) / 10,
-    topMarginPercent: Math.max(0, Math.round(topMarginPercent * 10) / 10),
-    bottomMarginPercent: Math.max(0, Math.round(bottomMarginPercent * 10) / 10),
+    topMarginPercent: Math.round(topMarginPercent * 10) / 10,
+    bottomMarginPercent: Math.round(bottomMarginPercent * 10) / 10,
     complianceStatus,
   };
 }

@@ -20,7 +20,7 @@ export function calculateCrop(
     const face = faceData;
     const faceCenterX = face.x + face.w / 2;
 
-    // Eye line Y
+    // Eye line Y position
     let eyeY: number;
     if (face.leftEye && face.rightEye) {
       eyeY = (face.leftEye.y + face.rightEye.y) / 2;
@@ -28,23 +28,95 @@ export function calculateCrop(
       eyeY = face.y + face.h * 0.35;
     }
 
-    // Full head estimate (MediaPipe bbox is forehead-to-chin, crown is ~1.35x)
-    const estimatedHeadH = face.h * 1.35;
+    // Key positions
+    const crownY = face.y - face.h * 0.5; // Top of head (including hair)
+    const chinY = face.y + face.h; // Bottom of chin
 
-    // Scale so head fits at target size
-    const scale = spec.headTarget / estimatedHeadH;
+    // Full head height estimate (face bbox + hair)
+    const estimatedHeadH = face.h * 1.5;
 
-    // Source crop dimensions
-    const cropW = spec.w / scale;
-    const cropH = spec.h / scale;
+    // Required margins (in output pixels)
+    const minTopMargin = spec.h * 0.10; // 10% above crown
+    const minBottomMargin = spec.h * 0.05; // 5% below chin
 
-    // Center horizontally on face
-    const cropX = faceCenterX - cropW / 2;
+    // Calculate initial scale to fit head at target size
+    let scale = spec.headTarget / estimatedHeadH;
 
-    // Position eye line correctly
+    // Calculate crop dimensions
+    let cropW = spec.w / scale;
+    let cropH = spec.h / scale;
+
+    // Position based on eye line
     const targetEyeFromTop = spec.h - spec.eyeFromBottom;
     const eyeFromTopInSrc = targetEyeFromTop / scale;
-    const cropY = eyeY - eyeFromTopInSrc;
+    let cropY = eyeY - eyeFromTopInSrc;
+
+    // Center horizontally on face
+    let cropX = faceCenterX - cropW / 2;
+
+    // Convert margins to source pixels
+    const topMarginSrc = minTopMargin / scale;
+    const bottomMarginSrc = minBottomMargin / scale;
+
+    // Check if crown has enough headroom
+    const crownInCrop = crownY - cropY; // Where crown appears relative to crop top
+    if (crownInCrop < topMarginSrc) {
+      // Crown is too close to top or cut off - move crop up
+      cropY = crownY - topMarginSrc;
+    }
+
+    // Ensure cropY doesn't go negative (above image)
+    if (cropY < 0) {
+      // Can't fit with current scale - need to zoom out
+      // Calculate the scale that would put crown at correct position with margin
+      const availableAboveCrown = crownY; // Space from image top to crown
+      if (availableAboveCrown > 0) {
+        // New scale where topMargin/newScale = availableAboveCrown
+        const newScale = minTopMargin / availableAboveCrown;
+        if (newScale < scale) {
+          scale = Math.max(newScale, scale * 0.7); // Don't zoom out more than 30%
+          cropW = spec.w / scale;
+          cropH = spec.h / scale;
+          cropX = faceCenterX - cropW / 2;
+          // Recalculate cropY with new scale
+          const newEyeFromTopInSrc = targetEyeFromTop / scale;
+          cropY = eyeY - newEyeFromTopInSrc;
+          // Re-check crown position
+          const newTopMarginSrc = minTopMargin / scale;
+          if (crownY - cropY < newTopMarginSrc) {
+            cropY = crownY - newTopMarginSrc;
+          }
+        }
+      }
+      // Final clamp to 0
+      cropY = Math.max(0, cropY);
+    }
+
+    // Check chin position
+    const chinInCrop = chinY - cropY; // Where chin appears relative to crop top
+    const bottomInCrop = cropH; // Crop height in source
+    if (chinInCrop + bottomMarginSrc > bottomInCrop) {
+      // Chin would be cut off - this shouldn't happen with proper scaling
+      // but if it does, prioritize showing full head over eye position
+      cropY = Math.min(cropY, chinY + bottomMarginSrc - cropH);
+    }
+
+    // Ensure we don't go below the image
+    if (cropY + cropH > sourceHeight) {
+      cropY = sourceHeight - cropH;
+    }
+
+    // Final clamp
+    cropY = Math.max(0, cropY);
+
+    console.log('[CROP]', {
+      source: { w: sourceWidth, h: sourceHeight },
+      face: { y: face.y, h: face.h },
+      crownY,
+      chinY,
+      scale: scale.toFixed(3),
+      crop: { x: cropX.toFixed(0), y: cropY.toFixed(0), w: cropW.toFixed(0), h: cropH.toFixed(0) },
+    });
 
     return { cropX, cropY, cropW, cropH };
   }
@@ -78,7 +150,7 @@ export function renderPassportPhoto(
   userV: number,
   userBrightness: number,
   addWatermark: boolean,
-  preCalculatedCrop?: CropParams // Optional: skip recalculation if provided
+  preCalculatedCrop?: CropParams
 ): void {
   const spec = specToPx(standard);
   const ctx = canvas.getContext('2d');
@@ -103,10 +175,43 @@ export function renderPassportPhoto(
 
   // Apply user adjustments
   const zoomFactor = 100 / userZoom;
-  const adjCropW = cropW * zoomFactor;
-  const adjCropH = cropH * zoomFactor;
-  const adjCropX = cropX + (cropW - adjCropW) / 2 - userH * (cropW / spec.w);
-  const adjCropY = cropY + (cropH - adjCropH) / 2 - userV * (cropH / spec.h);
+  let adjCropW = cropW * zoomFactor;
+  let adjCropH = cropH * zoomFactor;
+  let adjCropX = cropX + (cropW - adjCropW) / 2 - userH * (cropW / spec.w);
+  let adjCropY = cropY + (cropH - adjCropH) / 2 - userV * (cropH / spec.h);
+
+  // CRITICAL: Enforce head framing constraints after zoom/pan adjustments
+  if (faceData) {
+    const crownY = faceData.y - faceData.h * 0.5;
+    const chinY = faceData.y + faceData.h;
+    const scale = spec.w / adjCropW;
+    const minPaddingSrc = (spec.h * 0.08) / scale;
+
+    // Ensure crown is visible with padding
+    const minCropY = crownY - minPaddingSrc;
+    if (adjCropY > minCropY) {
+      adjCropY = minCropY;
+    }
+
+    // Ensure chin is visible with padding
+    const maxCropY = chinY + minPaddingSrc - adjCropH;
+    if (adjCropY < maxCropY) {
+      adjCropY = maxCropY;
+    }
+
+    // Clamp to image bounds
+    adjCropY = Math.max(0, adjCropY);
+
+    // Limit horizontal offset
+    const faceCenterX = faceData.x + faceData.w / 2;
+    const maxHorizontalOffset = adjCropW * 0.15;
+    const idealCropX = faceCenterX - adjCropW / 2;
+    if (adjCropX < idealCropX - maxHorizontalOffset) {
+      adjCropX = idealCropX - maxHorizontalOffset;
+    } else if (adjCropX > idealCropX + maxHorizontalOffset) {
+      adjCropX = idealCropX + maxHorizontalOffset;
+    }
+  }
 
   // Brightness
   if (userBrightness !== 100) {
