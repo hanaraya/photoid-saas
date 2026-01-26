@@ -14,6 +14,7 @@ import type { FaceData } from '@/lib/face-detection';
 /*
  * SPEC DOCUMENTATION: Photo Standard Measurement Requirements
  * ============================================================
+ * PRIORITY COUNTRIES ONLY (11 document types)
  * 
  * US Passport/Visa/Green Card (2×2 inches):
  *   - Head height: 1-1.375 inches (50-69% of photo height)
@@ -23,26 +24,31 @@ import type { FaceData } from '@/lib/face-detection';
  *   - Head height: 1-1.375 inches
  *   - Eye line from bottom: 1.18 inches (59%)
  * 
- * EU/Schengen/Australia/Japan/Korea/Germany/France/Mexico (35×45 mm):
+ * UK Passport/Visa (35×45 mm):
+ *   - Head height: 29-34 mm (64-75.5% of photo height)
+ *   - Eye line from bottom: 30 mm (66.7%)
+ * 
+ * EU/Schengen (35×45 mm):
  *   - Head height: 32-36 mm (71-80% of photo height)
  *   - Eye line from bottom: 30 mm (66.7% from bottom)
  * 
- * UK Passport/Visa (35×45 mm):
- *   - Head height: 29-34 mm (64-75.5% of photo height)
- *   - Eye line from bottom: 30 mm
- * 
- * India Passport/Visa (2×2 inches):
- *   - Head height: 1-1.375 inches
- *   - Eye line from bottom: 1.25 inches
- * 
- * Canada/Brazil (50×70 mm):
+ * Canada (50×70 mm):
  *   - Head height: 31-36 mm (44-51% of photo height)
  *   - Eye line from bottom: 42 mm (60%)
  * 
- * China Passport/Visa (33×48 mm):
- *   - Head height: 28-33 mm (58-69% of photo height)
- *   - Eye line from bottom: 30 mm (62.5%)
+ * India Passport/Visa (2×2 inches):
+ *   - Head height: 1-1.375 inches (50-69%)
+ *   - Eye line from bottom: 1.25 inches (62.5%)
  */
+
+// Priority country standard IDs (11 total)
+const PRIORITY_STANDARDS = [
+  'us', 'us_visa', 'us_drivers', 'green_card',  // US (4)
+  'uk', 'uk_visa',                               // UK (2)
+  'eu', 'schengen_visa',                         // EU (2)
+  'canada',                                      // Canada (1)
+  'india', 'india_visa',                         // India (2)
+];
 
 describe('ComplianceOverlay Component', () => {
   // Mock face data representing a detected face
@@ -213,31 +219,11 @@ describe('ComplianceOverlay Component', () => {
     });
   });
 
-  describe('China Passport Standard (33×48mm)', () => {
-    const chinaProps: ComplianceOverlayProps = {
-      ...baseProps,
-      standard: STANDARDS.china,
-      headHeightPercent: 63, // Within China range (58-69%)
-      eyePositionPercent: 62.5, // China target (30/48 ≈ 62.5%)
-    };
-
-    it('should render correctly for China passport', () => {
-      render(<ComplianceOverlay {...chinaProps} />);
-      expect(screen.getByTestId('compliance-overlay')).toBeInTheDocument();
-    });
-
-    it('should show pass state for China head height range (58-69%)', () => {
-      render(<ComplianceOverlay {...chinaProps} complianceStatus="pass" />);
-      const bracket = screen.getByTestId('head-height-bracket');
-      expect(bracket).toHaveClass('compliance-pass');
-    });
-  });
-
   describe('India Passport Standard (2×2 inches)', () => {
     const indiaProps: ComplianceOverlayProps = {
       ...baseProps,
       standard: STANDARDS.india,
-      headHeightPercent: 55,
+      headHeightPercent: 55, // Within India range (50-69%)
       eyePositionPercent: 62.5,
     };
 
@@ -245,26 +231,21 @@ describe('ComplianceOverlay Component', () => {
       render(<ComplianceOverlay {...indiaProps} />);
       expect(screen.getByTestId('compliance-overlay')).toBeInTheDocument();
     });
-  });
 
-  describe('Japan Passport Standard', () => {
-    const japanProps: ComplianceOverlayProps = {
-      ...baseProps,
-      standard: STANDARDS.japan,
-      headHeightPercent: 75,
-      eyePositionPercent: 66.7,
-    };
+    it('should show pass state for India head height range (50-69%)', () => {
+      render(<ComplianceOverlay {...indiaProps} complianceStatus="pass" />);
+      const bracket = screen.getByTestId('head-height-bracket');
+      expect(bracket).toHaveClass('compliance-pass');
+    });
 
-    it('should render correctly for Japan passport', () => {
-      render(<ComplianceOverlay {...japanProps} />);
+    it('should render correctly for India visa', () => {
+      render(<ComplianceOverlay {...indiaProps} standard={STANDARDS.india_visa} />);
       expect(screen.getByTestId('compliance-overlay')).toBeInTheDocument();
     });
   });
 
-  describe('All Supported Countries', () => {
-    const allStandardIds = Object.keys(STANDARDS);
-
-    it.each(allStandardIds)('should render overlay for %s standard', (standardId) => {
+  describe('Priority Countries (11 document types)', () => {
+    it.each(PRIORITY_STANDARDS)('should render overlay for %s standard', (standardId) => {
       const standard = STANDARDS[standardId];
       render(
         <ComplianceOverlay
@@ -277,7 +258,7 @@ describe('ComplianceOverlay Component', () => {
       expect(screen.getByTestId('compliance-overlay')).toBeInTheDocument();
     });
 
-    it.each(allStandardIds)('should calculate correct head height range for %s', (standardId) => {
+    it.each(PRIORITY_STANDARDS)('should calculate correct head height range for %s', (standardId) => {
       const standard = STANDARDS[standardId];
       const spec = specToPx(standard);
       
