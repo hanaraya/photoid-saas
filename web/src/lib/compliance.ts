@@ -169,7 +169,8 @@ export function checkCompliance(
   }
 
   // 8. Glasses reminder (US requirement since 2016)
-  if (standard.id === 'us' || standard.id === 'us_visa' || standard.id === 'green_card') {
+  const usStandards = ['us', 'us_visa', 'us_drivers', 'green_card'];
+  if (usStandards.includes(standard.id)) {
     checks.push({
       id: 'glasses',
       label: 'No Glasses',
