@@ -1,8 +1,8 @@
 # Passport Photo App - TODO
 
-## 🎯 Current Task: Camera Capture Guides
+## 🎯 Current Task: Smart Retake Suggestions
 
-**Status:** 🔄 In Progress (Sub-agent: camera-guides)
+**Status:** ⏳ Ready to Start
 
 ### Task Breakdown
 1. [ ] **Spec** - Define overlay requirements for all supported countries
@@ -68,6 +68,13 @@
   - Toggle button to show/hide
   - Works for all 20 country standards
   - 71 tests, 96% coverage
+- [x] **Camera capture guides** ✨
+  - Face positioning oval (country-specific sizing)
+  - Distance indicator (too close/far/good)
+  - Lighting quality feedback (☀️/🌑/💡)
+  - Head tilt detection
+  - Capture countdown (optional)
+  - 102 tests, 95% coverage on camera-analysis
 
 ---
 
