@@ -1,6 +1,7 @@
 import { type FaceData } from './face-detection';
 import { type PhotoStandard, specToPx, type SpecPx } from './photo-standards';
 import { calculateCrop } from './crop';
+import { type ImageAnalysis } from './image-analysis';
 
 export interface ComplianceCheck {
   id: string;
@@ -15,7 +16,8 @@ export function checkCompliance(
   faceData: FaceData | null,
   standard: PhotoStandard,
   bgRemoved: boolean,
-  userZoom: number
+  userZoom: number,
+  imageAnalysis?: ImageAnalysis
 ): ComplianceCheck[] {
   const checks: ComplianceCheck[] = [];
   const spec: SpecPx = specToPx(standard);
@@ -127,6 +129,52 @@ export function checkCompliance(
       label: 'Resolution',
       status: minDim >= 400 ? 'warn' : 'fail',
       message: `${sourceWidth}×${sourceHeight}px — ${minDim >= 400 ? 'may be low quality' : 'too low resolution'}`,
+    });
+  }
+
+  // 6. Blur/Sharpness detection
+  if (imageAnalysis) {
+    if (imageAnalysis.isBlurry) {
+      checks.push({
+        id: 'sharpness',
+        label: 'Image Sharpness',
+        status: 'fail',
+        message: 'Photo appears blurry — use a sharper image',
+      });
+    } else {
+      checks.push({
+        id: 'sharpness',
+        label: 'Image Sharpness',
+        status: 'pass',
+        message: 'Photo is sharp and in focus',
+      });
+    }
+
+    // 7. Face angle/tilt detection
+    if (imageAnalysis.isTilted) {
+      checks.push({
+        id: 'face_angle',
+        label: 'Face Angle',
+        status: 'warn',
+        message: `Head appears tilted (${Math.abs(imageAnalysis.eyeTilt).toFixed(1)}°) — should be straight`,
+      });
+    } else if (faceData?.leftEye && faceData?.rightEye) {
+      checks.push({
+        id: 'face_angle',
+        label: 'Face Angle',
+        status: 'pass',
+        message: 'Face is straight and front-facing',
+      });
+    }
+  }
+
+  // 8. Glasses reminder (US requirement since 2016)
+  if (standard.id === 'us' || standard.id === 'us_visa' || standard.id === 'green_card') {
+    checks.push({
+      id: 'glasses',
+      label: 'No Glasses',
+      status: 'warn',
+      message: 'US requires no glasses — remove before photo',
     });
   }
 

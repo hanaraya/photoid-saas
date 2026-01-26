@@ -22,6 +22,7 @@ import {
   type CropParams,
 } from '@/lib/crop';
 import { checkCompliance, type ComplianceCheck } from '@/lib/compliance';
+import { analyzeImage, type ImageAnalysis } from '@/lib/image-analysis';
 import { STANDARDS } from '@/lib/photo-standards';
 import { analyzeBackground, type BgAnalysis } from '@/lib/bg-analysis';
 
@@ -99,6 +100,7 @@ export function PhotoEditor({
   const [showDragHint, setShowDragHint] = useState(true);
   const [sheetDataUrl, setSheetDataUrl] = useState<string | null>(null);
   const [imageReady, setImageReady] = useState(false); // Track when source image is loaded
+  const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(null);
 
   const sourceImgRef = useRef<HTMLImageElement | null>(null);
   const passportCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -209,6 +211,10 @@ export function PhotoEditor({
                 if (!cancelled) setBgModelPreloading(false);
               });
           }
+
+          // Run image analysis for blur/sharpness and face angle
+          const imgAnalysis = analyzeImage(img, face);
+          setImageAnalysis(imgAnalysis);
         } else {
           setFaceData(null);
           setFaceStatus('not-found');
@@ -226,6 +232,10 @@ export function PhotoEditor({
           // Analyze without face exclusion
           const analysis = analyzeBackground(img, null);
           setBgAnalysis(analysis);
+
+          // Run image analysis (blur detection still works without face)
+          const imgAnalysis = analyzeImage(img, null);
+          setImageAnalysis(imgAnalysis);
         }
       } catch {
         if (!cancelled) {
@@ -348,10 +358,11 @@ export function PhotoEditor({
       faceData,
       standard,
       bgOk,
-      userZoom
+      userZoom,
+      imageAnalysis ?? undefined
     );
     setComplianceChecks(checks);
-  }, [faceData, standard, bgRemoved, bgAnalysis, userZoom]);
+  }, [faceData, standard, bgRemoved, bgAnalysis, userZoom, imageAnalysis]);
 
   // Background removal
   const handleBgRemoval = async () => {
