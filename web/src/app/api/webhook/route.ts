@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
+// Force Node.js runtime (Stripe SDK doesn't work well with Edge)
+export const runtime = 'nodejs';
+
 export async function POST(request: Request) {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!secretKey) {
-    return NextResponse.json({ error: 'Stripe not configured' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Stripe not configured' },
+      { status: 500 }
+    );
   }
 
   try {
@@ -14,7 +20,7 @@ export async function POST(request: Request) {
     const sig = request.headers.get('stripe-signature');
 
     const stripe = new Stripe(secretKey, {
-      apiVersion: '2025-12-15.clover',
+      
     });
 
     let event: Stripe.Event;

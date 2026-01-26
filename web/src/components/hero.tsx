@@ -23,8 +23,7 @@ export function Hero() {
           </div>
 
           <h1 className="max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
-            Passport Photos in{' '}
-            <span className="text-primary">60 Seconds</span>
+            Passport Photos in <span className="text-primary">60 Seconds</span>
             <br />
             <span className="text-muted-foreground">— From Your Phone</span>
           </h1>

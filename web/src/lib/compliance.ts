@@ -50,7 +50,12 @@ export function checkCompliance(
     });
 
     // 2. Head size check
-    const { cropW } = calculateCrop(sourceWidth, sourceHeight, faceData, standard);
+    const { cropW } = calculateCrop(
+      sourceWidth,
+      sourceHeight,
+      faceData,
+      standard
+    );
     const zoomFactor = 100 / userZoom;
     const effectiveScale = spec.w / (cropW * zoomFactor);
     const estimatedHeadH = faceData.h * 1.35;

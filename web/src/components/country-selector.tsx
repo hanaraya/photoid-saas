@@ -8,14 +8,21 @@ import {
   SelectLabel,
   SelectTrigger,
 } from '@/components/ui/select';
-import { getGroupedStandards, STANDARDS, type PhotoStandard } from '@/lib/photo-standards';
+import {
+  getGroupedStandards,
+  STANDARDS,
+  type PhotoStandard,
+} from '@/lib/photo-standards';
 
 interface CountrySelectorProps {
   value: string;
   onValueChange: (value: string) => void;
 }
 
-export function CountrySelector({ value, onValueChange }: CountrySelectorProps) {
+export function CountrySelector({
+  value,
+  onValueChange,
+}: CountrySelectorProps) {
   const grouped = getGroupedStandards();
   const selected = STANDARDS[value];
 
@@ -35,7 +42,11 @@ export function CountrySelector({ value, onValueChange }: CountrySelectorProps) 
               {group}
             </SelectLabel>
             {standards.map((std: PhotoStandard) => (
-              <SelectItem key={std.id} value={std.id} textValue={`${std.flag} ${std.name}`}>
+              <SelectItem
+                key={std.id}
+                value={std.id}
+                textValue={`${std.flag} ${std.name}`}
+              >
                 {std.flag} {std.name} ({std.description})
               </SelectItem>
             ))}

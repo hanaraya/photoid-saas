@@ -48,7 +48,7 @@ export const STANDARDS: Record<string, PhotoStandard> = {
   },
   us_drivers: {
     id: 'us_drivers',
-    name: 'US Driver\'s License',
+    name: "US Driver's License",
     country: 'United States',
     flag: '🇺🇸',
     w: 2,
@@ -327,11 +327,11 @@ export function getStandardsList(): PhotoStandard[] {
 
 export function getGroupedStandards(): Record<string, PhotoStandard[]> {
   const groups: Record<string, PhotoStandard[]> = {
-    'Popular': [],
-    'Americas': [],
-    'Europe': [],
+    Popular: [],
+    Americas: [],
+    Europe: [],
     'Asia Pacific': [],
-    'Visas': [],
+    Visas: [],
     'Other IDs': [],
   };
 
@@ -339,15 +339,33 @@ export function getGroupedStandards(): Record<string, PhotoStandard[]> {
   const americas = ['us', 'canada', 'brazil', 'mexico'];
   const europe = ['eu', 'uk', 'germany', 'france'];
   const asia = ['india', 'china', 'japan', 'south_korea', 'australia'];
-  const visas = ['us_visa', 'schengen_visa', 'uk_visa', 'india_visa', 'china_visa'];
+  const visas = [
+    'us_visa',
+    'schengen_visa',
+    'uk_visa',
+    'india_visa',
+    'china_visa',
+  ];
   const otherIds = ['us_drivers', 'green_card'];
 
-  popular.forEach(id => { if (STANDARDS[id]) groups['Popular'].push(STANDARDS[id]); });
-  americas.forEach(id => { if (STANDARDS[id]) groups['Americas'].push(STANDARDS[id]); });
-  europe.forEach(id => { if (STANDARDS[id]) groups['Europe'].push(STANDARDS[id]); });
-  asia.forEach(id => { if (STANDARDS[id]) groups['Asia Pacific'].push(STANDARDS[id]); });
-  visas.forEach(id => { if (STANDARDS[id]) groups['Visas'].push(STANDARDS[id]); });
-  otherIds.forEach(id => { if (STANDARDS[id]) groups['Other IDs'].push(STANDARDS[id]); });
+  popular.forEach((id) => {
+    if (STANDARDS[id]) groups['Popular'].push(STANDARDS[id]);
+  });
+  americas.forEach((id) => {
+    if (STANDARDS[id]) groups['Americas'].push(STANDARDS[id]);
+  });
+  europe.forEach((id) => {
+    if (STANDARDS[id]) groups['Europe'].push(STANDARDS[id]);
+  });
+  asia.forEach((id) => {
+    if (STANDARDS[id]) groups['Asia Pacific'].push(STANDARDS[id]);
+  });
+  visas.forEach((id) => {
+    if (STANDARDS[id]) groups['Visas'].push(STANDARDS[id]);
+  });
+  otherIds.forEach((id) => {
+    if (STANDARDS[id]) groups['Other IDs'].push(STANDARDS[id]);
+  });
 
   return groups;
 }

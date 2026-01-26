@@ -7,10 +7,10 @@ export async function initBgRemoval(): Promise<void> {
 
   initPromise = (async () => {
     console.log('[BG-REMOVAL] Loading @imgly/background-removal module...');
-    const module = await import('@imgly/background-removal');
-    console.log('[BG-REMOVAL] Module loaded. Exports:', Object.keys(module));
+    const bgModule = await import('@imgly/background-removal');
+    console.log('[BG-REMOVAL] Module loaded. Exports:', Object.keys(bgModule));
     // Store reference — the default export or named export
-    const removeBg = module.removeBackground || module.default;
+    const removeBg = bgModule.removeBackground || bgModule.default;
     console.log('[BG-REMOVAL] removeBackground function:', typeof removeBg);
     removeBackground = async (image: Blob): Promise<Blob> => {
       console.log('[BG-REMOVAL] Starting removal... input size:', image.size);
@@ -18,7 +18,12 @@ export async function initBgRemoval(): Promise<void> {
         model: 'isnet',
         output: { format: 'image/png', quality: 1.0 },
       });
-      console.log('[BG-REMOVAL] Done! Result type:', result.type, 'size:', result.size);
+      console.log(
+        '[BG-REMOVAL] Done! Result type:',
+        result.type,
+        'size:',
+        result.size
+      );
       return result;
     };
   })();
@@ -26,9 +31,7 @@ export async function initBgRemoval(): Promise<void> {
   return initPromise;
 }
 
-export async function removeImageBackground(
-  imageBlob: Blob
-): Promise<Blob> {
+export async function removeImageBackground(imageBlob: Blob): Promise<Blob> {
   await initBgRemoval();
   if (!removeBackground) {
     throw new Error('Background removal not initialized');

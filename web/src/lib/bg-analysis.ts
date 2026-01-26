@@ -21,7 +21,12 @@ export function analyzeBackground(
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    return { score: 0, averageRgb: { r: 0, g: 0, b: 0 }, needsRemoval: true, reason: 'Could not analyze' };
+    return {
+      score: 0,
+      averageRgb: { r: 0, g: 0, b: 0 },
+      needsRemoval: true,
+      reason: 'Could not analyze',
+    };
   }
 
   canvas.width = img.naturalWidth;
@@ -38,7 +43,10 @@ export function analyzeBackground(
   const step = Math.max(4, Math.floor(Math.min(w, h) / 50)); // sample every N pixels
 
   // Face exclusion zone (expanded by 30%)
-  let faceLeft = 0, faceRight = w, faceTop = 0, faceBottom = h;
+  let faceLeft = 0,
+    faceRight = w,
+    faceTop = 0,
+    faceBottom = h;
   if (faceData) {
     const expand = 0.3;
     faceLeft = faceData.x - faceData.w * expand;
@@ -48,7 +56,9 @@ export function analyzeBackground(
   }
 
   const isInFace = (px: number, py: number): boolean => {
-    return px >= faceLeft && px <= faceRight && py >= faceTop && py <= faceBottom;
+    return (
+      px >= faceLeft && px <= faceRight && py >= faceTop && py <= faceBottom
+    );
   };
 
   // Top strip
@@ -82,9 +92,9 @@ export function analyzeBackground(
   // Four corners (extra weight)
   const cornerSize = Math.floor(Math.min(w, h) * 0.1);
   const corners = [
-    { sx: margin, sy: margin },                           // top-left
-    { sx: w - cornerSize - margin, sy: margin },           // top-right
-    { sx: margin, sy: h - cornerSize - margin },           // bottom-left
+    { sx: margin, sy: margin }, // top-left
+    { sx: w - cornerSize - margin, sy: margin }, // top-right
+    { sx: margin, sy: h - cornerSize - margin }, // bottom-left
     { sx: w - cornerSize - margin, sy: h - cornerSize - margin }, // bottom-right
   ];
   for (const corner of corners) {
@@ -96,25 +106,34 @@ export function analyzeBackground(
   }
 
   if (samplePoints.length === 0) {
-    return { score: 0, averageRgb: { r: 0, g: 0, b: 0 }, needsRemoval: true, reason: 'Could not sample background' };
+    return {
+      score: 0,
+      averageRgb: { r: 0, g: 0, b: 0 },
+      needsRemoval: true,
+      reason: 'Could not sample background',
+    };
   }
 
   // Sample pixels
-  let totalR = 0, totalG = 0, totalB = 0;
-  let whiteCount = 0;     // RGB all > 230
-  let lightCount = 0;     // RGB all > 200
-  let uniformCount = 0;   // Low variance between R, G, B (grayish)
+  let totalR = 0,
+    totalG = 0,
+    totalB = 0;
+  let whiteCount = 0; // RGB all > 230
+  let lightCount = 0; // RGB all > 200
+  let uniformCount = 0; // Low variance between R, G, B (grayish)
 
   for (const pt of samplePoints) {
     const pixel = ctx.getImageData(pt.x, pt.y, 1, 1).data;
-    const r = pixel[0], g = pixel[1], b = pixel[2];
+    const r = pixel[0],
+      g = pixel[1],
+      b = pixel[2];
     totalR += r;
     totalG += g;
     totalB += b;
 
     if (r > 230 && g > 230 && b > 230) whiteCount++;
     if (r > 200 && g > 200 && b > 200) lightCount++;
-    
+
     const maxC = Math.max(r, g, b);
     const minC = Math.min(r, g, b);
     if (maxC - minC < 30) uniformCount++;
@@ -134,9 +153,9 @@ export function analyzeBackground(
   // - Light + uniform = moderate score
   // - Dark or colorful = low score
   let score = 0;
-  score += whitePct * 0.5;           // 50% weight on white pixels
-  score += lightPct * 0.3;           // 30% weight on light pixels
-  score += uniformPct * 0.2;         // 20% weight on uniform color
+  score += whitePct * 0.5; // 50% weight on white pixels
+  score += lightPct * 0.3; // 30% weight on light pixels
+  score += uniformPct * 0.2; // 20% weight on uniform color
 
   score = Math.min(100, Math.round(score));
 

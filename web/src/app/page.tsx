@@ -103,8 +103,8 @@ export default function Home() {
                   <h3 className="text-xl font-bold">100% Client-Side</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
                     All AI models run directly in your browser using WebAssembly
-                    and WebGPU. We couldn&apos;t see your photos even if we wanted
-                    to.
+                    and WebGPU. We couldn&apos;t see your photos even if we
+                    wanted to.
                   </p>
                 </div>
               </div>

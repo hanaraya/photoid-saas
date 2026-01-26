@@ -1,22 +1,81 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { Header } from '@/components/header';
 import { PhotoUpload } from '@/components/photo-upload';
-import { PhotoEditor } from '@/components/photo-editor';
+import { PhotoEditor, EditState } from '@/components/photo-editor';
+
+const STORAGE_KEY = 'passport-photo-pending';
+const EDIT_STATE_KEY = 'passport-photo-edit-state';
+const VERIFIED_SESSION_KEY = 'passport-photo-verified';
 
 function AppContent() {
   const searchParams = useSearchParams();
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
   const [isPaid, setIsPaid] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(true);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [restoredFromPayment, setRestoredFromPayment] = useState(false);
+  const [restoredEditState, setRestoredEditState] = useState<EditState | undefined>(undefined);
+  const currentEditStateRef = useRef<EditState | undefined>(undefined);
 
-  // Check for payment success from Stripe redirect
+  // Verify payment and restore photo after Stripe redirect
   useEffect(() => {
-    if (searchParams.get('paid') === 'true') {
-      setIsPaid(true);
-    }
+    const verifyAndRestore = async () => {
+      const sessionId = searchParams.get('session_id');
+      
+      // Check if we have a previously verified session in this browser session
+      const verifiedSession = sessionStorage.getItem(VERIFIED_SESSION_KEY);
+      if (verifiedSession) {
+        setIsPaid(true);
+      }
+      
+      // If returning from Stripe with a session_id, verify it
+      if (sessionId) {
+        try {
+          const res = await fetch(`/api/verify-session?session_id=${encodeURIComponent(sessionId)}`);
+          const data = await res.json();
+          
+          if (data.verified) {
+            setIsPaid(true);
+            // Store verified status for this browser session
+            sessionStorage.setItem(VERIFIED_SESSION_KEY, sessionId);
+            
+            // Try to restore the saved photo and edit state
+            const savedPhoto = sessionStorage.getItem(STORAGE_KEY);
+            const savedEditState = sessionStorage.getItem(EDIT_STATE_KEY);
+            if (savedPhoto) {
+              const response = await fetch(savedPhoto);
+              const blob = await response.blob();
+              setImageBlob(blob);
+              setRestoredFromPayment(true); // Mark that we're coming from payment
+              sessionStorage.removeItem(STORAGE_KEY);
+              
+              // Restore edit state if available
+              if (savedEditState) {
+                try {
+                  setRestoredEditState(JSON.parse(savedEditState));
+                } catch (e) {
+                  console.error('Failed to parse edit state:', e);
+                }
+                sessionStorage.removeItem(EDIT_STATE_KEY);
+              }
+            }
+          } else {
+            setVerificationError(data.error || 'Payment verification failed');
+          }
+        } catch (error) {
+          console.error('Verification error:', error);
+          setVerificationError('Failed to verify payment. Please try again.');
+        }
+      }
+      
+      setIsRestoring(false);
+    };
+    
+    verifyAndRestore();
   }, [searchParams]);
 
   const handleImageLoaded = (file: Blob) => {
@@ -27,35 +86,78 @@ function AppContent() {
     setImageBlob(null);
   };
 
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  // Convert Blob to base64 for storage
+  const blobToBase64 = useCallback((blob: Blob): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }, []);
+
   const handleRequestPayment = async () => {
+    setPaymentError(null);
+    
     try {
+      // Save photo and edit state to sessionStorage before redirect
+      if (imageBlob) {
+        try {
+          const base64 = await blobToBase64(imageBlob);
+          sessionStorage.setItem(STORAGE_KEY, base64);
+          // Also save current edit state
+          if (currentEditStateRef.current) {
+            sessionStorage.setItem(EDIT_STATE_KEY, JSON.stringify(currentEditStateRef.current));
+          }
+        } catch (error) {
+          console.error('Failed to save photo:', error);
+          // Continue with payment even if save fails
+        }
+      }
+
       const res = await fetch('/api/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        // If Stripe isn't configured, simulate payment for demo
-        const data = await res.json();
-        if (data.error?.includes('not configured')) {
-          // Demo mode: mark as paid
-          setIsPaid(true);
-          return;
-        }
-        throw new Error('Payment failed');
+        console.error('Checkout error:', data);
+        setPaymentError(data.error || 'Payment service unavailable. Please try again.');
+        return;
       }
 
-      const data = await res.json();
       if (data.url) {
-        // Save current state to sessionStorage before redirect
         window.location.href = data.url;
+      } else {
+        setPaymentError('Failed to create checkout session. Please try again.');
       }
     } catch (error) {
       console.error('Payment error:', error);
-      // Fallback: demo mode
-      setIsPaid(true);
+      setPaymentError('Network error. Please check your connection and try again.');
     }
   };
+
+  // Show loading while verifying payment and restoring photo
+  if (isRestoring) {
+    const sessionId = searchParams.get('session_id');
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="h-8 w-8 mx-auto animate-spin rounded-full border-2 border-border border-t-primary" />
+            <p className="text-muted-foreground">
+              {sessionId ? 'Verifying payment...' : 'Loading...'}
+            </p>
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -68,7 +170,8 @@ function AppContent() {
                 📸 Passport Photo Maker
               </h1>
               <p className="mt-2 text-muted-foreground">
-                Upload a photo → auto-detect face → get printable passport photos
+                Upload a photo → auto-detect face → get printable passport
+                photos
               </p>
             </div>
 
@@ -76,7 +179,9 @@ function AppContent() {
 
             <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
               <p>
-                <strong className="text-foreground">🇺🇸 US Passport Photo Specs:</strong>{' '}
+                <strong className="text-foreground">
+                  🇺🇸 US Passport Photo Specs:
+                </strong>{' '}
                 2×2 inches · Head height 1&quot;–1⅜&quot; · White background ·
                 Front-facing · Eyes open · Neutral expression
               </p>
@@ -93,7 +198,13 @@ function AppContent() {
 
             {isPaid && (
               <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-center text-sm">
-                ✅ Payment successful! Upload your photo to get started.
+                ✅ Payment verified! Upload your photo to get started.
+              </div>
+            )}
+
+            {verificationError && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-center text-sm text-red-600 dark:text-red-400">
+                ⚠️ {verificationError}
               </div>
             )}
           </div>
@@ -103,6 +214,10 @@ function AppContent() {
             onBack={handleBack}
             isPaid={isPaid}
             onRequestPayment={handleRequestPayment}
+            paymentError={paymentError}
+            initialStep={restoredFromPayment ? 'output' : 'editing'}
+            initialEditState={restoredEditState}
+            onEditStateChange={(state) => { currentEditStateRef.current = state; }}
           />
         )}
       </main>

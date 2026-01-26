@@ -6,18 +6,34 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { CountrySelector } from './country-selector';
 import { ComplianceChecker } from './compliance-checker';
-import { type FaceData, initFaceDetector, detectFace } from '@/lib/face-detection';
+import {
+  type FaceData,
+  initFaceDetector,
+  detectFace,
+} from '@/lib/face-detection';
 import { removeImageBackground } from '@/lib/bg-removal';
 import { renderPassportPhoto, renderSheet } from '@/lib/crop';
 import { checkCompliance, type ComplianceCheck } from '@/lib/compliance';
 import { STANDARDS } from '@/lib/photo-standards';
 import { analyzeBackground, type BgAnalysis } from '@/lib/bg-analysis';
 
+export interface EditState {
+  zoom: number;
+  h: number;
+  v: number;
+  brightness: number;
+  standardId: string;
+}
+
 interface PhotoEditorProps {
   imageBlob: Blob;
   onBack: () => void;
   isPaid: boolean;
   onRequestPayment: () => void;
+  paymentError?: string | null;
+  initialStep?: 'editing' | 'output';
+  initialEditState?: EditState;
+  onEditStateChange?: (state: EditState) => void;
 }
 
 type Step = 'editing' | 'output';
@@ -27,22 +43,30 @@ export function PhotoEditor({
   onBack,
   isPaid,
   onRequestPayment,
+  paymentError,
+  initialStep = 'editing',
+  initialEditState,
+  onEditStateChange,
 }: PhotoEditorProps) {
-  const [step, setStep] = useState<Step>('editing');
-  const [standardId, setStandardId] = useState('us');
+  const [step, setStep] = useState<Step>(initialStep);
+  const [standardId, setStandardId] = useState(initialEditState?.standardId ?? 'us');
   const [faceData, setFaceData] = useState<FaceData | null>(null);
-  const [faceStatus, setFaceStatus] = useState<'detecting' | 'found' | 'not-found'>('detecting');
-  const [userZoom, setUserZoom] = useState(100);
-  const [userH, setUserH] = useState(0);
-  const [userV, setUserV] = useState(0);
-  const [userBrightness, setUserBrightness] = useState(100);
+  const [faceStatus, setFaceStatus] = useState<
+    'detecting' | 'found' | 'not-found'
+  >('detecting');
+  const [userZoom, setUserZoom] = useState(initialEditState?.zoom ?? 100);
+  const [userH, setUserH] = useState(initialEditState?.h ?? 0);
+  const [userV, setUserV] = useState(initialEditState?.v ?? 0);
+  const [userBrightness, setUserBrightness] = useState(initialEditState?.brightness ?? 100);
   const [bgRemoved, setBgRemoved] = useState(false);
   const [bgRemoving, setBgRemoving] = useState(false);
   const [bgAnalysis, setBgAnalysis] = useState<BgAnalysis | null>(null);
   const [bgModelPreloading, setBgModelPreloading] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingText, setLoadingText] = useState('Loading face detection...');
-  const [complianceChecks, setComplianceChecks] = useState<ComplianceCheck[]>([]);
+  const [complianceChecks, setComplianceChecks] = useState<ComplianceCheck[]>(
+    []
+  );
   const [showDragHint, setShowDragHint] = useState(true);
   const [sheetDataUrl, setSheetDataUrl] = useState<string | null>(null);
 
@@ -55,8 +79,23 @@ export function PhotoEditor({
   const userVRef = useRef(0);
 
   // Keep refs in sync
-  useEffect(() => { userHRef.current = userH; }, [userH]);
-  useEffect(() => { userVRef.current = userV; }, [userV]);
+  useEffect(() => {
+    userHRef.current = userH;
+  }, [userH]);
+  useEffect(() => {
+    userVRef.current = userV;
+  }, [userV]);
+
+  // Report edit state changes to parent (for saving before payment)
+  useEffect(() => {
+    onEditStateChange?.({
+      zoom: userZoom,
+      h: userH,
+      v: userV,
+      brightness: userBrightness,
+      standardId,
+    });
+  }, [userZoom, userH, userV, userBrightness, standardId, onEditStateChange]);
 
   const standard = STANDARDS[standardId];
 
@@ -87,11 +126,14 @@ export function PhotoEditor({
           // If bg removal is needed, start preloading the model in background
           if (analysis.needsRemoval) {
             setBgModelPreloading(true);
-            import('@/lib/bg-removal').then(m => m.initBgRemoval()).then(() => {
-              if (!cancelled) setBgModelPreloading(false);
-            }).catch(() => {
-              if (!cancelled) setBgModelPreloading(false);
-            });
+            import('@/lib/bg-removal')
+              .then((m) => m.initBgRemoval())
+              .then(() => {
+                if (!cancelled) setBgModelPreloading(false);
+              })
+              .catch(() => {
+                if (!cancelled) setBgModelPreloading(false);
+              });
           }
         } else {
           setFaceData(null);
@@ -141,6 +183,22 @@ export function PhotoEditor({
     renderPreview();
   }, [renderPreview]);
 
+  // Auto-generate sheet when starting on output step (e.g., returning from payment)
+  useEffect(() => {
+    if (initialStep === 'output' && step === 'output' && faceData && !sheetDataUrl) {
+      // Small delay to ensure canvas is rendered after renderPreview
+      const timer = setTimeout(() => {
+        const passportCanvas = passportCanvasRef.current;
+        if (passportCanvas && passportCanvas.width > 0) {
+          const tempSheet = document.createElement('canvas');
+          renderSheet(tempSheet, passportCanvas, standard, !isPaid);
+          setSheetDataUrl(tempSheet.toDataURL('image/jpeg', 0.95));
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [initialStep, step, faceData, sheetDataUrl, standard, isPaid]);
+
   // Update compliance checks
   useEffect(() => {
     const img = sourceImgRef.current;
@@ -179,17 +237,21 @@ export function PhotoEditor({
         ctx.drawImage(tempImg, 0, 0);
 
         // Convert composited canvas to a new image for the editor
-        tempCanvas.toBlob((compositeBlob) => {
-          if (!compositeBlob) return;
-          const newImg = new Image();
-          newImg.onload = () => {
-            sourceImgRef.current = newImg;
-            setBgRemoved(true);
-            setBgRemoving(false);
-            renderPreview();
-          };
-          newImg.src = URL.createObjectURL(compositeBlob);
-        }, 'image/jpeg', 0.95);
+        tempCanvas.toBlob(
+          (compositeBlob) => {
+            if (!compositeBlob) return;
+            const newImg = new Image();
+            newImg.onload = () => {
+              sourceImgRef.current = newImg;
+              setBgRemoved(true);
+              setBgRemoving(false);
+              renderPreview();
+            };
+            newImg.src = URL.createObjectURL(compositeBlob);
+          },
+          'image/jpeg',
+          0.95
+        );
       };
       tempImg.src = URL.createObjectURL(resultBlob);
     } catch (err) {
@@ -200,26 +262,23 @@ export function PhotoEditor({
   };
 
   // Drag handlers
-  const onDragStart = useCallback(
-    (e: React.MouseEvent | React.TouchEvent) => {
-      e.preventDefault();
-      isDraggingRef.current = true;
-      setShowDragHint(false);
+  const onDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
+    e.preventDefault();
+    isDraggingRef.current = true;
+    setShowDragHint(false);
 
-      const pos =
-        'touches' in e
-          ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
-          : { x: e.clientX, y: e.clientY };
+    const pos =
+      'touches' in e
+        ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+        : { x: e.clientX, y: e.clientY };
 
-      dragStartRef.current = {
-        x: pos.x,
-        y: pos.y,
-        h: userHRef.current,
-        v: userVRef.current,
-      };
-    },
-    []
-  );
+    dragStartRef.current = {
+      x: pos.x,
+      y: pos.y,
+      h: userHRef.current,
+      v: userVRef.current,
+    };
+  }, []);
 
   useEffect(() => {
     const onMove = (e: MouseEvent | TouchEvent) => {
@@ -239,11 +298,17 @@ export function PhotoEditor({
 
       const newH = Math.max(
         -300,
-        Math.min(300, dragStartRef.current.h + (pos.x - dragStartRef.current.x) * scaleX)
+        Math.min(
+          300,
+          dragStartRef.current.h + (pos.x - dragStartRef.current.x) * scaleX
+        )
       );
       const newV = Math.max(
         -300,
-        Math.min(300, dragStartRef.current.v + (pos.y - dragStartRef.current.y) * scaleY)
+        Math.min(
+          300,
+          dragStartRef.current.v + (pos.y - dragStartRef.current.y) * scaleY
+        )
       );
 
       setUserH(newH);
@@ -322,34 +387,36 @@ export function PhotoEditor({
       <div className="space-y-6">
         <button
           onClick={() => setStep('editing')}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors print-hide"
         >
           ← Back to editor
         </button>
 
-        <div className="text-center">
+        <div className="text-center print-hide">
           <h2 className="text-2xl font-bold">Your Passport Photos</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             4×6 inch sheet · Print at 100% scale on 4×6 glossy paper
           </p>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center print-container">
           {sheetDataUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={sheetDataUrl}
               alt="Passport photo sheet"
-              className="max-w-full rounded-lg shadow-2xl"
+              className="max-w-full rounded-lg shadow-2xl print-sheet"
               style={{ maxWidth: '600px', height: 'auto' }}
             />
           ) : (
-            <div className="text-muted-foreground text-sm">Generating sheet...</div>
+            <div className="text-muted-foreground text-sm">
+              Generating sheet...
+            </div>
           )}
         </div>
 
         {!isPaid ? (
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-4 print-hide">
             <div className="inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2 text-sm">
               🔒 Pay $4.99 to remove watermark and download
             </div>
@@ -358,9 +425,14 @@ export function PhotoEditor({
                 💳 Pay & Download — $4.99
               </Button>
             </div>
+            {paymentError && (
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-600 dark:text-red-400">
+                ⚠️ {paymentError}
+              </div>
+            )}
           </div>
         ) : (
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-3 print-hide">
             <Button onClick={downloadSheet} className="gap-2">
               <svg
                 className="h-4 w-4"
@@ -373,7 +445,11 @@ export function PhotoEditor({
               </svg>
               Download Sheet
             </Button>
-            <Button onClick={downloadSingle} variant="secondary" className="gap-2">
+            <Button
+              onClick={downloadSingle}
+              variant="secondary"
+              className="gap-2"
+            >
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -387,7 +463,11 @@ export function PhotoEditor({
               </svg>
               Download Single
             </Button>
-            <Button variant="secondary" onClick={() => window.print()} className="gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => window.print()}
+              className="gap-2"
+            >
               🖨️ Print
             </Button>
           </div>
@@ -427,8 +507,8 @@ export function PhotoEditor({
                 faceStatus === 'found'
                   ? 'bg-green-500/15 text-green-500 border-green-500/30'
                   : faceStatus === 'not-found'
-                  ? 'bg-red-500/15 text-red-500 border-red-500/30'
-                  : 'bg-yellow-500/15 text-yellow-500 border-yellow-500/30'
+                    ? 'bg-red-500/15 text-red-500 border-red-500/30'
+                    : 'bg-yellow-500/15 text-yellow-500 border-yellow-500/30'
               }`}
               variant="outline"
             >
@@ -485,7 +565,9 @@ export function PhotoEditor({
           </div>
 
           <div className="flex items-center gap-4">
-            <label className="text-sm text-muted-foreground min-w-[100px]">Zoom</label>
+            <label className="text-sm text-muted-foreground min-w-[100px]">
+              Zoom
+            </label>
             <div className="flex-1">
               <Slider
                 value={[userZoom]}
@@ -501,7 +583,9 @@ export function PhotoEditor({
           </div>
 
           <div className="flex items-center gap-4">
-            <label className="text-sm text-muted-foreground min-w-[100px]">Brightness</label>
+            <label className="text-sm text-muted-foreground min-w-[100px]">
+              Brightness
+            </label>
             <div className="flex-1">
               <Slider
                 value={[userBrightness]}
@@ -523,18 +607,22 @@ export function PhotoEditor({
 
       {/* Background Analysis + Actions */}
       {bgAnalysis && !bgRemoved && (
-        <div className={`rounded-lg border p-3 text-sm ${
-          bgAnalysis.needsRemoval
-            ? 'border-yellow-500/30 bg-yellow-500/5 text-yellow-400'
-            : 'border-green-500/30 bg-green-500/5 text-green-400'
-        }`}>
+        <div
+          className={`rounded-lg border p-3 text-sm ${
+            bgAnalysis.needsRemoval
+              ? 'border-yellow-500/30 bg-yellow-500/5 text-yellow-400'
+              : 'border-green-500/30 bg-green-500/5 text-green-400'
+          }`}
+        >
           <span className="font-medium">
             {bgAnalysis.needsRemoval ? '⚠️ ' : '✅ '}
             Background:
           </span>{' '}
           {bgAnalysis.reason}
           {bgModelPreloading && bgAnalysis.needsRemoval && (
-            <span className="ml-2 text-xs text-muted-foreground">(AI model loading...)</span>
+            <span className="ml-2 text-xs text-muted-foreground">
+              (AI model loading...)
+            </span>
           )}
         </div>
       )}
@@ -560,17 +648,20 @@ export function PhotoEditor({
         )}
 
         {/* Show optional removal for borderline cases */}
-        {!bgRemoved && bgAnalysis && !bgAnalysis.needsRemoval && bgAnalysis.score < 80 && (
-          <Button
-            onClick={handleBgRemoval}
-            variant="ghost"
-            disabled={bgRemoving}
-            className="gap-2 text-muted-foreground"
-            size="sm"
-          >
-            {bgRemoving ? 'Removing...' : '🎨 Remove anyway'}
-          </Button>
-        )}
+        {!bgRemoved &&
+          bgAnalysis &&
+          !bgAnalysis.needsRemoval &&
+          bgAnalysis.score < 80 && (
+            <Button
+              onClick={handleBgRemoval}
+              variant="ghost"
+              disabled={bgRemoving}
+              className="gap-2 text-muted-foreground"
+              size="sm"
+            >
+              {bgRemoving ? 'Removing...' : '🎨 Remove anyway'}
+            </Button>
+          )}
 
         {bgRemoved && (
           <div className="flex items-center gap-2 text-sm text-green-400">
@@ -591,7 +682,6 @@ export function PhotoEditor({
           Generate Printable Sheet
         </Button>
       </div>
-
     </div>
   );
 }

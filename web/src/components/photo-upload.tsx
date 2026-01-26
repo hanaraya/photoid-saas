@@ -127,8 +127,14 @@ export function PhotoUpload({ onImageLoaded }: PhotoUploadProps) {
               or use the buttons below
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 mt-2" onClick={(e) => e.stopPropagation()}>
-            <Button onClick={() => fileInputRef.current?.click()} className="gap-2">
+          <div
+            className="flex flex-col sm:flex-row gap-3 mt-2"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              className="gap-2"
+            >
               <svg
                 className="h-4 w-4"
                 fill="none"

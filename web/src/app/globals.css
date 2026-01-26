@@ -1,5 +1,5 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -109,6 +109,52 @@
 
 /* Print styles */
 @media print {
-  body { background: white !important; }
-  header, nav, .no-print { display: none !important; }
+  /* Reset background and colors for print */
+  body {
+    background: white !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Hide all non-essential elements */
+  header,
+  nav,
+  footer,
+  .no-print,
+  .print-hide {
+    display: none !important;
+  }
+  
+  /* Show only print-visible elements */
+  .print-only {
+    display: block !important;
+  }
+  
+  /* Style the photo sheet for printing */
+  .print-sheet {
+    display: block !important;
+    max-width: none !important;
+    width: 4in !important;
+    height: 6in !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    page-break-inside: avoid !important;
+  }
+  
+  /* Ensure the image container takes full width */
+  .print-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  
+  /* Remove any page margins if possible */
+  @page {
+    size: 4in 6in;
+    margin: 0;
+  }
 }

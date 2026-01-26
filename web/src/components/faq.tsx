@@ -19,7 +19,7 @@ const faqs = [
   {
     question: 'What countries are supported?',
     answer:
-      'We support US Passport, UK Passport, EU/Schengen, Canada, India, Australia, China, Japan, South Korea, Germany, France, Brazil, Mexico, and many more. We also support visa photos for US, UK, Schengen, India, and China visas, plus US Driver\'s License and Green Card.',
+      "We support US Passport, UK Passport, EU/Schengen, Canada, India, Australia, China, Japan, South Korea, Germany, France, Brazil, Mexico, and many more. We also support visa photos for US, UK, Schengen, India, and China visas, plus US Driver's License and Green Card.",
   },
   {
     question: 'How does background removal work?',

@@ -13,8 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://photoid.app'),
-  title: 'PhotoID — Passport Photos in 60 Seconds',
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_BASE_URL || 'https://safepassportpic.com'
+  ),
+  title: 'SafePassportPic — Passport Photos in 60 Seconds',
   description:
     'Create compliant passport and visa photos instantly from your phone. 100% private — processed entirely in your browser. 20+ country standards. $4.99 one-time.',
   keywords: [
@@ -28,9 +30,9 @@ export const metadata: Metadata = {
     'visa application photo',
     'government ID photo',
   ],
-  authors: [{ name: 'PhotoID' }],
-  creator: 'PhotoID',
-  publisher: 'PhotoID',
+  authors: [{ name: 'SafePassportPic' }],
+  creator: 'SafePassportPic',
+  publisher: 'SafePassportPic',
   robots: {
     index: true,
     follow: true,
@@ -42,25 +44,25 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: 'PhotoID — Passport Photos in 60 Seconds',
+    title: 'SafePassportPic — Passport Photos in 60 Seconds',
     description:
       'Create compliant passport photos instantly. 100% private, processed in your browser.',
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://photoid.app',
-    siteName: 'PhotoID',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://safepassportpic.com',
+    siteName: 'SafePassportPic',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'PhotoID - Create passport photos instantly',
+        alt: 'SafePassportPic - Create passport photos instantly',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'PhotoID — Passport Photos in 60 Seconds',
+    title: 'SafePassportPic — Passport Photos in 60 Seconds',
     description:
       'Create compliant passport photos instantly. 100% private, processed in your browser.',
     images: ['/og-image.png'],
@@ -77,7 +79,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-}
+};
 
 export default function RootLayout({
   children,

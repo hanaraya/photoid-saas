@@ -1,19 +1,19 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // Allow SharedArrayBuffer for WASM workers (MediaPipe, bg removal)
   async headers() {
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: [
           {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
           },
           {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'credentialless',
           },
         ],
       },
