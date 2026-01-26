@@ -1,5 +1,6 @@
 import { Header } from '@/components/header';
 import { Hero } from '@/components/hero';
+import { DemoSection } from '@/components/demo-section';
 import { PricingSection } from '@/components/pricing-section';
 import { FAQ } from '@/components/faq';
 import { Footer } from '@/components/footer';
@@ -12,6 +13,8 @@ export default function Home() {
 
       <main className="flex-1">
         <Hero />
+
+        <DemoSection />
 
         {/* How It Works */}
         <section id="how-it-works" className="py-20 bg-card/30">
