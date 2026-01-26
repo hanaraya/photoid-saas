@@ -142,9 +142,11 @@ export function PhotoUpload({ onImageLoaded }: PhotoUploadProps) {
                 stroke="currentColor"
                 strokeWidth={2}
               >
-                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <path d="M21 15l-5-5L5 21" />
               </svg>
-              Upload Photo
+              Select Photo
             </Button>
             <Button variant="secondary" onClick={openCamera} className="gap-2">
               <svg
