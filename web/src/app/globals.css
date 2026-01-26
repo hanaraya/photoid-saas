@@ -109,52 +109,73 @@
 
 /* Print styles */
 @media print {
-  /* Reset background and colors for print */
+  /* Reset everything for print */
+  * {
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  html,
   body {
+    width: 6in !important;
+    height: 4in !important;
     background: white !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+    overflow: hidden !important;
   }
-  
-  /* Hide all non-essential elements */
+
+  /* Hide EVERYTHING by default */
+  body * {
+    visibility: hidden !important;
+  }
+
+  /* Show only the print container and its contents */
+  .print-container,
+  .print-container *,
+  .print-sheet {
+    visibility: visible !important;
+  }
+
+  /* Hide elements explicitly marked as print-hide */
   header,
   nav,
   footer,
+  button,
   .no-print,
   .print-hide {
     display: none !important;
+    visibility: hidden !important;
   }
-  
-  /* Show only print-visible elements */
-  .print-only {
-    display: block !important;
-  }
-  
-  /* Style the photo sheet for printing */
-  .print-sheet {
-    display: block !important;
-    max-width: none !important;
-    width: 4in !important;
-    height: 6in !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    border-radius: 0 !important;
-    page-break-inside: avoid !important;
-  }
-  
-  /* Ensure the image container takes full width */
+
+  /* Position print container at top-left */
   .print-container {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 6in !important;
+    height: 4in !important;
     display: flex !important;
     justify-content: center !important;
-    align-items: flex-start !important;
-    padding: 0 !important;
-    margin: 0 !important;
+    align-items: center !important;
   }
-  
-  /* Remove any page margins if possible */
+
+  /* Style the photo sheet for printing - 6" wide x 4" tall (landscape) */
+  .print-sheet {
+    display: block !important;
+    width: 6in !important;
+    height: 4in !important;
+    max-width: 6in !important;
+    max-height: 4in !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    object-fit: contain !important;
+  }
+
+  /* 4x6 paper in landscape orientation (6" wide x 4" tall) */
   @page {
-    size: 4in 6in;
+    size: 6in 4in;
     margin: 0;
   }
 }

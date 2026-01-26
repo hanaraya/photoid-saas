@@ -77,7 +77,8 @@ export function renderPassportPhoto(
   userH: number,
   userV: number,
   userBrightness: number,
-  addWatermark: boolean
+  addWatermark: boolean,
+  preCalculatedCrop?: CropParams // Optional: skip recalculation if provided
 ): void {
   const spec = specToPx(standard);
   const ctx = canvas.getContext('2d');
@@ -90,12 +91,15 @@ export function renderPassportPhoto(
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, spec.w, spec.h);
 
-  const { cropX, cropY, cropW, cropH } = calculateCrop(
-    sourceImage.naturalWidth,
-    sourceImage.naturalHeight,
-    faceData,
-    standard
-  );
+  // Use pre-calculated crop if provided, otherwise calculate from face data
+  const { cropX, cropY, cropW, cropH } =
+    preCalculatedCrop ??
+    calculateCrop(
+      sourceImage.naturalWidth,
+      sourceImage.naturalHeight,
+      faceData,
+      standard
+    );
 
   // Apply user adjustments
   const zoomFactor = 100 / userZoom;

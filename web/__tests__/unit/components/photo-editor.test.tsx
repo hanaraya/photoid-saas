@@ -153,7 +153,7 @@ describe('PhotoEditor Component', () => {
     expect(mockOnBack).toHaveBeenCalled();
   });
 
-  it('should render country selector', async () => {
+  it('should render photo standard display (read-only)', async () => {
     render(
       <PhotoEditor
         imageBlob={mockImageBlob}
@@ -172,8 +172,8 @@ describe('PhotoEditor Component', () => {
       { timeout: 3000 }
     );
 
-    // Should show country selector
-    expect(screen.getByRole('combobox')).toBeInTheDocument();
+    // Should show read-only standard display with "Start over to change" hint
+    expect(screen.getByText(/Start over to change/i)).toBeInTheDocument();
   });
 
   it('should render without crashing', () => {

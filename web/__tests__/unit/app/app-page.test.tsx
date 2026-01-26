@@ -107,7 +107,8 @@ describe('AppPage', () => {
 
   it('should display US passport specs', () => {
     render(<AppPage />);
-    expect(screen.getByText(/US Passport Photo Specs/)).toBeInTheDocument();
+    // Default selection is US Passport, specs shown dynamically
+    expect(screen.getByText(/US Passport Specs/)).toBeInTheDocument();
   });
 
   it('should display output specs', () => {

@@ -2,14 +2,21 @@
  * @jest-environment jsdom
  */
 import React from 'react';
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  act,
+} from '@testing-library/react';
 
 // Storage key constants - must match the ones in app/page.tsx
 const STORAGE_KEY = 'passport-photo-pending';
 const VERIFIED_SESSION_KEY = 'passport-photo-verified';
 
 // Create a mock blob for testing
-const createMockBlob = () => new Blob(['test-image-data'], { type: 'image/jpeg' });
+const createMockBlob = () =>
+  new Blob(['test-image-data'], { type: 'image/jpeg' });
 
 // Mock sessionStorage
 const mockSessionStorage = (() => {
@@ -81,8 +88,12 @@ jest.mock('@/components/photo-editor', () => ({
     return (
       <div data-testid="photo-editor">
         <span data-testid="is-paid">{isPaid ? 'paid' : 'unpaid'}</span>
-        <button data-testid="back-button" onClick={onBack}>Back</button>
-        <button data-testid="pay-button" onClick={onRequestPayment}>Pay</button>
+        <button data-testid="back-button" onClick={onBack}>
+          Back
+        </button>
+        <button data-testid="pay-button" onClick={onRequestPayment}>
+          Pay
+        </button>
       </div>
     );
   },
@@ -107,7 +118,8 @@ const mockVerifySession = (verified: boolean, error?: string) => {
     if (url.includes('/api/create-checkout')) {
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ url: 'https://checkout.stripe.com/test' }),
+        json: () =>
+          Promise.resolve({ url: 'https://checkout.stripe.com/test' }),
       });
     }
     // For blob restoration (data: URLs)
@@ -126,7 +138,7 @@ describe('AppPage sessionStorage photo persistence', () => {
     mockSessionId = null;
     capturedOnRequestPayment = null;
     jest.clearAllMocks();
-    
+
     // Default fetch mock
     global.fetch = mockVerifySession(true);
   });
@@ -145,27 +157,29 @@ describe('AppPage sessionStorage photo persistence', () => {
         onloadend: null as (() => void) | null,
         onerror: null as ((error: Error) => void) | null,
       };
-      
-      jest.spyOn(global, 'FileReader').mockImplementation(() => mockFileReader as unknown as FileReader);
-      
+
+      jest
+        .spyOn(global, 'FileReader')
+        .mockImplementation(() => mockFileReader as unknown as FileReader);
+
       render(<AppPage />);
-      
+
       // Wait for initial render
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       // Upload a photo
       const uploadButton = screen.getByTestId('upload-button');
       fireEvent.click(uploadButton);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
       });
-      
+
       // Click pay button
       const payButton = screen.getByTestId('pay-button');
-      
+
       await act(async () => {
         fireEvent.click(payButton);
         // Simulate FileReader completing
@@ -173,7 +187,7 @@ describe('AppPage sessionStorage photo persistence', () => {
           mockFileReader.onloadend();
         }
       });
-      
+
       // Verify sessionStorage.setItem was called
       await waitFor(() => {
         expect(mockSessionStorage.setItem).toHaveBeenCalledWith(
@@ -190,22 +204,24 @@ describe('AppPage sessionStorage photo persistence', () => {
         onloadend: null as (() => void) | null,
         onerror: null as ((error: Error) => void) | null,
       };
-      
-      jest.spyOn(global, 'FileReader').mockImplementation(() => mockFileReader as unknown as FileReader);
-      
+
+      jest
+        .spyOn(global, 'FileReader')
+        .mockImplementation(() => mockFileReader as unknown as FileReader);
+
       render(<AppPage />);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       // Upload photo
       fireEvent.click(screen.getByTestId('upload-button'));
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
       });
-      
+
       // Click pay
       await act(async () => {
         fireEvent.click(screen.getByTestId('pay-button'));
@@ -213,10 +229,13 @@ describe('AppPage sessionStorage photo persistence', () => {
           mockFileReader.onloadend();
         }
       });
-      
+
       // Verify fetch was called
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith('/api/create-checkout', expect.any(Object));
+        expect(global.fetch).toHaveBeenCalledWith(
+          '/api/create-checkout',
+          expect.any(Object)
+        );
       });
     });
   });
@@ -225,14 +244,14 @@ describe('AppPage sessionStorage photo persistence', () => {
     it('should verify payment and show success when valid session_id', async () => {
       mockSessionId = 'cs_test_valid123';
       global.fetch = mockVerifySession(true);
-      
+
       render(<AppPage />);
-      
+
       // Should eventually show the upload page (with success message)
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       // Should show payment verified message
       expect(screen.getByText(/Payment verified/)).toBeInTheDocument();
     });
@@ -242,14 +261,17 @@ describe('AppPage sessionStorage photo persistence', () => {
       mockSessionStorage.setItem(STORAGE_KEY, savedPhotoData);
       mockSessionId = 'cs_test_valid123';
       global.fetch = mockVerifySession(true);
-      
+
       render(<AppPage />);
-      
+
       // Should eventually show photo editor with restored photo
-      await waitFor(() => {
-        expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
-      }, { timeout: 3000 });
-      
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+
       // Should be marked as paid
       expect(screen.getByTestId('is-paid')).toHaveTextContent('paid');
     });
@@ -259,13 +281,16 @@ describe('AppPage sessionStorage photo persistence', () => {
       mockSessionStorage.setItem(STORAGE_KEY, savedPhotoData);
       mockSessionId = 'cs_test_valid123';
       global.fetch = mockVerifySession(true);
-      
+
       render(<AppPage />);
-      
-      await waitFor(() => {
-        expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
-      }, { timeout: 3000 });
-      
+
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+
       // Photo storage should be cleared
       expect(mockSessionStorage.removeItem).toHaveBeenCalledWith(STORAGE_KEY);
     });
@@ -274,28 +299,28 @@ describe('AppPage sessionStorage photo persistence', () => {
       mockSessionId = 'cs_test_valid123';
       global.fetch = mockVerifySession(true);
       // No photo in sessionStorage
-      
+
       render(<AppPage />);
-      
+
       // Should show upload page (with payment verified message)
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       expect(screen.getByText(/Payment verified/)).toBeInTheDocument();
     });
 
     it('should show error when verification fails', async () => {
       mockSessionId = 'cs_test_invalid';
       global.fetch = mockVerifySession(false, 'Payment not completed');
-      
+
       render(<AppPage />);
-      
+
       // Should show upload page with error
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       // Should show error message
       expect(screen.getByText(/Payment not completed/)).toBeInTheDocument();
     });
@@ -303,18 +328,18 @@ describe('AppPage sessionStorage photo persistence', () => {
     it('should handle verification network errors gracefully', async () => {
       mockSessionId = 'cs_test_123';
       global.fetch = jest.fn().mockRejectedValue(new Error('Network error'));
-      
+
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      
+
       render(<AppPage />);
-      
+
       // Should gracefully fall back to upload page with error
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       expect(screen.getByText(/Failed to verify payment/)).toBeInTheDocument();
-      
+
       consoleSpy.mockRestore();
     });
   });
@@ -324,45 +349,48 @@ describe('AppPage sessionStorage photo persistence', () => {
       mockSessionId = 'cs_test_verified';
       mockSessionStorage.setItem(STORAGE_KEY, 'data:image/jpeg;base64,test');
       global.fetch = mockVerifySession(true);
-      
+
       render(<AppPage />);
-      
-      await waitFor(() => {
-        expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
-      }, { timeout: 3000 });
-      
+
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
+        },
+        { timeout: 3000 }
+      );
+
       expect(screen.getByTestId('is-paid')).toHaveTextContent('paid');
     });
 
     it('should not set isPaid when no session_id present', async () => {
       mockSessionId = null;
-      
+
       render(<AppPage />);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       // Upload photo to see editor
       fireEvent.click(screen.getByTestId('upload-button'));
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
       });
-      
+
       expect(screen.getByTestId('is-paid')).toHaveTextContent('unpaid');
     });
 
     it('should persist verified status in sessionStorage', async () => {
       mockSessionId = 'cs_test_persist';
       global.fetch = mockVerifySession(true);
-      
+
       render(<AppPage />);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       // Should store verified session
       expect(mockSessionStorage.setItem).toHaveBeenCalledWith(
         VERIFIED_SESSION_KEY,
@@ -373,20 +401,20 @@ describe('AppPage sessionStorage photo persistence', () => {
     it('should recognize previously verified session', async () => {
       mockSessionId = null; // No session_id in URL
       mockSessionStorage.setItem(VERIFIED_SESSION_KEY, 'cs_test_previous');
-      
+
       render(<AppPage />);
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('photo-upload')).toBeInTheDocument();
       });
-      
+
       // Upload photo to see editor - should be marked as paid from stored session
       fireEvent.click(screen.getByTestId('upload-button'));
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
       });
-      
+
       expect(screen.getByTestId('is-paid')).toHaveTextContent('paid');
     });
   });

@@ -63,7 +63,7 @@ export async function GET(request: Request) {
     }
   } catch (error) {
     console.error('Session verification error:', error);
-    
+
     // Handle specific Stripe errors
     if (error instanceof Stripe.errors.StripeError) {
       if (error.code === 'resource_missing') {

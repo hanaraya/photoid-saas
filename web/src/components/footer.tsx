@@ -35,7 +35,7 @@ export function Footer() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
                 <Link
-                  href="#"
+                  href="/privacy"
                   className="hover:text-foreground transition-colors"
                 >
                   Privacy Policy
@@ -43,7 +43,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/terms"
                   className="hover:text-foreground transition-colors"
                 >
                   Terms of Service
@@ -51,7 +51,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="#"
+                  href="/refund"
                   className="hover:text-foreground transition-colors"
                 >
                   Refund Policy
@@ -62,7 +62,9 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t border-border pt-8 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} SafePassportPic. All rights reserved.</p>
+          <p>
+            © {new Date().getFullYear()} SafePassportPic. All rights reserved.
+          </p>
           <p className="mt-1">
             Your photos are processed entirely in your browser. We never see,
             store, or transmit your images.

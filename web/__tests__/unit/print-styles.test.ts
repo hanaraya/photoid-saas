@@ -17,9 +17,10 @@ describe('Print Styles Configuration', () => {
       expect(cssContent).toContain('@media print');
     });
 
-    it('should have @page rule for 4x6 paper size', () => {
+    it('should have @page rule for 4x6 paper in landscape orientation', () => {
       expect(cssContent).toContain('@page');
-      expect(cssContent).toContain('4in 6in');
+      // Sheet is 6" wide x 4" tall (landscape orientation for 4x6 paper)
+      expect(cssContent).toContain('6in 4in');
     });
   });
 
@@ -41,10 +42,11 @@ describe('Print Styles Configuration', () => {
       expect(cssContent).toContain('.print-sheet');
     });
 
-    it('should set photo dimensions to 4x6 inches', () => {
+    it('should set photo dimensions to 6x4 inches (landscape)', () => {
       const printSection = cssContent.split('@media print')[1];
-      expect(printSection).toContain('width: 4in');
-      expect(printSection).toContain('height: 6in');
+      // Sheet is rendered at 6" wide x 4" tall (landscape)
+      expect(printSection).toContain('width: 6in');
+      expect(printSection).toContain('height: 4in');
     });
 
     it('should remove shadows and borders from print-sheet', () => {
@@ -74,7 +76,10 @@ describe('Print Styles Configuration', () => {
 });
 
 describe('PhotoEditor Component Print Classes', () => {
-  const editorPath = path.join(__dirname, '../../src/components/photo-editor.tsx');
+  const editorPath = path.join(
+    __dirname,
+    '../../src/components/photo-editor.tsx'
+  );
   let editorContent: string;
 
   beforeAll(() => {
@@ -88,7 +93,9 @@ describe('PhotoEditor Component Print Classes', () => {
       expect(editorContent).toContain('print-hide');
       expect(editorContent).toContain('Back to editor');
       // Verify they're on the same element (className contains print-hide, text contains Back to editor)
-      expect(editorContent).toMatch(/className="[^"]*print-hide[^"]*"[^>]*>\s*← Back to editor/);
+      expect(editorContent).toMatch(
+        /className="[^"]*print-hide[^"]*"[^>]*>\s*← Back to editor/
+      );
     });
 
     it('should have print-hide on title section', () => {

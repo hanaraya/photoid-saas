@@ -230,8 +230,8 @@ describe('PhotoEditor Output and Download Tests', () => {
         { timeout: 3000 }
       );
 
-      // Click the "Start over" back button
-      const backButton = screen.getByText(/Start over/i);
+      // Click the "← Start over" back button (not the "Start over to change" hint)
+      const backButton = screen.getByText(/← Start over/i);
       await user.click(backButton);
 
       expect(mockOnBack).toHaveBeenCalled();

@@ -4,15 +4,23 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { CountrySelector } from './country-selector';
+// CountrySelector removed - standard is now read-only in editor
 import { ComplianceChecker } from './compliance-checker';
 import {
   type FaceData,
   initFaceDetector,
   detectFace,
 } from '@/lib/face-detection';
+
+// Re-export FaceData for consumers of EditState
+export type { FaceData };
 import { removeImageBackground } from '@/lib/bg-removal';
-import { renderPassportPhoto, renderSheet } from '@/lib/crop';
+import {
+  renderPassportPhoto,
+  renderSheet,
+  calculateCrop,
+  type CropParams,
+} from '@/lib/crop';
 import { checkCompliance, type ComplianceCheck } from '@/lib/compliance';
 import { STANDARDS } from '@/lib/photo-standards';
 import { analyzeBackground, type BgAnalysis } from '@/lib/bg-analysis';
@@ -23,6 +31,10 @@ export interface EditState {
   v: number;
   brightness: number;
   standardId: string;
+  bgRemoved?: boolean;
+  processedImageDataUrl?: string; // Base64 of the processed image (with bg removed)
+  cropParams?: CropParams; // Calculated crop parameters (saves re-running face detection)
+  faceData?: FaceData | null; // Save face detection results for compliance checks
 }
 
 interface PhotoEditorProps {
@@ -33,6 +45,7 @@ interface PhotoEditorProps {
   paymentError?: string | null;
   initialStep?: 'editing' | 'output';
   initialEditState?: EditState;
+  initialCropParams?: CropParams; // Skip face detection if provided
   onEditStateChange?: (state: EditState) => void;
 }
 
@@ -46,19 +59,35 @@ export function PhotoEditor({
   paymentError,
   initialStep = 'editing',
   initialEditState,
+  initialCropParams,
   onEditStateChange,
 }: PhotoEditorProps) {
   const [step, setStep] = useState<Step>(initialStep);
-  const [standardId, setStandardId] = useState(initialEditState?.standardId ?? 'us');
-  const [faceData, setFaceData] = useState<FaceData | null>(null);
+  const [standardId] = useState(initialEditState?.standardId ?? 'us');
+  const [faceData, setFaceData] = useState<FaceData | null>(
+    initialEditState?.faceData ?? null
+  );
+  const [cropParams, setCropParams] = useState<CropParams | undefined>(
+    initialCropParams ?? initialEditState?.cropParams
+  );
   const [faceStatus, setFaceStatus] = useState<
     'detecting' | 'found' | 'not-found'
-  >('detecting');
+  >(
+    initialEditState?.faceData
+      ? 'found'
+      : initialCropParams || initialEditState?.cropParams
+        ? 'found'
+        : 'detecting'
+  );
   const [userZoom, setUserZoom] = useState(initialEditState?.zoom ?? 100);
   const [userH, setUserH] = useState(initialEditState?.h ?? 0);
   const [userV, setUserV] = useState(initialEditState?.v ?? 0);
-  const [userBrightness, setUserBrightness] = useState(initialEditState?.brightness ?? 100);
-  const [bgRemoved, setBgRemoved] = useState(false);
+  const [userBrightness, setUserBrightness] = useState(
+    initialEditState?.brightness ?? 100
+  );
+  const [bgRemoved, setBgRemoved] = useState(
+    initialEditState?.bgRemoved ?? false
+  );
   const [bgRemoving, setBgRemoving] = useState(false);
   const [bgAnalysis, setBgAnalysis] = useState<BgAnalysis | null>(null);
   const [bgModelPreloading, setBgModelPreloading] = useState(false);
@@ -69,10 +98,11 @@ export function PhotoEditor({
   );
   const [showDragHint, setShowDragHint] = useState(true);
   const [sheetDataUrl, setSheetDataUrl] = useState<string | null>(null);
+  const [imageReady, setImageReady] = useState(false); // Track when source image is loaded
 
   const sourceImgRef = useRef<HTMLImageElement | null>(null);
   const passportCanvasRef = useRef<HTMLCanvasElement>(null);
-  const sheetCanvasRef = useRef<HTMLCanvasElement>(null);
+  // sheetCanvasRef removed - sheet is now generated directly in handleGenerate
   const isDraggingRef = useRef(false);
   const dragStartRef = useRef({ x: 0, y: 0, h: 0, v: 0 });
   const userHRef = useRef(0);
@@ -88,24 +118,58 @@ export function PhotoEditor({
 
   // Report edit state changes to parent (for saving before payment)
   useEffect(() => {
+    // Capture processed image if background was removed
+    let processedImageDataUrl: string | undefined;
+    if (bgRemoved && sourceImgRef.current) {
+      const canvas = document.createElement('canvas');
+      canvas.width = sourceImgRef.current.naturalWidth;
+      canvas.height = sourceImgRef.current.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(sourceImgRef.current, 0, 0);
+        processedImageDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      }
+    }
+
     onEditStateChange?.({
       zoom: userZoom,
       h: userH,
       v: userV,
       brightness: userBrightness,
       standardId,
+      bgRemoved,
+      processedImageDataUrl,
+      cropParams, // Include calculated crop params for restore
+      faceData, // Include face data for compliance checks
     });
-  }, [userZoom, userH, userV, userBrightness, standardId, onEditStateChange]);
+  }, [
+    userZoom,
+    userH,
+    userV,
+    userBrightness,
+    standardId,
+    bgRemoved,
+    cropParams,
+    faceData,
+    onEditStateChange,
+  ]);
 
   const standard = STANDARDS[standardId];
 
-  // Load image and detect face
+  // Load image and detect face (skip detection if we have pre-calculated crop params)
   useEffect(() => {
     let cancelled = false;
     const img = new Image();
     img.onload = async () => {
       if (cancelled) return;
       sourceImgRef.current = img;
+      setImageReady(true); // Signal that image is loaded and ready for rendering
+
+      // If we have pre-calculated crop params (e.g., returning from payment), skip face detection
+      if (cropParams) {
+        setLoading(false);
+        return;
+      }
 
       setLoadingText('Detecting face...');
       setFaceStatus('detecting');
@@ -118,6 +182,16 @@ export function PhotoEditor({
         if (face) {
           setFaceData(face);
           setFaceStatus('found');
+
+          // Calculate and store crop params for later use
+          const standard = STANDARDS[standardId];
+          const calculatedCrop = calculateCrop(
+            img.naturalWidth,
+            img.naturalHeight,
+            face,
+            standard
+          );
+          setCropParams(calculatedCrop);
 
           // Analyze background with face data for exclusion
           const analysis = analyzeBackground(img, face);
@@ -139,6 +213,16 @@ export function PhotoEditor({
           setFaceData(null);
           setFaceStatus('not-found');
 
+          // Calculate fallback crop params
+          const standard = STANDARDS[standardId];
+          const calculatedCrop = calculateCrop(
+            img.naturalWidth,
+            img.naturalHeight,
+            null,
+            standard
+          );
+          setCropParams(calculatedCrop);
+
           // Analyze without face exclusion
           const analysis = analyzeBackground(img, null);
           setBgAnalysis(analysis);
@@ -158,7 +242,7 @@ export function PhotoEditor({
       cancelled = true;
       if (img.src) URL.revokeObjectURL(img.src);
     };
-  }, [imageBlob]);
+  }, [imageBlob, cropParams, standardId]);
 
   // Render passport photo on any change
   const renderPreview = useCallback(() => {
@@ -175,9 +259,21 @@ export function PhotoEditor({
       userH,
       userV,
       userBrightness,
-      !isPaid
+      !isPaid,
+      cropParams // Use pre-calculated crop params if available
     );
-  }, [faceData, standard, userZoom, userH, userV, userBrightness, isPaid]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- imageReady triggers re-render when image loads
+  }, [
+    faceData,
+    standard,
+    userZoom,
+    userH,
+    userV,
+    userBrightness,
+    isPaid,
+    cropParams,
+    imageReady,
+  ]);
 
   useEffect(() => {
     renderPreview();
@@ -185,19 +281,58 @@ export function PhotoEditor({
 
   // Auto-generate sheet when starting on output step (e.g., returning from payment)
   useEffect(() => {
-    if (initialStep === 'output' && step === 'output' && faceData && !sheetDataUrl) {
-      // Small delay to ensure canvas is rendered after renderPreview
+    // Only generate when image is ready AND we have crop params AND we're on output step
+    if (
+      initialStep === 'output' &&
+      step === 'output' &&
+      cropParams &&
+      !sheetDataUrl &&
+      imageReady
+    ) {
+      // Delay to ensure canvas is rendered and renderPreview has executed
       const timer = setTimeout(() => {
         const passportCanvas = passportCanvasRef.current;
-        if (passportCanvas && passportCanvas.width > 0) {
-          const tempSheet = document.createElement('canvas');
-          renderSheet(tempSheet, passportCanvas, standard, !isPaid);
-          setSheetDataUrl(tempSheet.toDataURL('image/jpeg', 0.95));
+        const img = sourceImgRef.current;
+
+        if (passportCanvas && img) {
+          // First render the passport photo to the canvas
+          renderPassportPhoto(
+            passportCanvas,
+            img,
+            faceData,
+            standard,
+            userZoom,
+            userH,
+            userV,
+            userBrightness,
+            !isPaid,
+            cropParams
+          );
+
+          // Then generate the sheet from it
+          if (passportCanvas.width > 0) {
+            const tempSheet = document.createElement('canvas');
+            renderSheet(tempSheet, passportCanvas, standard, !isPaid);
+            setSheetDataUrl(tempSheet.toDataURL('image/jpeg', 0.95));
+          }
         }
-      }, 100);
+      }, 200);
       return () => clearTimeout(timer);
     }
-  }, [initialStep, step, faceData, sheetDataUrl, standard, isPaid]);
+  }, [
+    initialStep,
+    step,
+    cropParams,
+    sheetDataUrl,
+    standard,
+    isPaid,
+    imageReady,
+    faceData,
+    userZoom,
+    userH,
+    userV,
+    userBrightness,
+  ]);
 
   // Update compliance checks
   useEffect(() => {
@@ -363,7 +498,23 @@ export function PhotoEditor({
 
   const downloadSingle = () => {
     const canvas = passportCanvasRef.current;
-    if (!canvas) return;
+    const img = sourceImgRef.current;
+    if (!canvas || !img) return;
+
+    // Ensure canvas is rendered before download (fixes blank canvas issue in output view)
+    renderPassportPhoto(
+      canvas,
+      img,
+      faceData,
+      standard,
+      userZoom,
+      userH,
+      userV,
+      userBrightness,
+      !isPaid,
+      cropParams
+    );
+
     const link = document.createElement('a');
     link.download = 'passport-photo.jpg';
     link.href = canvas.toDataURL('image/jpeg', 0.95);
@@ -385,6 +536,9 @@ export function PhotoEditor({
   if (step === 'output') {
     return (
       <div className="space-y-6">
+        {/* Hidden canvas for generating passport photo - needed even in output view */}
+        <canvas ref={passportCanvasRef} className="hidden" aria-hidden="true" />
+
         <button
           onClick={() => setStep('editing')}
           className="text-sm text-muted-foreground hover:text-foreground transition-colors print-hide"
@@ -529,8 +683,20 @@ export function PhotoEditor({
           <div className="relative flex items-center justify-center p-4 min-h-[300px]">
             <canvas
               ref={passportCanvasRef}
-              className="w-[200px] h-[200px] rounded border border-border bg-white cursor-grab active:cursor-grabbing"
-              style={{ touchAction: 'none', userSelect: 'none' }}
+              className="rounded border border-border bg-white cursor-grab active:cursor-grabbing"
+              style={{
+                touchAction: 'none',
+                userSelect: 'none',
+                // Dynamic size based on aspect ratio, max 200px on longest side
+                width:
+                  standard.w >= standard.h
+                    ? '200px'
+                    : `${Math.round(200 * (standard.w / standard.h))}px`,
+                height:
+                  standard.h >= standard.w
+                    ? '200px'
+                    : `${Math.round(200 * (standard.h / standard.w))}px`,
+              }}
               onMouseDown={onDragStart}
               onTouchStart={onDragStart}
               onWheel={onWheel}
@@ -551,16 +717,13 @@ export function PhotoEditor({
             <label className="text-sm text-muted-foreground min-w-[100px]">
               Photo Standard
             </label>
-            <div className="flex-1">
-              <CountrySelector
-                value={standardId}
-                onValueChange={(v) => {
-                  setStandardId(v);
-                  setUserZoom(100);
-                  setUserH(0);
-                  setUserV(0);
-                }}
-              />
+            <div className="flex-1 flex items-center gap-2">
+              <div className="px-3 py-2 rounded-md border border-border bg-muted/50 text-sm">
+                {standard.flag} {standard.name} ({standard.description})
+              </div>
+              <span className="text-xs text-muted-foreground">
+                Start over to change
+              </span>
             </div>
           </div>
 

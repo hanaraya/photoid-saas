@@ -35,7 +35,11 @@ export function CountrySelector({
             : 'Select photo standard'}
         </span>
       </SelectTrigger>
-      <SelectContent className="bg-card border-border max-h-80">
+      <SelectContent
+        className="bg-card border-border max-h-80 z-[100]"
+        position="popper"
+        sideOffset={4}
+      >
         {Object.entries(grouped).map(([group, standards]) => (
           <SelectGroup key={group}>
             <SelectLabel className="text-xs uppercase tracking-wider text-muted-foreground">

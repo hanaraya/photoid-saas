@@ -71,7 +71,8 @@ describe('AppPage Branch Coverage Tests', () => {
       }
       return Promise.resolve({
         ok: true,
-        json: () => Promise.resolve({ url: 'https://checkout.stripe.com/test' }),
+        json: () =>
+          Promise.resolve({ url: 'https://checkout.stripe.com/test' }),
       });
     });
   });
@@ -101,9 +102,7 @@ describe('AppPage Branch Coverage Tests', () => {
       render(<AppPage />);
 
       await waitFor(() => {
-        expect(
-          screen.queryByText(/payment verified/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/payment verified/i)).not.toBeInTheDocument();
       });
     });
   });

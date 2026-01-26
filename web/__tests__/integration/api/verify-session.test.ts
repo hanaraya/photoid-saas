@@ -32,7 +32,9 @@ describe('Verify Session API Route', () => {
     it('should return error when STRIPE_SECRET_KEY is not set', async () => {
       delete process.env.STRIPE_SECRET_KEY;
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_123');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_123'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -50,7 +52,9 @@ describe('Verify Session API Route', () => {
     });
 
     it('should return error when session_id has invalid format', async () => {
-      const request = new Request('http://localhost/api/verify-session?session_id=invalid_123');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=invalid_123'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -66,7 +70,9 @@ describe('Verify Session API Route', () => {
         customer_details: { email: 'test@example.com' },
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_123');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_123'
+      );
       const response = await GET(request);
 
       expect(response.status).toBe(200);
@@ -83,12 +89,16 @@ describe('Verify Session API Route', () => {
         created: twoHoursAgo,
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_old_session');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_old_session'
+      );
       const response = await GET(request);
       const data = await response.json();
 
       expect(data.verified).toBe(false);
-      expect(data.error).toBe('Payment session expired. Please make a new payment.');
+      expect(data.error).toBe(
+        'Payment session expired. Please make a new payment.'
+      );
     });
 
     it('should accept sessions created within the last hour', async () => {
@@ -100,7 +110,9 @@ describe('Verify Session API Route', () => {
         customer_details: { email: 'test@example.com' },
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_recent');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_recent'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -116,7 +128,9 @@ describe('Verify Session API Route', () => {
         customer_details: null,
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_now');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_now'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -131,7 +145,9 @@ describe('Verify Session API Route', () => {
         created: oneHourAgo - 1, // Just over 1 hour
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_edge');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_edge'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -148,7 +164,9 @@ describe('Verify Session API Route', () => {
         customer_details: { email: 'customer@example.com' },
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_paid_session');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_paid_session'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -165,7 +183,9 @@ describe('Verify Session API Route', () => {
         created: Math.floor(Date.now() / 1000),
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_unpaid');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_unpaid'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -182,7 +202,9 @@ describe('Verify Session API Route', () => {
         created: Math.floor(Date.now() / 1000),
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_no_payment');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_no_payment'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -197,7 +219,9 @@ describe('Verify Session API Route', () => {
         customer_details: null,
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_no_email');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_no_email'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -216,7 +240,9 @@ describe('Verify Session API Route', () => {
       const Stripe = require('stripe');
       Stripe.errors = { StripeError: Error };
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_nonexistent');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_nonexistent'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -228,7 +254,9 @@ describe('Verify Session API Route', () => {
     it('should return 500 on general Stripe errors', async () => {
       mockRetrieve.mockRejectedValue(new Error('Connection failed'));
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_error');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_error'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -252,7 +280,9 @@ describe('Verify Session API Route', () => {
         customer: 'cus_secret_456',
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_secure');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_secure'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -271,7 +301,9 @@ describe('Verify Session API Route', () => {
 
     it('should reject session_id not starting with cs_', async () => {
       // Attempt to bypass with different prefix
-      const request = new Request('http://localhost/api/verify-session?session_id=pi_test_123');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=pi_test_123'
+      );
       const response = await GET(request);
       const data = await response.json();
 
@@ -286,7 +318,9 @@ describe('Verify Session API Route', () => {
         created: Math.floor(Date.now() / 1000),
       });
 
-      const request = new Request('http://localhost/api/verify-session?session_id=cs_test_valid123');
+      const request = new Request(
+        'http://localhost/api/verify-session?session_id=cs_test_valid123'
+      );
       await GET(request);
 
       // Verify the exact session_id was passed to Stripe

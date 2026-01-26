@@ -313,7 +313,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
   });
 
   describe('Country Selection', () => {
-    it('should render country selector', async () => {
+    it('should render photo standard as read-only', async () => {
       render(
         <PhotoEditor
           imageBlob={mockImageBlob}
@@ -332,8 +332,8 @@ describe('PhotoEditor Branch Coverage Tests', () => {
         { timeout: 3000 }
       );
 
-      const combobox = screen.getByRole('combobox');
-      expect(combobox).toBeInTheDocument();
+      // Standard is now read-only in editor, user must start over to change
+      expect(screen.getByText(/Start over to change/i)).toBeInTheDocument();
     });
   });
 
