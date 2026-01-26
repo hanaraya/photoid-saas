@@ -8,31 +8,26 @@ const demos = [
     id: 1,
     name: 'Sarah',
     before: '/demo/before-1.jpg',
-    description: 'Outdoor selfie → Perfect passport photo',
   },
   {
     id: 2,
     name: 'Michael',
     before: '/demo/before-2.jpg',
-    description: 'Casual photo → Government-compliant',
   },
   {
     id: 3,
     name: 'Emma',
     before: '/demo/before-3.jpg',
-    description: 'Indoor shot → White background ready',
   },
   {
     id: 4,
     name: 'James',
     before: '/demo/before-4.jpg',
-    description: 'Any background → Print-ready result',
   },
 ];
 
 export function DemoSection() {
   const [activeDemo, setActiveDemo] = useState(0);
-  const [showAfter, setShowAfter] = useState(false);
 
   return (
     <section id="demo" className="py-20 bg-card/30">
@@ -47,117 +42,94 @@ export function DemoSection() {
         </div>
 
         {/* Main Demo Area */}
-        <div className="max-w-3xl mx-auto">
-          <div className="relative bg-card rounded-2xl border border-border overflow-hidden">
-            {/* Before/After Toggle */}
-            <div className="flex border-b border-border">
-              <button
-                onClick={() => setShowAfter(false)}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  !showAfter
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                📷 Before
-              </button>
-              <button
-                onClick={() => setShowAfter(true)}
-                className={`flex-1 py-3 text-sm font-medium transition-colors ${
-                  showAfter
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                ✨ After
-              </button>
-            </div>
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-card rounded-2xl border border-border overflow-hidden p-6 sm:p-8">
+            {/* Side by Side Before/After */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+              {/* Before */}
+              <div className="text-center">
+                <p className="text-sm font-medium text-muted-foreground mb-3">
+                  📷 Your Photo
+                </p>
+                <div className="relative w-[180px] h-[180px] sm:w-[200px] sm:h-[200px] rounded-xl overflow-hidden shadow-lg border-2 border-dashed border-muted-foreground/30">
+                  <Image
+                    src={demos[activeDemo].before}
+                    alt="Original photo"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
 
-            {/* Image Display */}
-            <div className="relative aspect-[4/3] bg-muted/50">
-              {!showAfter ? (
-                /* Before Image */
-                <div className="absolute inset-0 flex items-center justify-center p-8">
-                  <div className="relative w-full max-w-[280px] aspect-square rounded-xl overflow-hidden shadow-lg">
-                    <Image
-                      src={demos[activeDemo].before}
-                      alt={`${demos[activeDemo].name}'s original photo`}
-                      fill
-                      className="object-cover"
-                    />
+              {/* Arrow */}
+              <div className="flex items-center justify-center">
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-3xl sm:rotate-0 rotate-90">→</span>
+                  <span className="text-xs text-muted-foreground font-medium hidden sm:block">
+                    AI Magic
+                  </span>
+                </div>
+              </div>
+
+              {/* After */}
+              <div className="text-center">
+                <p className="text-sm font-medium text-muted-foreground mb-3">
+                  ✨ Passport Ready
+                </p>
+                <div className="flex gap-4 items-end">
+                  {/* Single passport photo */}
+                  <div>
+                    <div className="w-[100px] h-[125px] sm:w-[120px] sm:h-[150px] bg-white rounded-lg shadow-lg overflow-hidden border-4 border-white ring-1 ring-gray-200">
+                      <div className="w-full h-full relative">
+                        <Image
+                          src={demos[activeDemo].before}
+                          alt="Passport photo"
+                          fill
+                          className="object-cover object-top scale-125"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">2×2 in</p>
+                  </div>
+
+                  {/* 4x6 Print Sheet */}
+                  <div>
+                    <div className="w-[90px] h-[60px] sm:w-[120px] sm:h-[80px] bg-white rounded shadow-lg p-1 ring-1 ring-gray-200">
+                      <div className="grid grid-cols-3 grid-rows-2 gap-[2px] h-full">
+                        {[...Array(6)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="relative bg-gray-100 rounded-sm overflow-hidden"
+                          >
+                            <Image
+                              src={demos[activeDemo].before}
+                              alt=""
+                              fill
+                              className="object-cover object-top scale-125"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">4×6 sheet</p>
                   </div>
                 </div>
-              ) : (
-                /* After - Simulated passport photo */
-                <div className="absolute inset-0 flex items-center justify-center p-8">
-                  <div className="flex gap-6 items-center">
-                    {/* Single passport photo */}
-                    <div className="relative">
-                      <div className="w-[120px] h-[150px] bg-white rounded-lg shadow-lg overflow-hidden border-4 border-white">
-                        <div className="w-full h-full relative">
-                          <Image
-                            src={demos[activeDemo].before}
-                            alt={`${demos[activeDemo].name}'s passport photo`}
-                            fill
-                            className="object-cover object-top scale-110"
-                          />
-                          {/* White background simulation overlay */}
-                          <div className="absolute inset-0 mix-blend-lighten bg-gradient-to-b from-white/20 via-transparent to-white/20" />
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-muted-foreground mt-2">
-                        2×2 inch
-                      </p>
-                    </div>
-
-                    {/* 4x6 Print Sheet */}
-                    <div className="relative">
-                      <div className="w-[180px] h-[120px] bg-white rounded-lg shadow-lg p-2 border border-gray-200">
-                        <div className="grid grid-cols-3 grid-rows-2 gap-1 h-full">
-                          {[...Array(6)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="relative bg-gray-100 rounded overflow-hidden"
-                            >
-                              <Image
-                                src={demos[activeDemo].before}
-                                alt=""
-                                fill
-                                className="object-cover object-top scale-110"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-muted-foreground mt-2">
-                        4×6 Print Sheet
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Description */}
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-                <span className="px-4 py-2 bg-black/70 text-white text-sm rounded-full">
-                  {demos[activeDemo].description}
-                </span>
               </div>
             </div>
 
             {/* Thumbnail Selector */}
-            <div className="flex justify-center gap-3 p-4 border-t border-border bg-muted/30">
+            <div className="flex justify-center gap-3 mt-8 pt-6 border-t border-border">
+              <span className="text-sm text-muted-foreground mr-2 self-center">
+                Try different photos:
+              </span>
               {demos.map((demo, index) => (
                 <button
                   key={demo.id}
-                  onClick={() => {
-                    setActiveDemo(index);
-                    setShowAfter(false);
-                  }}
-                  className={`relative w-14 h-14 rounded-lg overflow-hidden transition-all ${
+                  onClick={() => setActiveDemo(index)}
+                  className={`relative w-12 h-12 rounded-lg overflow-hidden transition-all ${
                     activeDemo === index
-                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
-                      : 'opacity-60 hover:opacity-100'
+                      ? 'ring-2 ring-primary ring-offset-2 ring-offset-background scale-110'
+                      : 'opacity-50 hover:opacity-100'
                   }`}
                 >
                   <Image
@@ -172,7 +144,7 @@ export function DemoSection() {
           </div>
 
           {/* Features under demo */}
-          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { icon: '🎯', label: 'Face Detection' },
               { icon: '✂️', label: 'Background Removal' },
