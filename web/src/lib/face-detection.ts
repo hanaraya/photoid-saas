@@ -84,7 +84,7 @@ export async function initFaceDetector(): Promise<void> {
           delegate: 'GPU',
         },
         runningMode: 'IMAGE',
-        minDetectionConfidence: 0.5,
+        minDetectionConfidence: 0.4,
       });
     } catch {
       // GPU fallback to CPU
@@ -97,7 +97,7 @@ export async function initFaceDetector(): Promise<void> {
             'https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/latest/blaze_face_short_range.tflite',
         },
         runningMode: 'IMAGE',
-        minDetectionConfidence: 0.5,
+        minDetectionConfidence: 0.4,
       });
     }
   })();
@@ -150,6 +150,24 @@ export async function detectFaces(
         if (kp.label === 'mouth' || kp.label === 'mouthCenter' || kp.index === 3)
           mouth = { x: px, y: py };
       }
+    }
+
+    // Fallback: estimate eye positions from face bounding box if not detected
+    // Eyes are typically at ~35% from top of face, spaced ~30% from center
+    if (!leftEye && !rightEye) {
+      const eyeY = bb.originY + bb.height * 0.35;
+      const eyeSpacing = bb.width * 0.15;
+      const centerX = bb.originX + bb.width / 2;
+      leftEye = { x: centerX - eyeSpacing, y: eyeY };
+      rightEye = { x: centerX + eyeSpacing, y: eyeY };
+    } else if (!leftEye && rightEye) {
+      // Estimate left eye from right eye position
+      const eyeSpacing = bb.width * 0.3;
+      leftEye = { x: rightEye.x - eyeSpacing, y: rightEye.y };
+    } else if (leftEye && !rightEye) {
+      // Estimate right eye from left eye position
+      const eyeSpacing = bb.width * 0.3;
+      rightEye = { x: leftEye.x + eyeSpacing, y: leftEye.y };
     }
 
     return {
