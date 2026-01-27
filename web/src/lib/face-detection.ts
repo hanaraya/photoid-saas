@@ -153,20 +153,20 @@ export async function detectFaces(
     }
 
     // Fallback: estimate eye positions from face bounding box if not detected
-    // Eyes are typically at ~35% from top of face, spaced ~30% from center
+    // Eyes are typically at ~45% from top of face bounding box
     if (!leftEye && !rightEye) {
-      const eyeY = bb.originY + bb.height * 0.35;
-      const eyeSpacing = bb.width * 0.15;
+      const eyeY = bb.originY + bb.height * 0.45;
+      const eyeSpacing = bb.width * 0.2;
       const centerX = bb.originX + bb.width / 2;
       leftEye = { x: centerX - eyeSpacing, y: eyeY };
       rightEye = { x: centerX + eyeSpacing, y: eyeY };
     } else if (!leftEye && rightEye) {
       // Estimate left eye from right eye position
-      const eyeSpacing = bb.width * 0.3;
+      const eyeSpacing = bb.width * 0.4;
       leftEye = { x: rightEye.x - eyeSpacing, y: rightEye.y };
     } else if (leftEye && !rightEye) {
       // Estimate right eye from left eye position
-      const eyeSpacing = bb.width * 0.3;
+      const eyeSpacing = bb.width * 0.4;
       rightEye = { x: leftEye.x + eyeSpacing, y: leftEye.y };
     }
 
