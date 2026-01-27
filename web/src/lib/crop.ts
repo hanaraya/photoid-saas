@@ -66,8 +66,8 @@ export function calculateCrop(
     });
 
     // Calculate crop dimensions
-    let cropW = spec.w / scale;
-    let cropH = spec.h / scale;
+    const cropW = spec.w / scale;
+    const cropH = spec.h / scale;
 
     // Position based on eye line
     const targetEyeFromTop = spec.h - spec.eyeFromBottom;
