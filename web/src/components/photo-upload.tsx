@@ -119,9 +119,8 @@ export function PhotoUpload({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Mirror the capture
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
+    // DO NOT mirror the capture - passport photos must be un-mirrored
+    // Preview is mirrored for UX (feels like a mirror), but saved image must be real
     ctx.drawImage(video, 0, 0);
 
     canvas.toBlob(
