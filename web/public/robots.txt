@@ -4,9 +4,15 @@ Allow: /
 # Important pages
 Allow: /
 Allow: /app
+Allow: /us-passport-photo
+Allow: /blog
+Allow: /blog/passport-photo-privacy
 Allow: /privacy
 Allow: /terms
 Allow: /refund
+
+# LLM-friendly info
+Allow: /llms.txt
 
 # Sitemap location
 Sitemap: https://safepassportpic.com/sitemap.xml
