@@ -50,8 +50,10 @@ describe('content-moderation', () => {
       expect(result.violations.some(v => v.code === VIOLATION_CODES.NO_FACE)).toBe(true);
     });
 
-    it('should block when both eyes are missing (covered face)', () => {
-      const coveredFace: FaceData = {
+    it('should allow face even without eye landmarks (trust face detection)', () => {
+      // MediaPipe may detect a face but not return eye landmarks
+      // We trust the face detection and don't block
+      const faceWithoutLandmarks: FaceData = {
         x: 100,
         y: 100,
         w: 200,
@@ -61,24 +63,7 @@ describe('content-moderation', () => {
         nose: null,
         mouth: null,
       };
-      const result = moderateContent(coveredFace, 1);
-
-      expect(result.allowed).toBe(false);
-      expect(result.violations.some(v => v.code === VIOLATION_CODES.FACE_COVERED)).toBe(true);
-    });
-
-    it('should allow face with at least one eye detected', () => {
-      const partialFace: FaceData = {
-        x: 100,
-        y: 100,
-        w: 200,
-        h: 250,
-        leftEye: { x: 150, y: 170 },
-        rightEye: null, // Missing one eye is okay
-        nose: null,  // nose/mouth not required
-        mouth: null,
-      };
-      const result = moderateContent(partialFace, 1);
+      const result = moderateContent(faceWithoutLandmarks, 1);
 
       expect(result.allowed).toBe(true);
       expect(result.severity).toBe('pass');

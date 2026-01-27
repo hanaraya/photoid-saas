@@ -29,7 +29,6 @@ export const VIOLATION_CODES = {
   // Blocking violations (critical - stop processing)
   MULTIPLE_FACES: 'multiple_faces',
   NO_FACE: 'no_face',
-  FACE_COVERED: 'face_covered',
 } as const;
 
 /**
@@ -64,19 +63,9 @@ export function moderateContent(
     });
   }
   
-  // Check face visibility (face mostly visible, not covered)
-  // Only block if BOTH eyes are missing - nose/mouth detection is unreliable
-  if (faceData) {
-    if (!faceData.leftEye && !faceData.rightEye) {
-      violations.push({
-        code: VIOLATION_CODES.FACE_COVERED,
-        label: 'Face Obstructed',
-        severity: 'block',
-        message: 'Face appears to be covered or obstructed',
-        details: 'Ensure your full face is visible without any obstructions.',
-      });
-    }
-  }
+  // Note: Removed "face obstructed" check - MediaPipe's landmark detection 
+  // is unreliable and causes false positives. If a face bounding box is 
+  // detected, we trust it.
   
   // Determine overall result
   const blockingViolations = violations.filter(v => v.severity === 'block');
