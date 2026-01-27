@@ -31,8 +31,24 @@ export function Footer() {
           </div>
 
           <div>
-            <h3 className="font-semibold mb-3 text-sm">Legal</h3>
+            <h3 className="font-semibold mb-3 text-sm">Resources</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
+              <li>
+                <Link
+                  href="/us-passport-photo"
+                  className="hover:text-foreground transition-colors"
+                >
+                  US Passport Photo Guide
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/blog"
+                  className="hover:text-foreground transition-colors"
+                >
+                  Blog
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/privacy"
