@@ -4,6 +4,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 // CountrySelector removed - standard is now read-only in editor
 import { ComplianceChecker } from './compliance-checker';
 import { RetakeSuggestions } from './retake-suggestions';
@@ -15,8 +23,15 @@ import {
 import {
   type FaceData,
   initFaceDetector,
-  detectFace,
+  detectFaces,
 } from '@/lib/face-detection';
+import {
+  moderateContent,
+  checkFinalCompliance,
+  type ModerationResult,
+  type FinalComplianceResult,
+} from '@/lib/content-moderation';
+import { ModerationBlocker, ModerationWarning } from './moderation-blocker';
 
 // Re-export FaceData for consumers of EditState
 export type { FaceData };
@@ -109,6 +124,9 @@ export function PhotoEditor({
   const [sheetDataUrl, setSheetDataUrl] = useState<string | null>(null);
   const [imageReady, setImageReady] = useState(false); // Track when source image is loaded
   const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(null);
+  const [moderationResult, setModerationResult] = useState<ModerationResult | null>(null);
+  const [finalComplianceResult, setFinalComplianceResult] = useState<FinalComplianceResult | null>(null);
+  const [showComplianceWarning, setShowComplianceWarning] = useState(false);
 
   const sourceImgRef = useRef<HTMLImageElement | null>(null);
   const passportCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -186,8 +204,12 @@ export function PhotoEditor({
 
       try {
         await initFaceDetector();
-        const face = await detectFace(img);
+        const { face, faceCount } = await detectFaces(img);
         if (cancelled) return;
+
+        // Run content moderation with face data
+        const modResult = moderateContent(face, faceCount);
+        setModerationResult(modResult);
 
         if (face) {
           setFaceData(face);
@@ -522,7 +544,24 @@ export function PhotoEditor({
   }, []);
 
   // Generate sheet and show output
-  const handleGenerate = () => {
+  const handleGenerate = (bypassWarnings = false) => {
+    // Run final compliance check before generating
+    const finalCheck = checkFinalCompliance(complianceChecks);
+    setFinalComplianceResult(finalCheck);
+    
+    // If there are errors (not just warnings), show warning dialog
+    if (!finalCheck.canProceed) {
+      setShowComplianceWarning(true);
+      return;
+    }
+    
+    // If there are warnings and user hasn't bypassed them, show warning
+    if (finalCheck.issues.length > 0 && !bypassWarnings) {
+      setShowComplianceWarning(true);
+      return;
+    }
+    
+    // All good, proceed to generate
     renderPreview();
     // Render sheet to a temporary canvas and capture as data URL
     const tempSheet = document.createElement('canvas');
@@ -531,6 +570,7 @@ export function PhotoEditor({
       renderSheet(tempSheet, passportCanvas, standard, !isPaid);
       setSheetDataUrl(tempSheet.toDataURL('image/jpeg', 0.95));
     }
+    setShowComplianceWarning(false);
     setStep('output');
   };
 
@@ -679,12 +719,22 @@ export function PhotoEditor({
 
   return (
     <div className="space-y-6">
+      {/* Content Moderation Blocker - blocks if serious violations */}
+      {moderationResult && !moderationResult.allowed && (
+        <ModerationBlocker result={moderationResult} onRetry={onBack} />
+      )}
+
       <button
         onClick={onBack}
         className="text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         ← Start over
       </button>
+
+      {/* Content Moderation Warnings - advisory issues */}
+      {moderationResult && moderationResult.allowed && moderationResult.severity === 'warn' && (
+        <ModerationWarning result={moderationResult} />
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Source image panel */}
@@ -909,7 +959,7 @@ export function PhotoEditor({
           </div>
         )}
 
-        <Button onClick={handleGenerate} className="gap-2">
+        <Button onClick={() => handleGenerate()} className="gap-2">
           <svg
             className="h-4 w-4"
             fill="none"
@@ -922,6 +972,57 @@ export function PhotoEditor({
           Generate Printable Sheet
         </Button>
       </div>
+
+      {/* Final Compliance Warning Dialog */}
+      <Dialog open={showComplianceWarning} onOpenChange={setShowComplianceWarning}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {finalComplianceResult?.canProceed 
+                ? '⚠️ Compliance Warnings' 
+                : '❌ Compliance Issues Found'}
+            </DialogTitle>
+            <DialogDescription>
+              {finalComplianceResult?.canProceed 
+                ? 'Your photo has some issues that may cause problems with official submission.'
+                : 'Your photo has issues that must be fixed before proceeding.'}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-2 py-4">
+            {finalComplianceResult?.issues.map((issue) => (
+              <div 
+                key={issue.id}
+                className={`flex items-start gap-2 rounded-lg p-3 text-sm ${
+                  issue.severity === 'error' 
+                    ? 'bg-red-500/10 text-red-400 border border-red-500/20' 
+                    : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                }`}
+              >
+                <span>{issue.severity === 'error' ? '❌' : '⚠️'}</span>
+                <span>{issue.message}</span>
+              </div>
+            ))}
+          </div>
+          
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowComplianceWarning(false)}
+            >
+              Go Back & Fix
+            </Button>
+            {finalComplianceResult?.canProceed && (
+              <Button 
+                variant="secondary"
+                onClick={() => handleGenerate(true)}
+              >
+                Proceed Anyway
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

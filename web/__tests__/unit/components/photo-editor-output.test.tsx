@@ -17,9 +17,12 @@ const mockCalculateCrop = jest.fn();
 const mockCheckCompliance = jest.fn();
 const mockAnalyzeBackground = jest.fn();
 
+const mockDetectFaces = jest.fn();
+
 jest.mock('@/lib/face-detection', () => ({
   initFaceDetector: (...args: unknown[]) => mockInitFaceDetector(...args),
   detectFace: (...args: unknown[]) => mockDetectFace(...args),
+  detectFaces: (...args: unknown[]) => mockDetectFaces(...args),
 }));
 
 jest.mock('@/lib/bg-removal', () => ({
@@ -40,6 +43,14 @@ jest.mock('@/lib/compliance', () => ({
 
 jest.mock('@/lib/bg-analysis', () => ({
   analyzeBackground: (...args: unknown[]) => mockAnalyzeBackground(...args),
+}));
+
+const mockModerateContent = jest.fn();
+const mockCheckFinalCompliance = jest.fn();
+
+jest.mock('@/lib/content-moderation', () => ({
+  moderateContent: (...args: unknown[]) => mockModerateContent(...args),
+  checkFinalCompliance: (...args: unknown[]) => mockCheckFinalCompliance(...args),
 }));
 
 // Mock URL.createObjectURL
@@ -87,6 +98,31 @@ describe('PhotoEditor Output and Download Tests', () => {
       h: 250,
       leftEye: { x: 150, y: 150 },
       rightEye: { x: 250, y: 150 },
+      nose: { x: 200, y: 200 },
+      mouth: { x: 200, y: 230 },
+    });
+    mockDetectFaces.mockResolvedValue({
+      face: {
+        x: 100,
+        y: 100,
+        w: 200,
+        h: 250,
+        leftEye: { x: 150, y: 150 },
+        rightEye: { x: 250, y: 150 },
+        nose: { x: 200, y: 200 },
+        mouth: { x: 200, y: 230 },
+      },
+      faceCount: 1,
+    });
+    mockModerateContent.mockReturnValue({
+      allowed: true,
+      severity: 'pass',
+      violations: [],
+      summary: 'Content check passed',
+    });
+    mockCheckFinalCompliance.mockReturnValue({
+      canProceed: true,
+      issues: [],
     });
     mockAnalyzeBackground.mockReturnValue({
       score: 90,
@@ -281,6 +317,17 @@ describe('PhotoEditor Output and Download Tests', () => {
 
     it('should show no face found status when face is not detected', async () => {
       mockDetectFace.mockResolvedValue(null);
+      mockDetectFaces.mockResolvedValue({
+        face: null,
+        faceCount: 0,
+      });
+      // Don't block on no-face for this test - just warn so badge is visible
+      mockModerateContent.mockReturnValue({
+        allowed: true,
+        severity: 'warn',
+        violations: [],
+        summary: 'Content check passed',
+      });
 
       render(
         <PhotoEditor

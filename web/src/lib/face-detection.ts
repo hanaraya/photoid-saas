@@ -5,6 +5,13 @@ export interface FaceData {
   h: number;
   leftEye: { x: number; y: number } | null;
   rightEye: { x: number; y: number } | null;
+  nose?: { x: number; y: number } | null;
+  mouth?: { x: number; y: number } | null;
+}
+
+export interface FaceDetectionResult {
+  face: FaceData | null;
+  faceCount: number;
 }
 
 // MediaPipe module type (dynamic import)
@@ -98,14 +105,20 @@ export async function initFaceDetector(): Promise<void> {
   return initPromise;
 }
 
-export async function detectFace(
+/**
+ * Detect faces in an image and return the primary face + total count
+ * Useful for moderation (detecting multiple people in photo)
+ */
+export async function detectFaces(
   imgElement: HTMLImageElement
-): Promise<FaceData | null> {
-  if (!faceDetector) return null;
+): Promise<FaceDetectionResult> {
+  if (!faceDetector) return { face: null, faceCount: 0 };
 
   try {
     const results = faceDetector.detect(imgElement);
-    if (!results?.detections?.length) return null;
+    if (!results?.detections?.length) return { face: null, faceCount: 0 };
+
+    const faceCount = results.detections.length;
 
     // Take the largest face
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -121,6 +134,8 @@ export async function detectFace(
 
     let leftEye: { x: number; y: number } | null = null;
     let rightEye: { x: number; y: number } | null = null;
+    let nose: { x: number; y: number } | null = null;
+    let mouth: { x: number; y: number } | null = null;
 
     for (const kp of keypoints) {
       if (kp.x !== undefined && kp.y !== undefined) {
@@ -130,20 +145,40 @@ export async function detectFace(
           leftEye = { x: px, y: py };
         if (kp.label === 'rightEye' || kp.index === 1)
           rightEye = { x: px, y: py };
+        if (kp.label === 'noseTip' || kp.index === 2)
+          nose = { x: px, y: py };
+        if (kp.label === 'mouth' || kp.label === 'mouthCenter' || kp.index === 3)
+          mouth = { x: px, y: py };
       }
     }
 
     return {
-      x: bb.originX,
-      y: bb.originY,
-      w: bb.width,
-      h: bb.height,
-      leftEye,
-      rightEye,
+      face: {
+        x: bb.originX,
+        y: bb.originY,
+        w: bb.width,
+        h: bb.height,
+        leftEye,
+        rightEye,
+        nose,
+        mouth,
+      },
+      faceCount,
     };
   } catch (error) {
     throw error;
   }
+}
+
+/**
+ * Legacy function - returns only the primary face
+ * @deprecated Use detectFaces() for moderation support
+ */
+export async function detectFace(
+  imgElement: HTMLImageElement
+): Promise<FaceData | null> {
+  const result = await detectFaces(imgElement);
+  return result.face;
 }
 
 export function isFaceDetectorReady(): boolean {

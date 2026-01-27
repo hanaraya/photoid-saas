@@ -16,6 +16,21 @@ jest.mock('@/lib/face-detection', () => ({
     h: 250,
     leftEye: { x: 150, y: 150 },
     rightEye: { x: 250, y: 150 },
+    nose: { x: 200, y: 200 },
+    mouth: { x: 200, y: 230 },
+  }),
+  detectFaces: jest.fn().mockResolvedValue({
+    face: {
+      x: 100,
+      y: 100,
+      w: 200,
+      h: 250,
+      leftEye: { x: 150, y: 150 },
+      rightEye: { x: 250, y: 150 },
+      nose: { x: 200, y: 200 },
+      mouth: { x: 200, y: 230 },
+    },
+    faceCount: 1,
   }),
 }));
 
@@ -60,6 +75,19 @@ jest.mock('@/lib/bg-analysis', () => ({
     averageRgb: { r: 255, g: 255, b: 255 },
     needsRemoval: false,
     reason: 'Already white',
+  }),
+}));
+
+jest.mock('@/lib/content-moderation', () => ({
+  moderateContent: jest.fn().mockReturnValue({
+    allowed: true,
+    severity: 'pass',
+    violations: [],
+    summary: 'Content check passed',
+  }),
+  checkFinalCompliance: jest.fn().mockReturnValue({
+    canProceed: true,
+    issues: [],
   }),
 }));
 
@@ -119,7 +147,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        const backButton = screen.getByRole('button', { name: /back|←/i });
+        const backButton = screen.getByRole('button', { name: /start over/i });
         expect(backButton).toBeInTheDocument();
       },
       { timeout: 2000 }
@@ -147,7 +175,7 @@ describe('PhotoEditor Component', () => {
       { timeout: 3000 }
     );
 
-    const backButton = screen.getByRole('button', { name: /back|←/i });
+    const backButton = screen.getByRole('button', { name: /start over/i });
     await user.click(backButton);
 
     expect(mockOnBack).toHaveBeenCalled();
@@ -312,7 +340,7 @@ describe('PhotoEditor Component', () => {
     );
 
     // Should still render without crashing
-    expect(screen.getByRole('button', { name: /back|←/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
   });
 
   it('should show Generate button', async () => {

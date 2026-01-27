@@ -166,6 +166,8 @@ describe('Face Detection', () => {
         h: 250,
         leftEye: { x: 150, y: 200 }, // 0.15 * 1000, 0.25 * 800
         rightEye: { x: 250, y: 200 }, // 0.25 * 1000, 0.25 * 800
+        nose: null,
+        mouth: null,
       });
     });
 
@@ -230,6 +232,8 @@ describe('Face Detection', () => {
         h: 300,
         leftEye: { x: 200, y: 240 },
         rightEye: { x: 300, y: 240 },
+        nose: null,
+        mouth: null,
       });
     });
 
@@ -259,6 +263,8 @@ describe('Face Detection', () => {
         h: 250,
         leftEye: null,
         rightEye: null,
+        nose: null,
+        mouth: null,
       });
     });
 
@@ -291,6 +297,8 @@ describe('Face Detection', () => {
         h: 250,
         leftEye: null,
         rightEye: null,
+        nose: null,
+        mouth: null,
       });
     });
 
@@ -372,6 +380,8 @@ describe('Face Detection', () => {
         h: 1,
         leftEye: { x: 0.1, y: 0.1 },
         rightEye: { x: 0.9, y: 0.1 },
+        nose: null,
+        mouth: null,
       });
     });
 
@@ -414,6 +424,8 @@ describe('Face Detection', () => {
         h: 2500,
         leftEye: { x: 1500, y: 2000 },
         rightEye: { x: 2500, y: 2000 },
+        nose: null,
+        mouth: null,
       });
     });
 
@@ -455,6 +467,8 @@ describe('Face Detection', () => {
           h: 200,
           leftEye: null,
           rightEye: null,
+        nose: null,
+        mouth: null,
         });
       });
     });
