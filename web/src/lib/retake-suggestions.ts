@@ -123,9 +123,9 @@ function mapCheckToSuggestion(check: ComplianceCheck): RetakeSuggestion | null {
       icon: '🎨',
       title: 'Background Issue',
       problem: 'Background has not been processed.',
-      solution: 'Click "Remove Background" to apply a white background.',
+      solution: 'Use the Fix button to apply a white background.',
       tips: [
-        'Use the Remove Background button',
+        'Tap "Fix" in the compliance panel',
         'Original: use a plain, light-colored wall',
         'Avoid busy patterns or objects behind you',
       ],

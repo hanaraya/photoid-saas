@@ -4,7 +4,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-card/50 mt-auto">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
               <span className="text-2xl">📸</span>
@@ -56,6 +56,27 @@ export function Footer() {
                 >
                   Refund Policy
                 </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="font-semibold mb-3 text-sm">Contact Us</h3>
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              <li className="flex items-center gap-2">
+                <span>📧</span>
+                <a
+                  href="mailto:support@safepassportpic.com"
+                  className="hover:text-foreground transition-colors"
+                >
+                  support@safepassportpic.com
+                </a>
+              </li>
+              <li className="flex items-start gap-2">
+                <span>💬</span>
+                <span>
+                  Questions? We typically respond within 24 hours.
+                </span>
               </li>
             </ul>
           </div>

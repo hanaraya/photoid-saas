@@ -102,42 +102,167 @@ const COUNTRY_HEAD_HEIGHTS: Record<string, HeadHeightRange> = {
 const DEFAULT_HEAD_HEIGHT: HeadHeightRange = { min: 0.50, max: 0.69 };
 
 /**
- * Get head height range for a country
+ * ============================================
+ * CAMERA OVAL SIZING - COMPLETE DERIVATION
+ * ============================================
+ * 
+ * The oval guides users to position their face for optimal capture.
+ * It must account for:
+ * 1. Output photo requirements (head size as % of photo)
+ * 2. Face-to-head ratio (face bbox vs full head with hair)
+ * 3. Capture buffer (extra content for crop flexibility)
+ * 4. Camera viewport dimensions (actual rendered size)
+ */
+
+/**
+ * Face to Head ratio
+ * Face bbox (chin to eyebrows) ≈ 71.4% of full head height
+ * Full head = face + forehead + hair
+ */
+const FACE_TO_HEAD_RATIO = 1 / 1.4; // ~0.714
+
+/**
+ * Derive camera face thresholds from output requirements
+ * 
+ * The oval should match OUTPUT proportions directly.
+ * Crop flexibility comes from:
+ * 1. High resolution capture (1920×1920)
+ * 2. Smart crop algorithm with adjustable scale
+ * 3. User can adjust in editor
+ * 
+ * NO buffer applied to oval - it should feel natural to fill.
+ * 
+ * Example for US (head 50-69%):
+ * - Face in output: 35.7-49.3%
+ * - Face in camera: SAME (35.7-49.3%)
+ * - Target oval: ~42.5% of viewport
+ */
+function deriveCameraThresholds(headMin: number, headMax: number): HeadHeightRange {
+  return {
+    min: headMin * FACE_TO_HEAD_RATIO,
+    max: headMax * FACE_TO_HEAD_RATIO,
+  };
+}
+
+/**
+ * CAMERA-SPECIFIC thresholds - mathematically derived from output specs
+ */
+const CAMERA_FACE_HEIGHT: Record<string, HeadHeightRange> = {
+  // US: head 50-69% → face 35.7-49.3%
+  us: deriveCameraThresholds(0.50, 0.69),
+  us_visa: deriveCameraThresholds(0.50, 0.69),
+  us_drivers: deriveCameraThresholds(0.50, 0.69),
+  green_card: deriveCameraThresholds(0.50, 0.69),
+  
+  // UK: head 64-75.5% → face 45.7-53.9%
+  uk: deriveCameraThresholds(0.64, 0.755),
+  uk_visa: deriveCameraThresholds(0.64, 0.755),
+  
+  // EU: head 71-80% → face 50.7-57.1%
+  eu: deriveCameraThresholds(0.71, 0.80),
+  schengen: deriveCameraThresholds(0.71, 0.80),
+  schengen_visa: deriveCameraThresholds(0.71, 0.80),
+  germany: deriveCameraThresholds(0.71, 0.80),
+  france: deriveCameraThresholds(0.71, 0.80),
+  
+  // Canada: head 44-51% → face 31.4-36.4%
+  canada: deriveCameraThresholds(0.44, 0.51),
+  
+  // India: head 50-69% (same as US)
+  india: deriveCameraThresholds(0.50, 0.69),
+  india_visa: deriveCameraThresholds(0.50, 0.69),
+  
+  // Australia: head 71-80% (same as EU)
+  australia: deriveCameraThresholds(0.71, 0.80),
+  
+  // China: head 58-69% → face 41.4-49.3%
+  china: deriveCameraThresholds(0.58, 0.69),
+  china_visa: deriveCameraThresholds(0.58, 0.69),
+  
+  // Japan/Korea: head 71-80% (same as EU)
+  japan: deriveCameraThresholds(0.71, 0.80),
+  south_korea: deriveCameraThresholds(0.71, 0.80),
+  
+  // Brazil: head 44-51% (same as Canada)
+  brazil: deriveCameraThresholds(0.44, 0.51),
+  
+  // Mexico: head 71-80% (same as EU)
+  mexico: deriveCameraThresholds(0.71, 0.80),
+};
+
+// Default: same as US (head 50-69%)
+const DEFAULT_CAMERA_FACE_HEIGHT: HeadHeightRange = deriveCameraThresholds(0.50, 0.69);
+
+/**
+ * Get head height range for a country (output spec)
  */
 export function getCountryHeadHeightRange(countryCode: string): HeadHeightRange {
   return COUNTRY_HEAD_HEIGHTS[countryCode] || DEFAULT_HEAD_HEIGHT;
 }
 
 /**
+ * Get CAMERA face height range for a country
+ * This is for the face bounding box relative to camera frame
+ */
+export function getCameraFaceHeightRange(countryCode: string): HeadHeightRange {
+  return CAMERA_FACE_HEIGHT[countryCode] || DEFAULT_CAMERA_FACE_HEIGHT;
+}
+
+/**
  * Calculate oval dimensions for face positioning guide
+ */
+/**
+ * Calculate oval dimensions for camera viewport
+ * 
+ * The oval is a VISUAL GUIDE - it should be large and comfortable to fill.
+ * Size and position are COUNTRY-SPECIFIC based on:
+ * - Head size requirements (varies by country)
+ * - Eye position requirements (varies by country)
  */
 export function calculateOvalDimensions(
   countryCode: string,
   viewportWidth: number,
   viewportHeight: number
 ): OvalDimensions {
-  const range = getCountryHeadHeightRange(countryCode);
-  const targetPercent = (range.min + range.max) / 2;
+  // Get country-specific thresholds
+  const range = getCameraFaceHeightRange(countryCode);
+  const headRange = getCountryHeadHeightRange(countryCode);
   
-  // Calculate oval height based on target head height
-  const ovalHeight = viewportHeight * targetPercent;
+  // VISUAL OVAL: Use the MAX of detection range + 10% padding
+  // This makes oval comfortable to fill while ensuring face is large enough
+  // No global cap - let it scale with country requirements
+  const visualOvalPercent = range.max * 1.10;
   
-  // Face width is typically 70-75% of face height
-  const ovalWidth = ovalHeight * 0.75;
+  // Calculate oval dimensions in viewport pixels
+  const ovalHeight = viewportHeight * visualOvalPercent;
+  const ovalWidth = ovalHeight * 0.75; // Face width ≈ 75% of height
   
   // Center horizontally
   const centerX = viewportWidth / 2;
   
-  // Position vertically - face should be in upper portion of frame
-  // Eyes typically at 60-65% from top of head, so position oval
-  // slightly above center to account for hair/forehead
-  const centerY = viewportHeight * 0.42;
+  /**
+   * Vertical position varies by country based on eye line requirements
+   * 
+   * Eye position in output photo (from bottom):
+   * - US: ~62.5% from bottom (37.5% from top)
+   * - UK: ~66.7% from bottom (33.3% from top)
+   * - EU: ~66.7% from bottom (33.3% from top)
+   * 
+   * Eyes are at ~60% from TOP of face bbox
+   * So face center should be positioned so eyes land at correct height
+   * 
+   * For UK/EU (eyes higher in photo): face center at ~38% from top
+   * For US (eyes lower in photo): face center at ~42% from top
+   */
+  const eyePositionFromTop = 1 - (headRange.min + headRange.max) / 2 * 0.5;
+  const centerY = viewportHeight * Math.max(0.35, Math.min(0.45, eyePositionFromTop));
   
   return {
     centerX,
     centerY,
     width: ovalWidth,
     height: ovalHeight,
+    // Detection thresholds (for "distance OK" validation)
     minHeight: viewportHeight * range.min,
     maxHeight: viewportHeight * range.max,
   };
@@ -230,7 +355,8 @@ export function analyzeDistance(
     };
   }
   
-  const range = getCountryHeadHeightRange(countryCode);
+  // Use CAMERA-specific thresholds (accounts for cropping needs)
+  const range = getCameraFaceHeightRange(countryCode);
   const targetPercent = (range.min + range.max) / 2;
   const actualPercent = faceHeight / viewportHeight;
   

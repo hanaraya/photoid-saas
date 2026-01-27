@@ -30,6 +30,11 @@ jest.mock('@imgly/background-removal', () => ({
   ),
 }));
 
+// Mock useLiveFaceDetection hook (CDN module not available in Jest)
+jest.mock('@/hooks/useLiveFaceDetection', () => ({
+  useLiveFaceDetection: jest.fn(() => null),
+}));
+
 // Mock getUserMedia for camera tests
 Object.defineProperty(global.navigator, 'mediaDevices', {
   value: {

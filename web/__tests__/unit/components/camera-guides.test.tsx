@@ -28,6 +28,27 @@ const mockCanvasContext = {
 
 HTMLCanvasElement.prototype.getContext = jest.fn(() => mockCanvasContext) as any;
 
+// Helper to create a mock video element with all required methods
+function createMockVideoElement(overrides: Partial<HTMLVideoElement> = {}): HTMLVideoElement {
+  return {
+    videoWidth: 640,
+    videoHeight: 480,
+    readyState: 4,
+    getBoundingClientRect: () => ({
+      width: 640,
+      height: 480,
+      top: 0,
+      left: 0,
+      right: 640,
+      bottom: 480,
+      x: 0,
+      y: 0,
+      toJSON: () => {},
+    }),
+    ...overrides,
+  } as HTMLVideoElement;
+}
+
 describe('CameraGuides Component', () => {
   const defaultProps: CameraGuidesProps = {
     videoRef: { current: null },
@@ -150,11 +171,7 @@ describe('CameraGuides Component', () => {
 
     it('should update when face is detected', async () => {
       const mockVideoRef = {
-        current: {
-          videoWidth: 640,
-          videoHeight: 480,
-          readyState: 4,
-        } as HTMLVideoElement,
+        current: createMockVideoElement(),
       };
       
       render(
@@ -170,11 +187,7 @@ describe('CameraGuides Component', () => {
     it('should call onConditionsChange when conditions update', async () => {
       const onConditionsChange = jest.fn();
       const mockVideoRef = {
-        current: {
-          videoWidth: 640,
-          videoHeight: 480,
-          readyState: 4,
-        } as HTMLVideoElement,
+        current: createMockVideoElement(),
       };
       
       render(
@@ -253,11 +266,7 @@ describe('CameraGuides Component', () => {
   describe('Performance', () => {
     it('should throttle analysis to ~10fps', async () => {
       const mockVideoRef = {
-        current: {
-          videoWidth: 640,
-          videoHeight: 480,
-          readyState: 4,
-        } as HTMLVideoElement,
+        current: createMockVideoElement(),
       };
       
       render(
@@ -453,11 +462,7 @@ describe('CameraGuides Video Processing', () => {
 
   it('should handle video with dimensions', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 1280,
-        videoHeight: 720,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement({ videoWidth: 1280, videoHeight: 720 }),
     };
     
     const onConditionsChange = jest.fn();
@@ -482,11 +487,7 @@ describe('CameraGuides Video Processing', () => {
 
   it('should handle video dimension changes', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     const { rerender } = render(
@@ -502,11 +503,7 @@ describe('CameraGuides Video Processing', () => {
     });
     
     // Change dimensions
-    mockVideoRef.current = {
-      videoWidth: 1920,
-      videoHeight: 1080,
-      readyState: 4,
-    } as HTMLVideoElement;
+    mockVideoRef.current = createMockVideoElement({ videoWidth: 1920, videoHeight: 1080 });
     
     rerender(
       <CameraGuides
@@ -525,11 +522,7 @@ describe('CameraGuides Video Processing', () => {
 
   it('should handle external face data', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     const faceData = {
@@ -561,11 +554,7 @@ describe('CameraGuides Video Processing', () => {
 
   it('should handle face data with only partial eye data', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     const faceData = {
@@ -595,11 +584,7 @@ describe('CameraGuides Video Processing', () => {
 
   it('should update dimensions when video size changes', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 0,
-        videoHeight: 0,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement({ videoWidth: 0, videoHeight: 0 }),
     };
     
     render(
@@ -611,11 +596,7 @@ describe('CameraGuides Video Processing', () => {
     );
     
     // Update to valid dimensions
-    mockVideoRef.current = {
-      videoWidth: 1280,
-      videoHeight: 720,
-      readyState: 4,
-    } as HTMLVideoElement;
+    mockVideoRef.current = createMockVideoElement({ videoWidth: 1280, videoHeight: 720 });
     
     act(() => {
       jest.advanceTimersByTime(200);
@@ -638,11 +619,7 @@ describe('CameraGuides Countdown Feature', () => {
   it('should show countdown when enabled and conditions met', async () => {
     const onAutoCapture = jest.fn();
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     // Provide good face data
@@ -674,11 +651,7 @@ describe('CameraGuides Countdown Feature', () => {
   it('should cancel countdown when conditions fail', () => {
     const onAutoCapture = jest.fn();
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     const { rerender } = render(
@@ -725,11 +698,7 @@ describe('CameraGuides Countdown Feature', () => {
 
   it('should cleanup countdown on isActive false', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     const { rerender } = render(
@@ -774,11 +743,7 @@ describe('CameraGuides Canvas Context', () => {
     HTMLCanvasElement.prototype.getContext = jest.fn(() => null) as any;
     
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     render(
@@ -799,11 +764,7 @@ describe('CameraGuides Canvas Context', () => {
 
   it('should handle video not ready (readyState < 2)', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 1, // Not ready
-      } as HTMLVideoElement,
+      current: createMockVideoElement({ readyState: 1 }), // Not ready
     };
     
     const onConditionsChange = jest.fn();
@@ -838,11 +799,7 @@ describe('CameraGuides Guidance Messages', () => {
 
   it('should show position guidance when face off-center horizontally', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     // Face on left side
@@ -874,21 +831,17 @@ describe('CameraGuides Guidance Messages', () => {
 
   it('should show distance guidance when face too small', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
-    // Small face (too far)
+    // Small face (too far) - needs to be < 20% of frame (25% min - 5% buffer)
     const faceData = {
-      x: 220,
-      y: 180,
-      w: 100,
-      h: 100, // Very small
-      leftEye: { x: 250, y: 200 },
-      rightEye: { x: 300, y: 200 },
+      x: 250,
+      y: 200,
+      w: 70,
+      h: 70, // 70/480 = 14.6% - well below threshold
+      leftEye: { x: 270, y: 220 },
+      rightEye: { x: 300, y: 220 },
     };
     
     render(
@@ -911,11 +864,7 @@ describe('CameraGuides Guidance Messages', () => {
 
   it('should show tilt guidance when head is tilted', () => {
     const mockVideoRef = {
-      current: {
-        videoWidth: 640,
-        videoHeight: 480,
-        readyState: 4,
-      } as HTMLVideoElement,
+      current: createMockVideoElement(),
     };
     
     // Tilted face (right eye lower)

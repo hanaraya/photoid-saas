@@ -74,7 +74,7 @@ describe('Face Detection', () => {
           baseOptions: expect.objectContaining({
             delegate: 'GPU',
           }),
-          minDetectionConfidence: 0.5,
+          minDetectionConfidence: 0.4,
           runningMode: 'IMAGE',
         })
       );
@@ -256,13 +256,14 @@ describe('Face Detection', () => {
 
       const result = await detectFace(mockImage);
 
+      // Eyes are estimated from bounding box when keypoints not detected
       expect(result).toEqual({
         x: 100,
         y: 150,
         w: 200,
         h: 250,
-        leftEye: null,
-        rightEye: null,
+        leftEye: { x: 160, y: 262.5 },
+        rightEye: { x: 240, y: 262.5 },
         nose: null,
         mouth: null,
       });
@@ -290,13 +291,14 @@ describe('Face Detection', () => {
 
       const result = await detectFace(mockImage);
 
+      // Eyes are estimated from bounding box when keypoints have undefined coords
       expect(result).toEqual({
         x: 100,
         y: 150,
         w: 200,
         h: 250,
-        leftEye: null,
-        rightEye: null,
+        leftEye: { x: 160, y: 262.5 },
+        rightEye: { x: 240, y: 262.5 },
         nose: null,
         mouth: null,
       });
@@ -465,10 +467,11 @@ describe('Face Detection', () => {
           y: 100,
           w: 200,
           h: 200,
-          leftEye: null,
-          rightEye: null,
-        nose: null,
-        mouth: null,
+          // Eyes are estimated from bounding box when keypoints not detected
+          leftEye: { x: 160, y: 190 },
+          rightEye: { x: 240, y: 190 },
+          nose: null,
+          mouth: null,
         });
       });
     });

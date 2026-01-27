@@ -198,7 +198,7 @@ export function checkCompliance(
     status: bgRemoved ? 'pass' : 'warn',
     message: bgRemoved
       ? 'White background applied'
-      : 'Click "Remove Background" for white background',
+      : 'Background needs to be white for passport standards',
   });
 
   // 5. Resolution

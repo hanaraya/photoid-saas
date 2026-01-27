@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CameraGuides, CameraConditions } from '@/components/camera-guides';
+import { useLiveFaceDetection } from '@/hooks/useLiveFaceDetection';
 
 interface PhotoUploadProps {
   onImageLoaded: (file: Blob) => void;
@@ -21,6 +22,9 @@ export function PhotoUpload({
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraConditions, setCameraConditions] = useState<CameraConditions | null>(null);
+  
+  // Real-time face detection for camera preview
+  const liveFaceData = useLiveFaceDetection(videoRef, showCamera);
 
   const handleFile = useCallback(
     (file: File | Blob) => {
@@ -49,11 +53,47 @@ export function PhotoUpload({
 
   const openCamera = async () => {
     try {
+      // Determine camera aspect ratio based on country's output spec
+      // US: 2×2" = 1:1 (square)
+      // UK/EU: 35×45mm = 7:9 ≈ 0.78 (portrait)
+      // Canada: 50×70mm = 5:7 ≈ 0.71 (portrait)
+      const aspectRatios: Record<string, number> = {
+        us: 1,           // 2×2 inches (square)
+        us_visa: 1,
+        us_drivers: 1,
+        green_card: 1,
+        uk: 35/45,       // 35×45mm (portrait)
+        uk_visa: 35/45,
+        eu: 35/45,       // 35×45mm (portrait)
+        schengen_visa: 35/45,
+        germany: 35/45,
+        france: 35/45,
+        canada: 50/70,   // 50×70mm (portrait)
+        india: 1,        // 2×2 inches (square, same as US)
+        india_visa: 1,
+        australia: 35/45,
+        china: 33/48,    // 33×48mm (portrait)
+        china_visa: 33/48,
+        japan: 35/45,
+        south_korea: 35/45,
+        brazil: 50/70,   // 5×7cm (portrait)
+        mexico: 35/45,
+      };
+      
+      const targetAspect = aspectRatios[countryCode] || 1;
+      const isPortrait = targetAspect < 1;
+      
+      // Request camera with country-appropriate aspect ratio
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'user',
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          width: { ideal: isPortrait ? 1440 : 1920, min: 1080 },
+          height: { ideal: isPortrait ? 1920 : 1920, min: 1080 },
+          aspectRatio: { 
+            ideal: targetAspect, 
+            min: targetAspect * 0.8, 
+            max: targetAspect * 1.25 
+          },
         },
       });
       setStream(mediaStream);
@@ -182,14 +222,14 @@ export function PhotoUpload({
 
       {/* Camera Modal */}
       {showCamera && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85">
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative">
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black p-4">
+          <div className="flex flex-col items-center gap-4 w-full max-w-4xl">
+            <div className="relative w-full flex justify-center">
               <video
                 ref={videoRef}
                 autoPlay
                 playsInline
-                className="max-w-[90vw] max-h-[60vh] rounded-xl"
+                className="w-full max-h-[80vh] rounded-xl object-contain"
                 style={{ transform: 'scaleX(-1)' }}
               />
               {/* Camera Guides Overlay */}
@@ -199,6 +239,7 @@ export function PhotoUpload({
                   countryCode={countryCode}
                   isActive={showCamera}
                   onConditionsChange={setCameraConditions}
+                  faceData={liveFaceData}
                 />
               )}
             </div>

@@ -211,11 +211,13 @@ describe('PhotoUpload Component', () => {
       });
       await user.click(takePhotoButton);
 
+      // Default is US (square 1:1)
       expect(mockGetUserMedia).toHaveBeenCalledWith({
         video: {
           facingMode: 'user',
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
+          width: { ideal: 1920, min: 1080 },
+          height: { ideal: 1920, min: 1080 },
+          aspectRatio: { ideal: 1, min: 0.8, max: 1.25 },
         },
       });
     });

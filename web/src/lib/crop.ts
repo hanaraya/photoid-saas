@@ -33,14 +33,37 @@ export function calculateCrop(
     const chinY = face.y + face.h; // Bottom of chin
 
     // Full head height estimate (face bbox + hair)
-    const estimatedHeadH = face.h * 1.5;
+    // Face detection bbox is chin-to-eyebrows (~71.4% of full head)
+    // Full head = face × 1.4 (adds forehead + hair)
+    // This constant must match FACE_TO_HEAD_RATIO in camera-analysis.ts
+    const HEAD_TO_FACE_RATIO = 1.4;
+    const estimatedHeadH = face.h * HEAD_TO_FACE_RATIO;
 
     // Required margins (in output pixels)
-    const minTopMargin = spec.h * 0.10; // 10% above crown
+    const minTopMargin = spec.h * 0.08; // 8% above crown (reduced from 10%)
     const minBottomMargin = spec.h * 0.05; // 5% below chin
+    
+    // Minimum body visible below chin
+    const minBodyBelow = spec.h * 0.10; // 10% (reduced from 15%)
 
-    // Calculate initial scale to fit head at target size
+    // Calculate scale to fit head at TARGET size
+    // Scale > 1 means zoom in (crop smaller area), < 1 means zoom out
     let scale = spec.headTarget / estimatedHeadH;
+    
+    // Clamp scale to valid range immediately
+    const maxScale = spec.headMax / estimatedHeadH; // Don't make head too big
+    const minScale = spec.headMin / estimatedHeadH; // Don't make head too small
+    scale = Math.max(minScale, Math.min(maxScale, scale));
+    
+    console.log('[CROP] Initial scale:', { 
+      faceH: face.h, 
+      estimatedHeadH, 
+      headTarget: spec.headTarget,
+      headMin: spec.headMin,
+      scale: scale.toFixed(3),
+      minScale: minScale.toFixed(3),
+      maxScale: maxScale.toFixed(3)
+    });
 
     // Calculate crop dimensions
     let cropW = spec.w / scale;
@@ -66,31 +89,9 @@ export function calculateCrop(
     }
 
     // Ensure cropY doesn't go negative (above image)
+    // Simply clamp - don't change scale, it's already set for compliance
     if (cropY < 0) {
-      // Can't fit with current scale - need to zoom out
-      // Calculate the scale that would put crown at correct position with margin
-      const availableAboveCrown = crownY; // Space from image top to crown
-      if (availableAboveCrown > 0) {
-        // New scale where topMargin/newScale = availableAboveCrown
-        const newScale = minTopMargin / availableAboveCrown;
-        if (newScale < scale) {
-          // Allow up to 50% zoom out for severe cases (was 30%)
-          scale = Math.max(newScale, scale * 0.5);
-          cropW = spec.w / scale;
-          cropH = spec.h / scale;
-          cropX = faceCenterX - cropW / 2;
-          // Recalculate cropY with new scale
-          const newEyeFromTopInSrc = targetEyeFromTop / scale;
-          cropY = eyeY - newEyeFromTopInSrc;
-          // Re-check crown position
-          const newTopMarginSrc = minTopMargin / scale;
-          if (crownY - cropY < newTopMarginSrc) {
-            cropY = crownY - newTopMarginSrc;
-          }
-        }
-      }
-      // Final clamp to 0
-      cropY = Math.max(0, cropY);
+      cropY = 0;
     }
 
     // Check chin position
@@ -102,13 +103,20 @@ export function calculateCrop(
       cropY = Math.min(cropY, chinY + bottomMarginSrc - cropH);
     }
 
-    // Ensure we don't go below the image
+    // Simple boundary clamping - scale is already set for compliance
+    // Don't change scale here, just clamp position to fit within image
+    
+    // Vertical clamping
     if (cropY + cropH > sourceHeight) {
       cropY = sourceHeight - cropH;
     }
-
-    // Final clamp
     cropY = Math.max(0, cropY);
+    
+    // Horizontal clamping
+    if (cropX + cropW > sourceWidth) {
+      cropX = sourceWidth - cropW;
+    }
+    cropX = Math.max(0, cropX);
 
     console.log('[CROP]', {
       source: { w: sourceWidth, h: sourceHeight },
@@ -176,41 +184,69 @@ export function renderPassportPhoto(
 
   // Apply user adjustments
   const zoomFactor = 100 / userZoom;
-  let adjCropW = cropW * zoomFactor;
-  let adjCropH = cropH * zoomFactor;
+  const adjCropW = cropW * zoomFactor;
+  const adjCropH = cropH * zoomFactor;
   let adjCropX = cropX + (cropW - adjCropW) / 2 - userH * (cropW / spec.w);
   let adjCropY = cropY + (cropH - adjCropH) / 2 - userV * (cropH / spec.h);
 
-  // CRITICAL: Enforce head framing constraints after zoom/pan adjustments
+  // CRITICAL: Keep crop within source image bounds (no white space)
+  const srcW = sourceImage.naturalWidth;
+  const srcH = sourceImage.naturalHeight;
+  
+  // Horizontal bounds - never show white space on sides
+  if (adjCropX < 0) {
+    adjCropX = 0;
+  }
+  if (adjCropX + adjCropW > srcW) {
+    adjCropX = srcW - adjCropW;
+  }
+  // If crop is wider than source, center it (will have white space, unavoidable)
+  if (adjCropW > srcW) {
+    adjCropX = (srcW - adjCropW) / 2;
+  }
+  
+  // Vertical bounds - never show white space on top/bottom
+  if (adjCropY < 0) {
+    adjCropY = 0;
+  }
+  if (adjCropY + adjCropH > srcH) {
+    adjCropY = srcH - adjCropH;
+  }
+  // If crop is taller than source, center it (will have white space, unavoidable)
+  if (adjCropH > srcH) {
+    adjCropY = (srcH - adjCropH) / 2;
+  }
+
+  // ADDITIONAL: Enforce head framing constraints (but within image bounds)
   if (faceData) {
     const crownY = faceData.y - faceData.h * 0.5;
     const chinY = faceData.y + faceData.h;
     const scale = spec.w / adjCropW;
     const minPaddingSrc = (spec.h * 0.08) / scale;
 
-    // Ensure crown is visible with padding
-    const minCropY = crownY - minPaddingSrc;
+    // Ensure crown is visible with padding (but respect image bounds)
+    const minCropY = Math.max(0, crownY - minPaddingSrc);
     if (adjCropY > minCropY) {
       adjCropY = minCropY;
     }
 
-    // Ensure chin is visible with padding
-    const maxCropY = chinY + minPaddingSrc - adjCropH;
+    // Ensure chin is visible with padding (but respect image bounds)
+    const maxCropY = Math.min(srcH - adjCropH, chinY + minPaddingSrc - adjCropH);
     if (adjCropY < maxCropY) {
-      adjCropY = maxCropY;
+      adjCropY = Math.max(0, maxCropY);
     }
 
-    // Clamp to image bounds
-    adjCropY = Math.max(0, adjCropY);
-
-    // Limit horizontal offset
+    // Limit horizontal offset (but respect image bounds)
     const faceCenterX = faceData.x + faceData.w / 2;
     const maxHorizontalOffset = adjCropW * 0.15;
     const idealCropX = faceCenterX - adjCropW / 2;
-    if (adjCropX < idealCropX - maxHorizontalOffset) {
-      adjCropX = idealCropX - maxHorizontalOffset;
-    } else if (adjCropX > idealCropX + maxHorizontalOffset) {
-      adjCropX = idealCropX + maxHorizontalOffset;
+    const minX = Math.max(0, idealCropX - maxHorizontalOffset);
+    const maxX = Math.min(srcW - adjCropW, idealCropX + maxHorizontalOffset);
+    
+    if (adjCropX < minX) {
+      adjCropX = minX;
+    } else if (adjCropX > maxX) {
+      adjCropX = maxX;
     }
   }
 

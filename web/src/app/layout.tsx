@@ -115,7 +115,10 @@ const jsonLd = {
         '100% private - photos never leave your device',
         'AI-powered face detection and background removal',
         '20+ country passport standards supported',
-        'Instant compliance checking',
+        'Real-time camera guides with face positioning overlay',
+        'Visual compliance measurement overlay showing head size, eye position, margins',
+        'Smart retake suggestions when photo needs improvement',
+        'Instant compliance checking against government specifications',
         'Print-ready 4x6 photo sheets',
       ],
     },
@@ -153,6 +156,14 @@ const jsonLd = {
           acceptedAnswer: {
             '@type': 'Answer',
             text: 'We offer a 30-day money-back guarantee. If your photo is rejected by the government agency, contact us for a full refund.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How do I know if my photo meets requirements?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Our app shows a real-time compliance overlay that measures head size, eye position, and margins against official specifications. You\'ll see green checkmarks when everything passes. If something needs fixing, you get smart suggestions on exactly what to improve.',
           },
         },
       ],

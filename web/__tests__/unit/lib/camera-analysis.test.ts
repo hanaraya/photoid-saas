@@ -72,17 +72,16 @@ describe('Camera Analysis Utilities', () => {
     it('should calculate correct oval for US standard', () => {
       const oval = calculateOvalDimensions('us', viewportWidth, viewportHeight);
       
-      // US: 50-69% of photo height, target is midpoint: 59.5%
-      // Oval should be centered
+      // US: face max ~49.3%, visual oval = 49.3% × 1.10 = ~54%
       expect(oval.centerX).toBe(320); // Center of 640
-      expect(oval.centerY).toBeGreaterThan(200); // Upper third-ish
-      expect(oval.centerY).toBeLessThan(280);
+      expect(oval.centerY).toBeGreaterThan(viewportHeight * 0.35);
+      expect(oval.centerY).toBeLessThanOrEqual(viewportHeight * 0.45);
       
-      // Height should be around 59.5% of viewport for target
-      const targetHeightPercent = (0.50 + 0.69) / 2; // 0.595
-      expect(oval.height).toBeCloseTo(viewportHeight * targetHeightPercent, -1);
+      // Oval should be ~54% of viewport
+      expect(oval.height).toBeGreaterThan(viewportHeight * 0.50);
+      expect(oval.height).toBeLessThan(viewportHeight * 0.60);
       
-      // Oval width is typically ~70-80% of height for face proportions
+      // Oval width is typically ~75% of height for face proportions
       expect(oval.width).toBeGreaterThan(oval.height * 0.65);
       expect(oval.width).toBeLessThan(oval.height * 0.85);
     });
@@ -90,34 +89,34 @@ describe('Camera Analysis Utilities', () => {
     it('should calculate correct oval for UK standard', () => {
       const oval = calculateOvalDimensions('uk', viewportWidth, viewportHeight);
       
-      // UK: 64-75.5% target: 69.75%
-      const targetHeightPercent = (0.64 + 0.755) / 2;
-      expect(oval.height).toBeCloseTo(viewportHeight * targetHeightPercent, -1);
+      // UK: face max ~53.9%, visual oval = 53.9% × 1.10 = ~59%
+      expect(oval.height).toBeGreaterThan(viewportHeight * 0.55);
+      expect(oval.height).toBeLessThan(viewportHeight * 0.65);
       expect(oval.centerX).toBe(320);
     });
 
     it('should calculate correct oval for EU standard', () => {
       const oval = calculateOvalDimensions('eu', viewportWidth, viewportHeight);
       
-      // EU: 71-80% target: 75.5%
-      const targetHeightPercent = (0.71 + 0.80) / 2;
-      expect(oval.height).toBeCloseTo(viewportHeight * targetHeightPercent, -1);
+      // EU: face max ~57%, visual oval = ~63%
+      expect(oval.height).toBeGreaterThan(viewportHeight * 0.58);
+      expect(oval.height).toBeLessThan(viewportHeight * 0.68);
     });
 
     it('should calculate correct oval for Canada standard', () => {
       const oval = calculateOvalDimensions('canada', viewportWidth, viewportHeight);
       
-      // Canada: 44-51% target: 47.5%
-      const targetHeightPercent = (0.44 + 0.51) / 2;
-      expect(oval.height).toBeCloseTo(viewportHeight * targetHeightPercent, -1);
+      // Canada: face max ~36%, visual oval = ~40%
+      expect(oval.height).toBeGreaterThan(viewportHeight * 0.35);
+      expect(oval.height).toBeLessThan(viewportHeight * 0.45);
     });
 
     it('should calculate correct oval for India standard', () => {
       const oval = calculateOvalDimensions('india', viewportWidth, viewportHeight);
       
-      // India: same as US 50-69%
-      const targetHeightPercent = (0.50 + 0.69) / 2;
-      expect(oval.height).toBeCloseTo(viewportHeight * targetHeightPercent, -1);
+      // India same as US (~54%)
+      expect(oval.height).toBeGreaterThan(viewportHeight * 0.50);
+      expect(oval.height).toBeLessThan(viewportHeight * 0.60);
     });
 
     it('should handle different viewport aspect ratios', () => {
@@ -135,8 +134,10 @@ describe('Camera Analysis Utilities', () => {
       
       expect(oval.minHeight).toBeDefined();
       expect(oval.maxHeight).toBeDefined();
-      expect(oval.minHeight).toBeLessThan(oval.height);
-      expect(oval.maxHeight).toBeGreaterThan(oval.height);
+      // Oval is larger than detection range for visual comfort
+      // minHeight/maxHeight are detection thresholds, oval.height is visual guide
+      expect(oval.minHeight).toBeLessThan(oval.maxHeight);
+      expect(oval.height).toBeGreaterThan(0);
     });
   });
 
@@ -241,10 +242,12 @@ describe('Camera Analysis Utilities', () => {
 
   describe('analyzeDistance', () => {
     const viewportHeight = 480;
+    const FACE_TO_HEAD = 1 / 1.4; // ~0.714
 
     it('should detect perfect distance (face at target size)', () => {
-      // Target is around 59.5% of viewport for US
-      const faceHeight = viewportHeight * 0.595;
+      // US: head 50-69% → face 35.7-49.3%, target ~42.5%
+      const targetPercent = ((0.50 + 0.69) / 2) * FACE_TO_HEAD;
+      const faceHeight = viewportHeight * targetPercent;
       
       const result = analyzeDistance(faceHeight, viewportHeight, 'us');
       
@@ -253,8 +256,8 @@ describe('Camera Analysis Utilities', () => {
     });
 
     it('should detect too close (face too large)', () => {
-      // Face taking up 80% of viewport (too large)
-      const faceHeight = viewportHeight * 0.80;
+      // Face taking up 60% of viewport (too large, max is ~49.3%)
+      const faceHeight = viewportHeight * 0.60;
       
       const result = analyzeDistance(faceHeight, viewportHeight, 'us');
       
@@ -264,8 +267,8 @@ describe('Camera Analysis Utilities', () => {
     });
 
     it('should detect too far (face too small)', () => {
-      // Face taking up only 30% of viewport (too small)
-      const faceHeight = viewportHeight * 0.30;
+      // Face taking up only 25% of viewport (too small, min is ~35.7%)
+      const faceHeight = viewportHeight * 0.25;
       
       const result = analyzeDistance(faceHeight, viewportHeight, 'us');
       
@@ -275,18 +278,19 @@ describe('Camera Analysis Utilities', () => {
     });
 
     it('should handle different country standards', () => {
-      // Canada has smaller head requirement (44-51%)
-      const faceHeightCanada = viewportHeight * 0.475; // Target for Canada
+      // Canada: head 44-51% → face ~34%
+      const targetCanada = ((0.44 + 0.51) / 2) * FACE_TO_HEAD;
+      const faceHeightCanada = viewportHeight * targetCanada;
       const resultCanada = analyzeDistance(faceHeightCanada, viewportHeight, 'canada');
       expect(resultCanada.status).toBe('good');
       
-      // Same size would be wrong for EU (71-80%)
+      // Same size (~34%) would be too small for EU (min ~50.7%)
       const resultEU = analyzeDistance(faceHeightCanada, viewportHeight, 'eu');
       expect(resultEU.status).toBe('too-far');
     });
 
     it('should provide percentage difference from target', () => {
-      const faceHeight = viewportHeight * 0.40; // 40%
+      const faceHeight = viewportHeight * 0.40;
       
       const result = analyzeDistance(faceHeight, viewportHeight, 'us');
       
@@ -295,13 +299,14 @@ describe('Camera Analysis Utilities', () => {
     });
 
     it('should handle edge cases at boundaries', () => {
-      // Exactly at minimum boundary for US (50%)
-      const faceHeightMin = viewportHeight * 0.50;
+      // US: face range is 35.7-49.3%
+      // Exactly at minimum boundary
+      const faceHeightMin = viewportHeight * (0.50 * FACE_TO_HEAD);
       const resultMin = analyzeDistance(faceHeightMin, viewportHeight, 'us');
       expect(resultMin.isGood).toBe(true);
       
-      // Exactly at maximum boundary for US (69%)
-      const faceHeightMax = viewportHeight * 0.69;
+      // Exactly at maximum boundary
+      const faceHeightMax = viewportHeight * (0.69 * FACE_TO_HEAD);
       const resultMax = analyzeDistance(faceHeightMax, viewportHeight, 'us');
       expect(resultMax.isGood).toBe(true);
     });
