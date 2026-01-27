@@ -65,9 +65,9 @@ export function moderateContent(
   }
   
   // Check face visibility (face mostly visible, not covered)
+  // Only block if BOTH eyes are missing - nose/mouth detection is unreliable
   if (faceData) {
-    // If all face landmarks are missing, face might be covered
-    if (!faceData.leftEye && !faceData.rightEye && !faceData.nose && !faceData.mouth) {
+    if (!faceData.leftEye && !faceData.rightEye) {
       violations.push({
         code: VIOLATION_CODES.FACE_COVERED,
         label: 'Face Obstructed',

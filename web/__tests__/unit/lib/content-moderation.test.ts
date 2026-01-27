@@ -50,7 +50,7 @@ describe('content-moderation', () => {
       expect(result.violations.some(v => v.code === VIOLATION_CODES.NO_FACE)).toBe(true);
     });
 
-    it('should block when face has no landmarks (covered face)', () => {
+    it('should block when both eyes are missing (covered face)', () => {
       const coveredFace: FaceData = {
         x: 100,
         y: 100,
@@ -67,7 +67,7 @@ describe('content-moderation', () => {
       expect(result.violations.some(v => v.code === VIOLATION_CODES.FACE_COVERED)).toBe(true);
     });
 
-    it('should allow face with partial landmarks', () => {
+    it('should allow face with at least one eye detected', () => {
       const partialFace: FaceData = {
         x: 100,
         y: 100,
@@ -75,7 +75,7 @@ describe('content-moderation', () => {
         h: 250,
         leftEye: { x: 150, y: 170 },
         rightEye: null, // Missing one eye is okay
-        nose: null,
+        nose: null,  // nose/mouth not required
         mouth: null,
       };
       const result = moderateContent(partialFace, 1);
