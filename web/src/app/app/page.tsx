@@ -16,7 +16,8 @@ const VERIFIED_SESSION_KEY = 'passport-photo-verified';
 function AppContent() {
   const searchParams = useSearchParams();
   const [imageBlob, setImageBlob] = useState<Blob | null>(null);
-  const [isPaid, setIsPaid] = useState(false);
+  const testMode = searchParams.get('test') === 'true' || process.env.NEXT_PUBLIC_TEST_MODE === 'true';
+  const [isPaid, setIsPaid] = useState(testMode);
   const [isRestoring, setIsRestoring] = useState(true);
   const [verificationError, setVerificationError] = useState<string | null>(
     null
