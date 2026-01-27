@@ -74,7 +74,8 @@ export function calculateCrop(
         // New scale where topMargin/newScale = availableAboveCrown
         const newScale = minTopMargin / availableAboveCrown;
         if (newScale < scale) {
-          scale = Math.max(newScale, scale * 0.7); // Don't zoom out more than 30%
+          // Allow up to 50% zoom out for severe cases (was 30%)
+          scale = Math.max(newScale, scale * 0.5);
           cropW = spec.w / scale;
           cropH = spec.h / scale;
           cropX = faceCenterX - cropW / 2;

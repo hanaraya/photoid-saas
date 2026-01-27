@@ -1,0 +1,56 @@
+[
+  {
+    "step": "Navigate to /app",
+    "status": "INFO",
+    "details": "",
+    "time": "2026-01-26T23:46:14.076Z"
+  },
+  {
+    "step": "Page load",
+    "status": "PASS",
+    "details": "Landing page loaded correctly",
+    "time": "2026-01-26T23:46:16.280Z"
+  },
+  {
+    "step": "Country selector",
+    "status": "PASS",
+    "details": "Visible and functional",
+    "time": "2026-01-26T23:46:16.307Z"
+  },
+  {
+    "step": "Photo upload",
+    "status": "INFO",
+    "details": "",
+    "time": "2026-01-26T23:46:16.307Z"
+  },
+  {
+    "step": "Photo upload & editor",
+    "status": "PASS",
+    "details": "Editor loaded after upload",
+    "time": "2026-01-26T23:46:19.424Z"
+  },
+  {
+    "step": "Compliance checker",
+    "status": "PASS",
+    "details": "Compliance checks displayed",
+    "time": "2026-01-26T23:46:21.475Z"
+  },
+  {
+    "step": "Retake suggestions (NEW)",
+    "status": "PASS",
+    "details": "Smart retake suggestions displayed",
+    "time": "2026-01-26T23:46:21.477Z"
+  },
+  {
+    "step": "Background removal button",
+    "status": "PASS",
+    "details": "Button visible",
+    "time": "2026-01-26T23:46:21.554Z"
+  },
+  {
+    "step": "Payment flow",
+    "status": "INFO",
+    "details": "",
+    "time": "2026-01-26T23:46:21.555Z"
+  }
+]

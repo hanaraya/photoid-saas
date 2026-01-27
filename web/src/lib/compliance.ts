@@ -121,14 +121,12 @@ export function checkCompliance(
     // Chin position in source
     const chinY = faceData.y + faceData.h;
 
-    // Check if source image itself has insufficient headroom
-    const minRequiredHeadroom = spec.h * 0.08; // 8% of output
-    const scale = spec.w / (cropParams.cropW * zoomFactorFrame);
-    const requiredHeadroomSrc = minRequiredHeadroom / scale;
-    const sourceHasInsufficientHeadroom = crownY < requiredHeadroomSrc;
-
+    // Check crown/chin visibility in the FINAL cropped output, not source
     const crownVisible = crownY >= adjCropY;
     const chinVisible = chinY <= adjCropY + adjCropH;
+    
+    // Only fail if crown is actually cut off (crownY < 0 means crown above image)
+    const sourceHasInsufficientHeadroom = crownY < 0;
 
     if (sourceHasInsufficientHeadroom) {
       checks.push({

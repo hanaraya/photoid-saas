@@ -6,6 +6,7 @@ import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 // CountrySelector removed - standard is now read-only in editor
 import { ComplianceChecker } from './compliance-checker';
+import { RetakeSuggestions } from './retake-suggestions';
 import {
   ComplianceOverlay,
   calculateMeasurementState,
@@ -840,6 +841,9 @@ export function PhotoEditor({
 
       {/* Compliance */}
       <ComplianceChecker checks={complianceChecks} />
+      
+      {/* Retake Suggestions */}
+      <RetakeSuggestions checks={complianceChecks} onRetake={onBack} />
 
       {/* Background Analysis + Actions */}
       {bgAnalysis && !bgRemoved && (
