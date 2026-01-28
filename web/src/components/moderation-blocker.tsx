@@ -34,7 +34,7 @@ export function ModerationBlocker({ result, onRetry }: ModerationBlockerProps) {
         </div>
         
         <p className="mb-6 text-sm text-gray-600">
-          Please take or upload a new photo that meets passport photo requirements.
+          Please take a new selfie that meets passport photo requirements.
         </p>
         
         <button

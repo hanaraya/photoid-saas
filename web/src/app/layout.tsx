@@ -147,7 +147,7 @@ const jsonLd = {
           name: 'Can I use my phone camera?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Absolutely! You can either upload an existing photo or take one directly with your phone camera. For best results, use good lighting and a plain background.',
+            text: 'Absolutely! You can either select an existing photo from your device or take one directly with your phone camera. For best results, use good lighting and a plain background.',
           },
         },
         {

@@ -33,9 +33,9 @@ export default function Home() {
                 {
                   step: '1',
                   icon: '📸',
-                  title: 'Upload or Snap',
+                  title: 'Snap a Selfie',
                   description:
-                    'Take a photo with your phone camera or upload an existing one. Any well-lit photo works.',
+                    'Take a photo with your phone camera or use an existing one. Any well-lit photo works.',
                 },
                 {
                   step: '2',

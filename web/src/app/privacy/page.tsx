@@ -74,7 +74,7 @@ export default function PrivacyPage() {
               How It Works
             </h2>
             <p>
-              When you upload a photo, it is processed entirely within your web
+              When you take or select a photo, it is processed entirely within your web
               browser using WebAssembly and JavaScript. The face detection,
               background removal, and photo formatting all happen on your
               device. The processed photo is temporarily stored in your

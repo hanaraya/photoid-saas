@@ -205,7 +205,7 @@ function AppContent() {
                 📸 Passport Photo Maker
               </h1>
               <p className="mt-2 text-muted-foreground">
-                Upload a photo → auto-detect face → get printable passport
+                Snap a selfie → auto-detect face → get printable passport
                 photos
               </p>
             </div>
@@ -245,7 +245,7 @@ function AppContent() {
 
             {isPaid && (
               <div className="rounded-lg border border-green-500/30 bg-green-500/10 p-4 text-center text-sm">
-                ✅ Payment verified! Upload your photo to get started.
+                ✅ Payment verified! Take your photo to get started.
               </div>
             )}
 

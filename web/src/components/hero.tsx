@@ -29,7 +29,7 @@ export function Hero() {
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            Upload a selfie, AI handles the rest. Background removal, face
+            Snap a selfie, AI handles the rest. Background removal, face
             positioning, compliance checks — all processed on{' '}
             <strong className="text-foreground">your device</strong>. Your
             photos never leave your phone.

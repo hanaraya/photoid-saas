@@ -82,7 +82,7 @@ const faqs = [
   {
     question: 'Can I take a US passport photo with my phone?',
     answer:
-      'Yes! You can take a US passport photo with any smartphone camera. SafePassportPic works directly in your browser — just upload or snap a photo, and our AI will automatically crop, resize, and add a white background to meet all requirements.',
+      'Yes! You can take a US passport photo with any smartphone camera. SafePassportPic works directly in your browser — just snap a selfie or select an existing photo, and our AI will automatically crop, resize, and add a white background to meet all requirements.',
   },
   {
     question: 'Why can\'t I wear glasses in my US passport photo?',
@@ -141,8 +141,8 @@ const jsonLd = {
         {
           '@type': 'HowToStep',
           position: 1,
-          name: 'Upload or take a photo',
-          text: 'Take a photo with your phone camera or upload an existing well-lit photo against any background.',
+          name: 'Snap a selfie',
+          text: 'Take a photo with your phone camera or select an existing well-lit photo from your device.',
         },
         {
           '@type': 'HowToStep',
@@ -282,9 +282,9 @@ export default function USPassportPhotoPage() {
                 {
                   step: '1',
                   icon: '📸',
-                  title: 'Upload or Snap',
+                  title: 'Snap a Selfie',
                   description:
-                    'Use your phone camera or upload a photo. Any well-lit photo works — we\'ll fix the background.',
+                    'Use your phone camera or select an existing photo. Any well-lit photo works — we\'ll fix the background.',
                 },
                 {
                   step: '2',

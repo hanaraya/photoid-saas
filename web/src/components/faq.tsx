@@ -34,7 +34,7 @@ const faqs = [
   {
     question: 'Can I use my phone camera?',
     answer:
-      'Absolutely! You can either upload an existing photo or take one directly with your phone camera. For best results, use good lighting and a plain background.',
+      'Absolutely! You can either select an existing photo from your device or take a selfie directly with your phone camera. For best results, use good lighting and a plain background.',
   },
   {
     question: 'What is your refund policy?',

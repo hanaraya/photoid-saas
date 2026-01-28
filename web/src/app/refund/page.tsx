@@ -88,7 +88,7 @@ export default function RefundPage() {
             <p>
               Before requesting a refund, please note that you can create
               unlimited new photos with your purchase. If your first attempt
-              doesn&apos;t work out, try uploading a different photo or
+              doesn&apos;t work out, try taking a different photo or
               adjusting the crop — it&apos;s included at no extra charge.
             </p>
           </section>

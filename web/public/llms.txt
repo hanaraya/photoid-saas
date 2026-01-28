@@ -9,7 +9,7 @@ SafePassportPic is a web application that creates government-compliant passport 
 ## Key Features
 
 - **100% Private**: Photos never leave your device. All AI processing runs locally in browser.
-- **60-Second Process**: Upload photo → AI removes background → download print-ready result.
+- **60-Second Process**: Snap a selfie → AI removes background → download print-ready result.
 - **20+ Country Standards**: US, UK, EU, Canada, Australia, India, China, Schengen, and more.
 - **AI-Powered**: Automatic face detection, background removal, and compliance checking.
 - **Real-Time Camera Guides**: On-screen positioning overlay shows exactly where to place your face while taking a photo.
@@ -33,7 +33,7 @@ SafePassportPic is a web application that creates government-compliant passport 
 
 ## How It Works
 
-1. **Upload or Snap**: Take a photo with phone camera (real-time positioning guides help frame your face perfectly) or upload an existing photo
+1. **Snap a Selfie**: Take a photo with your phone camera (real-time positioning guides help frame your face perfectly) or select an existing photo from your device
 2. **AI Processing**: Face detection validates positioning; background is automatically removed and replaced with compliant white/off-white
 3. **Compliance Validation**: Visual overlay shows head size, eye position, and margins measured against official requirements
 4. **Adjust if Needed**: Fine-tune zoom and position; smart retake suggestions guide you if photo needs improvement
