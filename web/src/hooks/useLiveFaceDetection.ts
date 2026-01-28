@@ -115,11 +115,6 @@ export function useLiveFaceDetection(
 
     const video = videoRef.current;
     if (!video || !videoFaceDetector || video.readyState < 2) {
-      console.log('[FaceDetection] Waiting...', { 
-        hasVideo: !!video, 
-        hasDetector: !!videoFaceDetector, 
-        readyState: video?.readyState 
-      });
       animationFrameRef.current = requestAnimationFrame(detectFace);
       return;
     }
@@ -181,13 +176,11 @@ export function useLiveFaceDetection(
 
   // Run detection loop when active
   useEffect(() => {
-    console.log('[FaceDetection] Effect:', { isActive, isReady });
     if (!isActive || !isReady) {
       cancelAnimationFrame(animationFrameRef.current);
       return;
     }
 
-    console.log('[FaceDetection] Starting detection loop');
     animationFrameRef.current = requestAnimationFrame(detectFace);
 
     return () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { CameraGuides, CameraConditions } from '@/components/camera-guides';
 import { useLiveFaceDetection } from '@/hooks/useLiveFaceDetection';
@@ -25,6 +25,13 @@ export function PhotoUpload({
   
   // Real-time face detection for camera preview
   const liveFaceData = useLiveFaceDetection(videoRef, showCamera);
+
+  // Set video srcObject when stream is available
+  useEffect(() => {
+    if (stream && videoRef.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [stream, showCamera]);
 
   const handleFile = useCallback(
     (file: File | Blob) => {
@@ -98,12 +105,6 @@ export function PhotoUpload({
       });
       setStream(mediaStream);
       setShowCamera(true);
-      // Wait for video element to mount
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-      }, 100);
     } catch {
       alert('Camera access denied or not available.');
     }

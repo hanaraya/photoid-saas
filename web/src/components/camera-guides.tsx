@@ -250,18 +250,6 @@ export function CameraGuides({
     // Check all conditions
     const conditions = checkAllConditions(position, distance, brightness, tilt);
     
-    // Debug: log conditions on every analysis
-    console.log('[CameraGuides] Analysis:', {
-      faceDetected: position.faceDetected,
-      isCentered: position.isCentered,
-      distanceGood: distance.isGood,
-      distanceStatus: distance.status,
-      brightnessGood: brightness.isGood,
-      tiltLevel: tilt.isLevel,
-      allGood: conditions.allGood,
-      issues: conditions.issues,
-    });
-    
     setAnalysisState({ position, distance, brightness, tilt, conditions });
     
     // Notify parent
