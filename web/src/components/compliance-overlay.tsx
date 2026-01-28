@@ -168,22 +168,27 @@ export function ComplianceOverlay({
       {/* Semi-transparent overlay background */}
       <div className="absolute inset-0" style={{ backgroundColor: colors.fill }} />
       
-      {/* Eye Line Indicator */}
+      {/* Eye Line Indicator - subtle side markers only */}
       <div
         data-testid="eye-line-indicator"
-        className={`absolute left-0 right-0 ${statusClass}`}
+        className={`absolute ${statusClass}`}
         style={{
           bottom: `${eyePositionPercent}%`,
+          left: 0,
+          right: 0,
           height: '2px',
-          backgroundColor: colors.line,
         }}
       >
-        <span
-          className="absolute right-2 -top-5 text-xs font-medium px-1 rounded"
-          style={{ color: colors.text, backgroundColor: 'rgba(0,0,0,0.7)' }}
-        >
-          Eye Line
-        </span>
+        {/* Left marker */}
+        <div 
+          className="absolute left-0 h-full"
+          style={{ width: '12px', backgroundColor: colors.line }}
+        />
+        {/* Right marker */}
+        <div 
+          className="absolute right-0 h-full"
+          style={{ width: '12px', backgroundColor: colors.line }}
+        />
       </div>
       
       {/* Head Height Bracket */}
