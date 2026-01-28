@@ -388,73 +388,65 @@ export function CameraGuides({
         />
       </svg>
       
-      {/* Status indicators - positioned at top center, horizontal layout */}
-      <div className="absolute top-2 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-1.5 text-xs max-w-[90%]">
-        {/* Only show non-OK indicators to reduce clutter */}
+      {/* Status indicators - positioned ABOVE guidance message at bottom */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-1.5 text-xs max-w-[95%]">
+        {/* Only show problem indicators */}
         
-        {/* Distance indicator - only show if not OK or waiting */}
-        {(!position.faceDetected || !distance.isGood) && (
+        {/* Waiting for face */}
+        {!position.faceDetected && (
           <div 
             data-testid="distance-indicator"
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm ${
-              !position.faceDetected
-                ? 'bg-white/20 text-white/70'
-                : 'bg-amber-500/30 text-amber-200'
-            }`}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-white/20 text-white/80"
           >
-            <span>{!position.faceDetected ? '◌' : '○'}</span>
-            <span>{!position.faceDetected ? 'Waiting...' : distance.status === 'too-close' ? 'Move back' : 'Move closer'}</span>
+            <span>◌</span>
+            <span>Looking for face...</span>
           </div>
         )}
         
-        {/* Lighting indicator - only show if not OK */}
+        {/* Distance issue */}
+        {position.faceDetected && !distance.isGood && (
+          <div 
+            data-testid="distance-indicator"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-amber-500/30 text-amber-200"
+          >
+            <span>↕</span>
+            <span>{distance.status === 'too-close' ? 'Move back' : 'Move closer'}</span>
+          </div>
+        )}
+        
+        {/* Lighting issue */}
         {!brightness.isGood && (
           <div 
             data-testid="lighting-indicator"
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-amber-500/30 text-amber-200"
           >
             <span>{brightness.icon}</span>
-            <span>{brightness.message}</span>
+            <span>{brightness.status === 'too-dark' ? 'Too dark' : 'Too bright'}</span>
           </div>
         )}
         
-        {/* Tilt indicator - only show if tilted */}
+        {/* Tilt issue */}
         {tilt.eyesDetected && !tilt.isLevel && (
           <div 
             data-testid="tilt-indicator"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-green-500/30 text-green-200"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-amber-500/30 text-amber-200"
           >
-            <span>{tilt.direction === 'left' ? '↙️' : '↘️'}</span>
-            <span>Tilted {tilt.direction}</span>
+            <span>↺</span>
+            <span>Straighten head</span>
           </div>
         )}
         
-        {/* All good indicator */}
+        {/* All good */}
         {conditions.allGood && (
           <div 
             data-testid="all-good-indicator"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-green-500/30 text-green-200"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-green-500/40 text-green-200"
           >
             <span>✓</span>
-            <span>Ready</span>
+            <span>Perfect!</span>
           </div>
         )}
       </div>
-      
-      {/* Head size indicator - bottom left, only when face detected */}
-      {position.faceDetected && (
-        <div 
-          data-testid="head-size-indicator"
-          className={`absolute bottom-20 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm text-xs font-medium ${
-            distance.isGood 
-              ? 'bg-green-500/30 text-green-200' 
-              : 'bg-blue-500/30 text-blue-200'
-          }`}
-        >
-          <span>{Math.round((analysisState.distance.percentFromTarget || 0) + 100)}%</span>
-          <span className="opacity-75">head</span>
-        </div>
-      )}
       
       {/* Guidance message */}
       <div 
