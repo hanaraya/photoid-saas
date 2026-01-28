@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import {
   calculateOvalDimensions,
   analyzeFacePosition,
-  analyzeDistance,
+  analyzeDistanceWithCropSimulation,
   analyzeBrightness,
   analyzeHeadTilt,
   checkAllConditions,
@@ -243,9 +243,14 @@ export function CameraGuides({
     // Analyze face position relative to oval center
     const position = analyzeFacePosition(faceData, video.videoWidth, video.videoHeight, idealCenterY);
     
-    // Analyze distance
-    const faceHeight = faceData?.h || 0;
-    const distance = analyzeDistance(faceHeight, video.videoHeight, countryCode);
+    // NEW: Use crop simulation for distance analysis
+    // This uses the actual crop algorithm to determine if position will produce good results
+    const { distance } = analyzeDistanceWithCropSimulation(
+      faceData,
+      video.videoWidth,
+      video.videoHeight,
+      countryCode
+    );
     
     // Analyze tilt
     const tilt = analyzeHeadTilt(

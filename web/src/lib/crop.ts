@@ -8,6 +8,191 @@ export interface CropParams {
   cropH: number;
 }
 
+/**
+ * Result of simulating a crop - tells you exactly what would happen
+ */
+export interface CropSimulationResult {
+  // Will the crop succeed without issues?
+  isValid: boolean;
+  
+  // Quality metrics
+  headHeightPercent: number;     // Head height as % of output (spec wants 50-69% for US)
+  eyePositionPercent: number;    // Eye position from bottom as % of output
+  
+  // Issues that would occur
+  issues: CropIssue[];
+  
+  // What to tell the user
+  guidance: 'perfect' | 'move-closer' | 'move-back' | 'center-face' | 'tilt-head' | 'no-face';
+  
+  // The calculated crop params (for preview)
+  cropParams: CropParams | null;
+  
+  // Padding that would be added (0 = no padding = good)
+  paddingTop: number;
+  paddingBottom: number;
+  paddingLeft: number;
+  paddingRight: number;
+}
+
+export type CropIssue = 
+  | 'no-face'
+  | 'head-too-small'
+  | 'head-too-large'
+  | 'needs-padding-top'
+  | 'needs-padding-bottom'
+  | 'needs-padding-left'
+  | 'needs-padding-right'
+  | 'eyes-position-bad'
+  | 'face-not-centered';
+
+/**
+ * Simulate what a crop would produce WITHOUT rendering
+ * Use this in camera guides to show real-time feedback
+ */
+export function simulateCrop(
+  sourceWidth: number,
+  sourceHeight: number,
+  faceData: FaceData | null,
+  standard: PhotoStandard
+): CropSimulationResult {
+  const spec = specToPx(standard);
+  const issues: CropIssue[] = [];
+  
+  if (!faceData) {
+    return {
+      isValid: false,
+      headHeightPercent: 0,
+      eyePositionPercent: 0,
+      issues: ['no-face'],
+      guidance: 'no-face',
+      cropParams: null,
+      paddingTop: 0,
+      paddingBottom: 0,
+      paddingLeft: 0,
+      paddingRight: 0,
+    };
+  }
+  
+  const face = faceData;
+  const faceCenterX = face.x + face.w / 2;
+  
+  // Eye position
+  let eyeY: number;
+  if (face.leftEye && face.rightEye) {
+    eyeY = (face.leftEye.y + face.rightEye.y) / 2;
+  } else {
+    eyeY = face.y + face.h * 0.35;
+  }
+  
+  // Head estimation
+  const HEAD_TO_FACE_RATIO = 1.4;
+  const estimatedHeadH = face.h * HEAD_TO_FACE_RATIO;
+  const crownY = face.y - face.h * 0.5;
+  const crownToEye = eyeY - crownY;
+  
+  // Spec requirements
+  const targetEyeFromTop = spec.h - spec.eyeFromBottom;
+  const minTopMargin = spec.h * 0.05;
+  
+  // Calculate scale bounds (same logic as calculateCrop)
+  const minScaleHead = spec.headMin / estimatedHeadH;
+  const maxScaleHead = spec.headMax / estimatedHeadH;
+  const maxScaleCrown = crownToEye > 0 
+    ? (targetEyeFromTop - minTopMargin) / crownToEye 
+    : maxScaleHead;
+  const minScaleCropY = eyeY > 0 ? targetEyeFromTop / eyeY : minScaleHead;
+  
+  const minScale = Math.max(minScaleHead, minScaleCropY);
+  const maxScale = Math.min(maxScaleHead, maxScaleCrown);
+  
+  // Pick target scale
+  let scale: number;
+  if (minScale <= maxScale) {
+    scale = minScale + (maxScale - minScale) * 0.35;
+  } else {
+    scale = Math.max(minScaleHead, Math.min(maxScaleHead, maxScaleCrown));
+  }
+  
+  // Calculate crop dimensions
+  const cropW = spec.w / scale;
+  const cropH = spec.h / scale;
+  
+  // Position crop
+  const eyeFromTopInSrc = targetEyeFromTop / scale;
+  let cropY = eyeY - eyeFromTopInSrc;
+  let cropX = faceCenterX - cropW / 2;
+  
+  // Check for padding (crop exceeds source bounds)
+  let paddingTop = 0, paddingBottom = 0, paddingLeft = 0, paddingRight = 0;
+  
+  if (cropY < 0) {
+    paddingTop = Math.abs(cropY);
+    issues.push('needs-padding-top');
+    cropY = 0;
+  }
+  if (cropY + cropH > sourceHeight) {
+    paddingBottom = (cropY + cropH) - sourceHeight;
+    issues.push('needs-padding-bottom');
+  }
+  if (cropX < 0) {
+    paddingLeft = Math.abs(cropX);
+    issues.push('needs-padding-left');
+    cropX = 0;
+  }
+  if (cropX + cropW > sourceWidth) {
+    paddingRight = (cropX + cropW) - sourceWidth;
+    issues.push('needs-padding-right');
+  }
+  
+  // Calculate output metrics
+  const headInOutput = estimatedHeadH * scale;
+  const headHeightPercent = (headInOutput / spec.h) * 100;
+  const eyePositionPercent = (spec.eyeFromBottom / spec.h) * 100;
+  
+  // Check head size compliance
+  const minHeadPercent = (spec.headMin / spec.h) * 100;
+  const maxHeadPercent = (spec.headMax / spec.h) * 100;
+  
+  if (headHeightPercent < minHeadPercent) {
+    issues.push('head-too-small');
+  }
+  if (headHeightPercent > maxHeadPercent) {
+    issues.push('head-too-large');
+  }
+  
+  // Check centering (face should be roughly centered horizontally)
+  const faceCenterOffset = Math.abs(faceCenterX - sourceWidth / 2) / sourceWidth;
+  if (faceCenterOffset > 0.15) {
+    issues.push('face-not-centered');
+  }
+  
+  // Determine guidance
+  let guidance: CropSimulationResult['guidance'] = 'perfect';
+  if (issues.includes('head-too-small') || paddingTop > 0 || paddingBottom > 0) {
+    guidance = 'move-closer';
+  } else if (issues.includes('head-too-large') || paddingLeft > 0 || paddingRight > 0) {
+    guidance = 'move-back';
+  } else if (issues.includes('face-not-centered')) {
+    guidance = 'center-face';
+  }
+  
+  const isValid = issues.length === 0;
+  
+  return {
+    isValid,
+    headHeightPercent,
+    eyePositionPercent,
+    issues,
+    guidance,
+    cropParams: { cropX, cropY, cropW, cropH },
+    paddingTop,
+    paddingBottom,
+    paddingLeft,
+    paddingRight,
+  };
+}
+
 export function calculateCrop(
   sourceWidth: number,
   sourceHeight: number,

@@ -589,3 +589,88 @@ export function extractRegionBrightness(
   
   return ctx.getImageData(safeX, safeY, safeWidth, safeHeight);
 }
+
+/**
+ * NEW: Crop-based distance analysis
+ * Uses the actual crop simulation to determine if position is good
+ */
+import { simulateCrop, type CropSimulationResult } from './crop';
+import { STANDARDS } from './photo-standards';
+
+export interface CropBasedAnalysis {
+  distance: DistanceResult;
+  simulation: CropSimulationResult | null;
+}
+
+export function analyzeDistanceWithCropSimulation(
+  faceData: { x: number; y: number; w: number; h: number; leftEye?: { x: number; y: number } | null; rightEye?: { x: number; y: number } | null } | null,
+  sourceWidth: number,
+  sourceHeight: number,
+  countryCode: string
+): CropBasedAnalysis {
+  const standard = STANDARDS[countryCode] || STANDARDS['us'];
+  
+  if (!faceData) {
+    return {
+      distance: {
+        status: 'too-far',
+        isGood: false,
+        message: 'Position your face in the oval',
+        percentFromTarget: -100,
+      },
+      simulation: null,
+    };
+  }
+  
+  // Convert face data to FaceData format expected by simulateCrop
+  const faceDataForCrop = {
+    x: faceData.x,
+    y: faceData.y,
+    w: faceData.w,
+    h: faceData.h,
+    leftEye: faceData.leftEye || null,
+    rightEye: faceData.rightEye || null,
+  };
+  
+  // Run the actual crop simulation
+  const simulation = simulateCrop(sourceWidth, sourceHeight, faceDataForCrop, standard);
+  
+  // Determine status based on simulation results
+  let status: DistanceResult['status'];
+  let message: string;
+  let isGood: boolean;
+  
+  if (simulation.isValid) {
+    status = 'good';
+    message = 'Perfect!';
+    isGood = true;
+  } else if (simulation.guidance === 'move-closer') {
+    status = 'too-far';
+    message = 'Move closer';
+    isGood = false;
+  } else if (simulation.guidance === 'move-back') {
+    status = 'too-close';
+    message = 'Move back slightly';
+    isGood = false;
+  } else {
+    // Other issues (centering, etc.)
+    status = 'good'; // Distance might be ok, other issue
+    message = simulation.guidance === 'center-face' ? 'Center your face' : 'Adjust position';
+    isGood = simulation.issues.length === 0 || 
+             !simulation.issues.some(i => i.includes('padding') || i.includes('head-too'));
+  }
+  
+  // Calculate percent from ideal (target is middle of head range)
+  const targetHeadPercent = (standard.headMin + standard.headMax) / 2 * 100;
+  const percentFromTarget = ((simulation.headHeightPercent - targetHeadPercent) / targetHeadPercent) * 100;
+  
+  return {
+    distance: {
+      status,
+      isGood,
+      message,
+      percentFromTarget,
+    },
+    simulation,
+  };
+}
