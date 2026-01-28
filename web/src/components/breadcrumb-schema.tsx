@@ -52,6 +52,10 @@ export const BREADCRUMBS = {
     { name: 'Home', url: 'https://safepassportpic.com' },
     { name: 'Indian Passport Photo', url: 'https://safepassportpic.com/indian-passport-photo' },
   ],
+  greenCard: [
+    { name: 'Home', url: 'https://safepassportpic.com' },
+    { name: 'Green Card Photo', url: 'https://safepassportpic.com/green-card-photo' },
+  ],
   blog: [
     { name: 'Home', url: 'https://safepassportpic.com' },
     { name: 'Blog', url: 'https://safepassportpic.com/blog' },
