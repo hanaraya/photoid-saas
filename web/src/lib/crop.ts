@@ -69,39 +69,14 @@ export function calculateCrop(
     const cropW = spec.w / scale;
     const cropH = spec.h / scale;
 
-    // Position based on eye line
+    // Position based on eye line - THIS IS THE PRIMARY POSITIONING RULE
+    // Eyes must be at spec.eyeFromBottom from the bottom of the output
     const targetEyeFromTop = spec.h - spec.eyeFromBottom;
     const eyeFromTopInSrc = targetEyeFromTop / scale;
     let cropY = eyeY - eyeFromTopInSrc;
 
     // Center horizontally on face
     let cropX = faceCenterX - cropW / 2;
-
-    // Convert margins to source pixels
-    const topMarginSrc = minTopMargin / scale;
-    const bottomMarginSrc = minBottomMargin / scale;
-
-    // Check if crown has enough headroom
-    const crownInCrop = crownY - cropY; // Where crown appears relative to crop top
-    if (crownInCrop < topMarginSrc) {
-      // Crown is too close to top or cut off - move crop up
-      cropY = crownY - topMarginSrc;
-    }
-
-    // Ensure cropY doesn't go negative (above image)
-    // Simply clamp - don't change scale, it's already set for compliance
-    if (cropY < 0) {
-      cropY = 0;
-    }
-
-    // Check chin position
-    const chinInCrop = chinY - cropY; // Where chin appears relative to crop top
-    const bottomInCrop = cropH; // Crop height in source
-    if (chinInCrop + bottomMarginSrc > bottomInCrop) {
-      // Chin would be cut off - this shouldn't happen with proper scaling
-      // but if it does, prioritize showing full head over eye position
-      cropY = Math.min(cropY, chinY + bottomMarginSrc - cropH);
-    }
 
     // Simple boundary clamping - scale is already set for compliance
     // Don't change scale here, just clamp position to fit within image
