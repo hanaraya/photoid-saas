@@ -311,12 +311,14 @@ export interface SpecPx {
 
 export function specToPx(spec: PhotoStandard): SpecPx {
   const scale = spec.unit === 'mm' ? DPI / 25.4 : DPI;
+  // Target 35% between min and max (closer to minimum for more breathing room)
+  const headTarget = spec.headMin + (spec.headMax - spec.headMin) * 0.35;
   return {
     w: Math.round(spec.w * scale),
     h: Math.round(spec.h * scale),
     headMin: Math.round(spec.headMin * scale),
     headMax: Math.round(spec.headMax * scale),
-    headTarget: Math.round(((spec.headMin + spec.headMax) / 2) * scale),
+    headTarget: Math.round(headTarget * scale),
     eyeFromBottom: Math.round(spec.eyeFromBottom * scale),
   };
 }
