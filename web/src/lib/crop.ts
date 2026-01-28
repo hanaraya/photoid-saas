@@ -61,8 +61,12 @@ export function calculateCrop(
       ? (targetEyeFromTop - minTopMargin) / crownToEye 
       : maxScaleHead;
     
-    // Final scale bounds
-    const minScale = minScaleHead;
+    // Scale bound to ensure cropY stays non-negative (eyes are low enough in source)
+    // cropY = eyeY - targetEyeFromTop/scale >= 0  =>  scale >= targetEyeFromTop/eyeY
+    const minScaleCropY = eyeY > 0 ? targetEyeFromTop / eyeY : minScaleHead;
+    
+    // Final scale bounds - must satisfy ALL constraints
+    const minScale = Math.max(minScaleHead, minScaleCropY);
     const maxScale = Math.min(maxScaleHead, maxScaleCrown);
     
     // Target scale: aim for middle of valid range, biased toward smaller head
