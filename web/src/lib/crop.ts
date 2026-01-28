@@ -396,15 +396,20 @@ export function renderPassportPhoto(
     );
 
   // Apply user adjustments
-  const zoomFactor = 100 / userZoom;
+  const srcW = sourceImage.naturalWidth;
+  const srcH = sourceImage.naturalHeight;
+  
+  // Calculate zoom factor, but LIMIT it so crop never exceeds source (no white space!)
+  const requestedZoomFactor = 100 / userZoom;
+  const maxZoomOutFactor = Math.min(srcW / cropW, srcH / cropH);
+  const zoomFactor = Math.min(requestedZoomFactor, maxZoomOutFactor);
+  
   const adjCropW = cropW * zoomFactor;
   const adjCropH = cropH * zoomFactor;
   let adjCropX = cropX + (cropW - adjCropW) / 2 - userH * (cropW / spec.w);
   let adjCropY = cropY + (cropH - adjCropH) / 2 - userV * (cropH / spec.h);
 
   // CRITICAL: Keep crop within source image bounds (no white space)
-  const srcW = sourceImage.naturalWidth;
-  const srcH = sourceImage.naturalHeight;
   
   // Horizontal bounds - never show white space on sides
   if (adjCropX < 0) {
@@ -413,9 +418,10 @@ export function renderPassportPhoto(
   if (adjCropX + adjCropW > srcW) {
     adjCropX = srcW - adjCropW;
   }
-  // If crop is wider than source, center it (will have white space, unavoidable)
+  // Safety check - should never happen with constrained zoom
   if (adjCropW > srcW) {
-    adjCropX = (srcW - adjCropW) / 2;
+    console.warn('Crop exceeds source width - this should not happen');
+    adjCropX = 0; // Clamp to left edge instead of centering
   }
   
   // Vertical bounds - never show white space on top/bottom
@@ -425,9 +431,10 @@ export function renderPassportPhoto(
   if (adjCropY + adjCropH > srcH) {
     adjCropY = srcH - adjCropH;
   }
-  // If crop is taller than source, center it (will have white space, unavoidable)
+  // Safety check - should never happen with constrained zoom
   if (adjCropH > srcH) {
-    adjCropY = (srcH - adjCropH) / 2;
+    console.warn('Crop exceeds source height - this should not happen');
+    adjCropY = 0; // Clamp to top edge instead of centering
   }
 
   // ADDITIONAL: Enforce head framing constraints (but within image bounds)
