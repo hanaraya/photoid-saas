@@ -274,11 +274,13 @@ export function calculateOvalDimensions(
 
 /**
  * Analyze face position relative to viewport
+ * @param idealCenterY - Optional Y position of oval center (defaults to viewport center)
  */
 export function analyzeFacePosition(
   faceBox: { x: number; y: number; w: number; h: number } | null,
   viewportWidth: number,
-  viewportHeight: number
+  viewportHeight: number,
+  idealCenterY?: number
 ): FacePositionResult {
   if (!faceBox) {
     return {
@@ -296,16 +298,17 @@ export function analyzeFacePosition(
   const faceCenterX = faceBox.x + faceBox.w / 2;
   const faceCenterY = faceBox.y + faceBox.h / 2;
   
-  // Calculate viewport center
+  // Calculate target center (use oval center if provided, else viewport center)
   const viewportCenterX = viewportWidth / 2;
   const viewportCenterY = viewportHeight / 2;
+  const targetCenterY = idealCenterY ?? viewportCenterY;
   
   // Calculate offset as percentage (-1 to 1)
   const horizontalOffset = (faceCenterX - viewportCenterX) / viewportCenterX;
-  const verticalOffset = (faceCenterY - viewportCenterY) / viewportCenterY;
+  const verticalOffset = (faceCenterY - targetCenterY) / viewportCenterY;
   
-  // Tolerance for "centered" (10% of viewport)
-  const tolerance = 0.10;
+  // Tolerance for "centered" (15% for horizontal, 20% for vertical to be more forgiving)
+  const tolerance = 0.15;
   
   const isHorizontallyCentered = Math.abs(horizontalOffset) <= tolerance;
   const isVerticallyCentered = Math.abs(verticalOffset) <= tolerance * 1.5; // Slightly more tolerance vertically

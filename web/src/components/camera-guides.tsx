@@ -236,8 +236,12 @@ export function CameraGuides({
     // Use external face data if provided
     const faceData = externalFaceData || null;
     
-    // Analyze face position
-    const position = analyzeFacePosition(faceData, video.videoWidth, video.videoHeight);
+    // Calculate ideal centerY in video coordinates (same formula as calculateOvalDimensions)
+    // The oval is positioned at ~40% from top based on eye line requirements
+    const idealCenterY = video.videoHeight * 0.40;
+    
+    // Analyze face position relative to oval center
+    const position = analyzeFacePosition(faceData, video.videoWidth, video.videoHeight, idealCenterY);
     
     // Analyze distance
     const faceHeight = faceData?.h || 0;
