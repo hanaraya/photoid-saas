@@ -230,12 +230,11 @@ export function calculateOvalDimensions(
   const range = getCameraFaceHeightRange(countryCode);
   const headRange = getCountryHeadHeightRange(countryCode);
   
-  // VISUAL OVAL: Target the middle-upper range for better results
-  // Previous: range.max * 1.10 (too large, users end up with small heads)
-  // Now: use midpoint of range with slight padding toward larger
-  // This encourages users to get closer, resulting in better head size
-  const targetPercent = (range.min + range.max) / 2;
-  const visualOvalPercent = targetPercent * 1.05; // 5% padding
+  // VISUAL OVAL: Match the crop algorithm's target exactly
+  // Crop algorithm picks scale at 35% from min toward max
+  // So oval should guide users to the exact size that produces ideal crops
+  const targetPercent = range.min + (range.max - range.min) * 0.35;
+  const visualOvalPercent = targetPercent; // No padding - exact target
   
   // Calculate oval dimensions in viewport pixels
   const ovalHeight = viewportHeight * visualOvalPercent;
@@ -374,14 +373,11 @@ export function analyzeDistance(
   const headRange = getCountryHeadHeightRange(countryCode);
   const HEAD_TO_FACE = 1.4;
   
-  // Calculate what face % in camera would give ideal head % in output
-  // Target: middle of acceptable range
-  const targetHeadPercent = (headRange.min + headRange.max) / 2;
-  const targetFacePercent = targetHeadPercent / HEAD_TO_FACE;
-  
-  // What face % in camera would give minimum/maximum acceptable head
-  const maxFacePercent = headRange.max / HEAD_TO_FACE;  // Face larger = head larger
-  const minFacePercent = headRange.min / HEAD_TO_FACE;  // Face smaller = head smaller
+  // The crop algorithm targets 35% from min toward max (biases smaller head)
+  // So ideal head = min + (max - min) * 0.35
+  // We want the green range to match what produces good crops
+  const idealHeadPercent = headRange.min + (headRange.max - headRange.min) * 0.35;
+  const targetFacePercent = idealHeadPercent / HEAD_TO_FACE;
   
   // Actual face size in camera
   const actualFacePercent = faceHeight / viewportHeight;
@@ -389,16 +385,15 @@ export function analyzeDistance(
   // Calculate how far from target
   const percentFromTarget = ((actualFacePercent - targetFacePercent) / targetFacePercent) * 100;
   
-  // INTELLIGENT VALIDATION:
-  // Too close: face > maxFacePercent means head would be > headRange.max → too large
-  // 5% buffer - be slightly conservative but not too strict
-  const safeMaxFace = maxFacePercent * 0.95;  // 5% safety margin
-  const isTooClose = actualFacePercent > safeMaxFace;
+  // TIGHT VALIDATION - green only when face will produce ideal crop
+  // Allow ±15% from ideal (not the full spec range)
+  // Too close: face too large → crop may exceed image bounds → padding
+  const maxGoodFace = targetFacePercent * 1.15;
+  const isTooClose = actualFacePercent > maxGoodFace;
   
-  // Too far: face < minFacePercent means head would be < headRange.min → too small
-  // 10% buffer - allow slightly smaller faces since we can zoom in
-  const safeMinFace = minFacePercent * 0.90;  // 10% buffer
-  const isTooFar = actualFacePercent < safeMinFace;
+  // Too far: face too small → head will be at lower end of range
+  const minGoodFace = targetFacePercent * 0.85;
+  const isTooFar = actualFacePercent < minGoodFace;
   
   if (isTooClose) {
     return {
