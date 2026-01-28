@@ -194,7 +194,7 @@ export function PhotoEditor({
               .catch((err) => { 
                 console.error('[BG-REMOVAL] Preload failed:', err);
                 setBgModelPreloading(false);
-                toast.error('Something went wrong. Please try again.');
+                toast.error('Could not process photo. Try using a lighter background.');
               });
           }
 
@@ -312,7 +312,7 @@ export function PhotoEditor({
     } catch (err) {
       console.error('BG removal failed:', err);
       setBgRemoving(false);
-      toast.error('Oops! Please try again.');
+      toast.error('Could not remove background. Try a plain, light background.');
     }
   }, [imageBlob]);
 
