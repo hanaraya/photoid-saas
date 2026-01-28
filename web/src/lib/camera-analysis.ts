@@ -555,14 +555,26 @@ export function analyzeDistanceWithCropSimulation(
   let message: string;
   let isGood: boolean;
   
+  // Check for padding issues - these mean source image doesn't have enough room
+  // User CANNOT fix this by adjusting position within frame - they need to step back
+  const hasPaddingIssues = simulation.issues.some(issue => 
+    issue.startsWith('needs-padding')
+  );
+  
   if (simulation.isValid) {
     // Simulation says it's good - trust it!
     status = 'good';
     message = 'Perfect!';
     isGood = true;
+  } else if (hasPaddingIssues) {
+    // CRITICAL: Padding issues mean crop exceeds source bounds
+    // User must step back or reposition to get more in frame
+    // Do NOT allow capture - this will cause white space!
+    status = 'too-close'; // Tell them to step back
+    message = 'Step back for more room';
+    isGood = false;
   } else {
-    // Simulation found issues - provide specific guidance
-    // The simulation now returns precise guidance based on actual analysis
+    // No padding issues - provide specific guidance
     switch (simulation.guidance) {
       case 'move-closer':
         status = 'too-far';
@@ -575,24 +587,20 @@ export function analyzeDistanceWithCropSimulation(
         isGood = false;
         break;
       case 'center-face':
-        // Face position is the issue, not distance
-        // For the distance result, we say "good" but let position check handle it
+        // Pure centering issue (no padding) - position check handles this
         status = 'good';
         message = 'Center your face';
-        isGood = true; // Distance is OK, position isn't
+        isGood = true;
         break;
       case 'move-up':
-        status = 'good';
-        message = 'Move up slightly';
-        isGood = true; // Distance OK, vertical position off
-        break;
       case 'move-down':
+        // Vertical position issue without padding - user can adjust
         status = 'good';
-        message = 'Move down slightly';
-        isGood = true; // Distance OK, vertical position off
+        message = simulation.guidance === 'move-up' ? 'Move up slightly' : 'Move down slightly';
+        isGood = true;
         break;
       default:
-        // Fallback - check if it's a head size issue
+        // Fallback - check head size issues
         if (simulation.issues.includes('head-too-small')) {
           status = 'too-far';
           message = 'Move closer';
@@ -602,7 +610,6 @@ export function analyzeDistanceWithCropSimulation(
           message = 'Move back slightly';
           isGood = false;
         } else {
-          // Other issues (padding, etc.) - still need adjustment
           status = 'good';
           message = 'Adjust position';
           isGood = false;
