@@ -388,64 +388,73 @@ export function CameraGuides({
         />
       </svg>
       
-      {/* Status indicators */}
-      <div className="absolute top-4 left-4 flex flex-col gap-2 text-sm">
-        {/* Head size percentage - shows estimated final photo head size */}
-        {position.faceDetected && (
+      {/* Status indicators - positioned at top center, horizontal layout */}
+      <div className="absolute top-2 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-1.5 text-xs max-w-[90%]">
+        {/* Only show non-OK indicators to reduce clutter */}
+        
+        {/* Distance indicator - only show if not OK or waiting */}
+        {(!position.faceDetected || !distance.isGood) && (
           <div 
-            data-testid="head-size-indicator"
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm font-medium ${
-              distance.isGood 
-                ? 'bg-green-500/30 text-green-200' 
-                : 'bg-blue-500/30 text-blue-200'
+            data-testid="distance-indicator"
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm ${
+              !position.faceDetected
+                ? 'bg-white/20 text-white/70'
+                : 'bg-amber-500/30 text-amber-200'
             }`}
           >
-            <span className="text-lg">{Math.round((analysisState.distance.percentFromTarget || 0) + 100)}%</span>
-            <span className="text-xs opacity-75">head size</span>
+            <span>{!position.faceDetected ? '◌' : '○'}</span>
+            <span>{!position.faceDetected ? 'Waiting...' : distance.status === 'too-close' ? 'Move back' : 'Move closer'}</span>
           </div>
         )}
         
-        {/* Distance indicator - neutral when no face detected */}
-        <div 
-          data-testid="distance-indicator"
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm ${
-            !position.faceDetected
-              ? 'bg-white/20 text-white/70' // Neutral - waiting for face
-              : distance.isGood 
-                ? 'bg-green-500/20 text-green-300' 
-                : 'bg-red-500/20 text-red-300'
-          }`}
-        >
-          <span>{!position.faceDetected ? '◌' : distance.isGood ? '✓' : '○'}</span>
-          <span>{!position.faceDetected ? 'Waiting...' : distance.status === 'too-close' ? 'Too close' : distance.status === 'too-far' ? 'Too far' : 'Distance OK'}</span>
-        </div>
+        {/* Lighting indicator - only show if not OK */}
+        {!brightness.isGood && (
+          <div 
+            data-testid="lighting-indicator"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-amber-500/30 text-amber-200"
+          >
+            <span>{brightness.icon}</span>
+            <span>{brightness.message}</span>
+          </div>
+        )}
         
-        {/* Lighting indicator */}
-        <div 
-          data-testid="lighting-indicator"
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm ${
-            brightness.isGood 
-              ? 'bg-green-500/20 text-green-300' 
-              : 'bg-yellow-500/20 text-yellow-300'
-          }`}
-        >
-          <span>{brightness.icon}</span>
-          <span>{brightness.status === 'good' ? 'Lighting OK' : brightness.message}</span>
-        </div>
+        {/* Tilt indicator - only show if tilted */}
+        {tilt.eyesDetected && !tilt.isLevel && (
+          <div 
+            data-testid="tilt-indicator"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-green-500/30 text-green-200"
+          >
+            <span>{tilt.direction === 'left' ? '↙️' : '↘️'}</span>
+            <span>Tilted {tilt.direction}</span>
+          </div>
+        )}
         
-        {/* Tilt indicator */}
-        <div 
-          data-testid="tilt-indicator"
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-full backdrop-blur-sm ${
-            tilt.isLevel || !tilt.eyesDetected
-              ? 'bg-green-500/20 text-green-300' 
-              : 'bg-red-500/20 text-red-300'
-          }`}
-        >
-          <span>{tilt.isLevel ? '⬛' : tilt.direction === 'left' ? '↙️' : '↘️'}</span>
-          <span>{tilt.isLevel ? 'Level' : `Tilted ${tilt.direction}`}</span>
-        </div>
+        {/* All good indicator */}
+        {conditions.allGood && (
+          <div 
+            data-testid="all-good-indicator"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-green-500/30 text-green-200"
+          >
+            <span>✓</span>
+            <span>Ready</span>
+          </div>
+        )}
       </div>
+      
+      {/* Head size indicator - bottom left, only when face detected */}
+      {position.faceDetected && (
+        <div 
+          data-testid="head-size-indicator"
+          className={`absolute bottom-20 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm text-xs font-medium ${
+            distance.isGood 
+              ? 'bg-green-500/30 text-green-200' 
+              : 'bg-blue-500/30 text-blue-200'
+          }`}
+        >
+          <span>{Math.round((analysisState.distance.percentFromTarget || 0) + 100)}%</span>
+          <span className="opacity-75">head</span>
+        </div>
+      )}
       
       {/* Guidance message */}
       <div 
