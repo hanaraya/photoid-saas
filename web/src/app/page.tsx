@@ -57,7 +57,7 @@ export default function Home() {
               ].map((item) => (
                 <div
                   key={item.step}
-                  className="relative flex flex-col items-center text-center p-6 rounded-xl bg-card border border-border"
+                  className="relative flex flex-col items-center text-center p-6 rounded-xl bg-card border border-border transition-all duration-200 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1"
                 >
                   <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-2xl">
                     {item.icon}
