@@ -1,5 +1,12 @@
 import { type FaceData } from './face-detection';
-import { type SpecPx, specToPx, type PhotoStandard } from './photo-standards';
+import { 
+  type SpecPx, 
+  specToPx, 
+  type PhotoStandard,
+  HEAD_TO_FACE_RATIO,
+  CROWN_CLEARANCE_RATIO,
+  HEAD_SIZE_TOLERANCE,
+} from './photo-standards';
 
 export interface CropParams {
   cropX: number;
@@ -86,9 +93,8 @@ export function simulateCrop(
   }
   
   // Head estimation
-  const HEAD_TO_FACE_RATIO = 1.4;
   const estimatedHeadH = face.h * HEAD_TO_FACE_RATIO;
-  const crownY = face.y - face.h * 0.5;
+  const crownY = face.y - face.h * CROWN_CLEARANCE_RATIO;
   const crownToEye = eyeY - crownY;
   
   // Spec requirements
@@ -157,8 +163,8 @@ export function simulateCrop(
   const minHeadPercent = (spec.headMin / spec.h) * 100;
   const maxHeadPercent = (spec.headMax / spec.h) * 100;
   
-  // Use a small tolerance (2%) to avoid flickering at boundaries
-  const headTolerance = 2;
+  // Use a small tolerance to avoid flickering at boundaries
+  const headTolerance = HEAD_SIZE_TOLERANCE;
   
   if (headHeightPercent < minHeadPercent - headTolerance) {
     issues.push('head-too-small');
@@ -254,11 +260,10 @@ export function calculateCrop(
     }
 
     // Key positions in source
-    const crownY = face.y - face.h * 0.5; // Top of head (including hair)
+    const crownY = face.y - face.h * CROWN_CLEARANCE_RATIO; // Top of head (including hair)
     const chinY = face.y + face.h; // Bottom of chin
 
-    // Full head height estimate
-    const HEAD_TO_FACE_RATIO = 1.4;
+    // Full head height estimate (uses imported HEAD_TO_FACE_RATIO)
     const estimatedHeadH = face.h * HEAD_TO_FACE_RATIO;
 
     // Spec requirements (all in output pixels)
@@ -419,7 +424,7 @@ export function renderPassportPhoto(
 
   // ADDITIONAL: Enforce head framing constraints (but within image bounds)
   if (faceData) {
-    const crownY = faceData.y - faceData.h * 0.5;
+    const crownY = faceData.y - faceData.h * CROWN_CLEARANCE_RATIO;
     const chinY = faceData.y + faceData.h;
     const scale = spec.w / adjCropW;
     const minPaddingSrc = (spec.h * 0.08) / scale;

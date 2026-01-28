@@ -1,3 +1,40 @@
+// =============================================================================
+// GLOBAL MEASUREMENT CONSTANTS
+// All files MUST import these - never hardcode measurement ratios elsewhere
+// =============================================================================
+
+/**
+ * Ratio of full head height (crown to chin) to face bounding box height.
+ * Face detection gives us face bbox; multiply by this to estimate full head.
+ * Used in: crop.ts, compliance.ts, compliance-overlay.tsx
+ */
+export const HEAD_TO_FACE_RATIO = 1.4;
+
+/**
+ * Estimate crown position above face bbox top.
+ * crownY = faceY - (faceH * CROWN_CLEARANCE_RATIO)
+ * Used in: crop.ts, compliance.ts
+ */
+export const CROWN_CLEARANCE_RATIO = 0.5;
+
+/**
+ * Where to target head size within the valid range (0 = min, 1 = max).
+ * 0.35 means aim for 35% from minimum (smaller head = more breathing room).
+ * Used in: photo-standards.ts (specToPx), crop.ts
+ */
+export const TARGET_HEAD_POSITION = 0.35;
+
+/**
+ * Tolerance for head size compliance checks (percentage points).
+ * Prevents flickering at boundaries.
+ * Used in: crop.ts
+ */
+export const HEAD_SIZE_TOLERANCE = 2;
+
+// =============================================================================
+// PHOTO STANDARD INTERFACES & DATA
+// =============================================================================
+
 export interface PhotoStandard {
   id: string;
   name: string;
@@ -311,8 +348,8 @@ export interface SpecPx {
 
 export function specToPx(spec: PhotoStandard): SpecPx {
   const scale = spec.unit === 'mm' ? DPI / 25.4 : DPI;
-  // Target 35% between min and max (closer to minimum for more breathing room)
-  const headTarget = spec.headMin + (spec.headMax - spec.headMin) * 0.35;
+  // Target position within valid range (closer to minimum for more breathing room)
+  const headTarget = spec.headMin + (spec.headMax - spec.headMin) * TARGET_HEAD_POSITION;
   return {
     w: Math.round(spec.w * scale),
     h: Math.round(spec.h * scale),

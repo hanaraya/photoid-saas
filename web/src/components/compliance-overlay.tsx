@@ -2,8 +2,12 @@
 
 import React from 'react';
 import type { FaceData } from '@/lib/face-detection';
-import type { PhotoStandard } from '@/lib/photo-standards';
-import { specToPx } from '@/lib/photo-standards';
+import { 
+  type PhotoStandard,
+  specToPx,
+  HEAD_TO_FACE_RATIO,
+  CROWN_CLEARANCE_RATIO,
+} from '@/lib/photo-standards';
 
 export type ComplianceStatus = 'pass' | 'warn' | 'fail';
 
@@ -45,8 +49,8 @@ export function calculateMeasurementState(
 ): MeasurementState {
   const spec = specToPx(standard);
   
-  // Calculate head height including hair (must match HEAD_TO_FACE_RATIO in crop.ts = 1.4)
-  const estimatedHeadHeight = faceData.h * 1.4;
+  // Calculate head height including hair
+  const estimatedHeadHeight = faceData.h * HEAD_TO_FACE_RATIO;
   
   // Target head height in spec (midpoint of range)
   const targetHeadHeight = spec.headTarget;
@@ -74,8 +78,8 @@ export function calculateMeasurementState(
   const eyePositionPercent = (spec.eyeFromBottom / spec.h) * 100;
   
   // Calculate margins based on head position in output
-  // Crown is at face.y - 0.5*face.h in source, scales to output
-  const crownY = faceData.y - faceData.h * 0.5;
+  // Crown is at face.y minus crown clearance in source, scales to output
+  const crownY = faceData.y - faceData.h * CROWN_CLEARANCE_RATIO;
   const chinY = faceData.y + faceData.h;
   
   // The top margin depends on where the crop positions the head

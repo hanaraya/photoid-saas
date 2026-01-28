@@ -61,12 +61,11 @@ export interface CameraConditions {
 }
 
 /**
- * Face-to-head ratio constant
+ * Face-to-head ratio constant (derived from HEAD_TO_FACE_RATIO)
  * Face bbox (chin to eyebrows) ≈ 71.4% of full head height
  * Full head = face + forehead + hair
  */
-const FACE_TO_HEAD_RATIO = 1 / 1.4; // ~0.714
-const HEAD_TO_FACE_RATIO = 1.4;
+const FACE_TO_HEAD_RATIO = 1 / HEAD_TO_FACE_RATIO;
 
 /**
  * Country-specific head height requirements as percentage of photo height
@@ -511,7 +510,7 @@ export function extractRegionBrightness(
  * If simulateCrop says it's good, the crop will be good.
  */
 import { simulateCrop, type CropSimulationResult } from './crop';
-import { STANDARDS } from './photo-standards';
+import { STANDARDS, HEAD_TO_FACE_RATIO } from './photo-standards';
 
 export interface CropBasedAnalysis {
   distance: DistanceResult;

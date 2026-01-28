@@ -1,5 +1,11 @@
 import { type FaceData } from './face-detection';
-import { type PhotoStandard, specToPx, type SpecPx } from './photo-standards';
+import { 
+  type PhotoStandard, 
+  specToPx, 
+  type SpecPx,
+  HEAD_TO_FACE_RATIO,
+  CROWN_CLEARANCE_RATIO,
+} from './photo-standards';
 import { calculateCrop } from './crop';
 import { type ImageAnalysis } from './image-analysis';
 
@@ -60,8 +66,7 @@ export function checkCompliance(
     );
     const zoomFactor = 100 / userZoom;
     const effectiveScale = spec.w / (cropW * zoomFactor);
-    // Must match HEAD_TO_FACE_RATIO in crop.ts (1.4)
-    const estimatedHeadH = faceData.h * 1.4;
+    const estimatedHeadH = faceData.h * HEAD_TO_FACE_RATIO;
     const headInOutput = estimatedHeadH * effectiveScale;
 
     if (headInOutput >= spec.headMin && headInOutput <= spec.headMax) {
@@ -117,8 +122,8 @@ export function checkCompliance(
       (cropParams.cropH - cropParams.cropH * zoomFactorFrame) / 2;
     const adjCropH = cropParams.cropH * zoomFactorFrame;
 
-    // Crown position in source (0.5 accounts for hair volume above face bbox)
-    const crownY = faceData.y - faceData.h * 0.5;
+    // Crown position in source (accounts for hair volume above face bbox)
+    const crownY = faceData.y - faceData.h * CROWN_CLEARANCE_RATIO;
     // Chin position in source
     const chinY = faceData.y + faceData.h;
 
