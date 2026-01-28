@@ -44,21 +44,23 @@ export function OutputView({
         </p>
       </div>
 
-      {/* Sheet preview */}
-      <div className="flex justify-center print-container">
-        {sheetDataUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={sheetDataUrl}
-            alt="Passport photo sheet"
-            className="max-w-full rounded-2xl shadow-2xl ring-1 ring-border/50 print-sheet"
-            style={{ maxWidth: '500px', height: 'auto' }}
-          />
-        ) : (
-          <div className="flex items-center justify-center h-64 text-muted-foreground">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
-          </div>
-        )}
+      {/* Sheet preview - scrollable container */}
+      <div className="overflow-x-auto print-container">
+        <div className="flex justify-center min-w-fit px-4">
+          {sheetDataUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={sheetDataUrl}
+              alt="Passport photo sheet"
+              className="rounded-2xl shadow-2xl ring-1 ring-border/50 print-sheet"
+              style={{ width: '500px', maxWidth: 'none', height: 'auto' }}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-64 text-muted-foreground">
+              <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted border-t-primary" />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Actions */}
