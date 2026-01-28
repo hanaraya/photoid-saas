@@ -1,5 +1,6 @@
 import { Header } from '@/components/header';
 import { Hero } from '@/components/hero';
+import { TrustSignals } from '@/components/trust-signals';
 import { DemoSection } from '@/components/demo-section';
 import { PricingSection } from '@/components/pricing-section';
 import { FAQ } from '@/components/faq';
@@ -13,6 +14,8 @@ export default function Home() {
 
       <main className="flex-1">
         <Hero />
+
+        <TrustSignals />
 
         <DemoSection />
 

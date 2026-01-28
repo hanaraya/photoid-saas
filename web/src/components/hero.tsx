@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Badge } from '@/components/ui/badge';
+import { TrustBadgesInline } from '@/components/trust-signals';
 
 export function Hero() {
   return (
@@ -10,16 +10,8 @@ export function Hero() {
       <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-32">
         <div className="flex flex-col items-center text-center">
           {/* Trust badges */}
-          <div className="mb-6 flex flex-wrap justify-center gap-2">
-            <Badge variant="secondary" className="gap-1.5 px-3 py-1">
-              🔒 Privacy-First
-            </Badge>
-            <Badge variant="secondary" className="gap-1.5 px-3 py-1">
-              ⚡ Instant
-            </Badge>
-            <Badge variant="secondary" className="gap-1.5 px-3 py-1">
-              ✅ Compliance Guaranteed
-            </Badge>
+          <div className="mb-6">
+            <TrustBadgesInline />
           </div>
 
           <h1 className="max-w-4xl text-4xl font-bold tracking-tight sm:text-6xl lg:text-7xl">
@@ -38,13 +30,13 @@ export function Hero() {
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">
             <Link
               href="/app"
-              className="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-8 text-base font-semibold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
+              className="inline-flex h-14 items-center justify-center rounded-lg bg-orange-500 px-10 text-lg font-semibold text-white shadow-lg shadow-orange-500/25 transition-all hover:bg-orange-600 hover:shadow-xl hover:shadow-orange-500/30 hover:-translate-y-0.5"
             >
-              Make Your Passport Photo →
+              Create Passport Photo — $4.99
             </Link>
             <a
               href="#how-it-works"
-              className="inline-flex h-12 items-center justify-center rounded-lg border border-border px-8 text-base font-semibold transition-colors hover:bg-secondary"
+              className="inline-flex h-14 items-center justify-center rounded-lg border border-border px-8 text-base font-semibold transition-colors hover:bg-secondary"
             >
               See How It Works
             </a>
