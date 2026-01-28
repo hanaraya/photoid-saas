@@ -235,7 +235,7 @@ export default function UKPassportPhotoPage() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
-                  href="/app"
+                  href="/app?country=uk"
                   className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
                 >
                   Create UK Passport Photo — $4.99
@@ -322,7 +322,7 @@ export default function UKPassportPhotoPage() {
             </div>
             <div className="mt-12 text-center">
               <Link
-                href="/app"
+                href="/app?country=uk"
                 className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               >
                 Create Your UK Passport Photo Now
@@ -426,7 +426,7 @@ export default function UKPassportPhotoPage() {
             </p>
             <div className="mt-10">
               <Link
-                href="/app"
+                href="/app?country=uk"
                 className="inline-flex h-14 items-center justify-center rounded-md bg-primary px-10 text-lg font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               >
                 Create UK Passport Photo — $4.99

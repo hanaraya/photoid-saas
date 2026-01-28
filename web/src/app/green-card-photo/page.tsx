@@ -261,7 +261,7 @@ export default function GreenCardPhotoPage() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
-                  href="/app"
+                  href="/app?country=us"
                   className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
                 >
                   Create Green Card Photo — $4.99
@@ -376,7 +376,7 @@ export default function GreenCardPhotoPage() {
             </div>
             <div className="mt-12 text-center">
               <Link
-                href="/app"
+                href="/app?country=us"
                 className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               >
                 Create Your Green Card Photo Now
@@ -480,7 +480,7 @@ export default function GreenCardPhotoPage() {
             </p>
             <div className="mt-10">
               <Link
-                href="/app"
+                href="/app?country=us"
                 className="inline-flex h-14 items-center justify-center rounded-md bg-primary px-10 text-lg font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               >
                 Create Green Card Photo — $4.99

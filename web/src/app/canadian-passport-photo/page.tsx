@@ -240,7 +240,7 @@ export default function CanadianPassportPhotoPage() {
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
-                  href="/app"
+                  href="/app?country=canada"
                   className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
                 >
                   Create Canadian Passport Photo — $4.99
@@ -327,7 +327,7 @@ export default function CanadianPassportPhotoPage() {
             </div>
             <div className="mt-12 text-center">
               <Link
-                href="/app"
+                href="/app?country=canada"
                 className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-base font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               >
                 Create Your Canadian Passport Photo Now
@@ -431,7 +431,7 @@ export default function CanadianPassportPhotoPage() {
             </p>
             <div className="mt-10">
               <Link
-                href="/app"
+                href="/app?country=canada"
                 className="inline-flex h-14 items-center justify-center rounded-md bg-primary px-10 text-lg font-medium text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors"
               >
                 Create Canadian Passport Photo — $4.99

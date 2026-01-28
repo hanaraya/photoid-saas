@@ -28,6 +28,14 @@ function AppContent() {
   const [selectedStandardId, setSelectedStandardId] = useState('us');
   const currentEditStateRef = useRef<EditState | undefined>(undefined);
 
+  // Set country from URL parameter (e.g., /app?country=uk)
+  useEffect(() => {
+    const country = searchParams.get('country');
+    if (country && STANDARDS[country]) {
+      setSelectedStandardId(country);
+    }
+  }, [searchParams]);
+
   // Verify payment and restore photo after Stripe redirect
   useEffect(() => {
     const verifyAndRestore = async () => {
