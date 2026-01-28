@@ -387,13 +387,13 @@ export function analyzeDistance(
   // INTELLIGENT VALIDATION:
   // Too close: face > maxFacePercent means head would be > headRange.max → too large
   // This ALSO means crop would need to zoom out, potentially needing padding
-  // Add 5% buffer to be conservative (better to reject slightly early than have padding)
-  const safeMaxFace = maxFacePercent * 0.95;  // 5% safety margin
+  // 15% safety margin ensures plenty of content to spare for cropping flexibility
+  const safeMaxFace = maxFacePercent * 0.85;  // 15% safety margin - more content to spare
   const isTooClose = actualFacePercent > safeMaxFace;
   
   // Too far: face < minFacePercent means head would be < headRange.min → too small
-  // Allow 10% buffer for user experience (face slightly small is less problematic)
-  const safeMinFace = minFacePercent * 0.90;  // 10% buffer
+  // Allow 15% buffer - face can be a bit smaller since we can always zoom in
+  const safeMinFace = minFacePercent * 0.85;  // 15% buffer
   const isTooFar = actualFacePercent < safeMinFace;
   
   if (isTooClose) {
