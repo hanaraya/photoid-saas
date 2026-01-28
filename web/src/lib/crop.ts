@@ -22,8 +22,8 @@ export interface CropSimulationResult {
   // Issues that would occur
   issues: CropIssue[];
   
-  // What to tell the user
-  guidance: 'perfect' | 'move-closer' | 'move-back' | 'center-face' | 'tilt-head' | 'no-face';
+  // What to tell the user - precise guidance based on analysis
+  guidance: 'perfect' | 'move-closer' | 'move-back' | 'center-face' | 'move-up' | 'move-down' | 'tilt-head' | 'no-face';
   
   // The calculated crop params (for preview)
   cropParams: CropParams | null;
@@ -157,10 +157,13 @@ export function simulateCrop(
   const minHeadPercent = (spec.headMin / spec.h) * 100;
   const maxHeadPercent = (spec.headMax / spec.h) * 100;
   
-  if (headHeightPercent < minHeadPercent) {
+  // Use a small tolerance (2%) to avoid flickering at boundaries
+  const headTolerance = 2;
+  
+  if (headHeightPercent < minHeadPercent - headTolerance) {
     issues.push('head-too-small');
   }
-  if (headHeightPercent > maxHeadPercent) {
+  if (headHeightPercent > maxHeadPercent + headTolerance) {
     issues.push('head-too-large');
   }
   
@@ -170,13 +173,47 @@ export function simulateCrop(
     issues.push('face-not-centered');
   }
   
-  // Determine guidance
+  // SMART GUIDANCE LOGIC:
+  // Distinguish between distance issues and position issues
+  // This is critical for giving users the RIGHT advice
+  
   let guidance: CropSimulationResult['guidance'] = 'perfect';
-  if (issues.includes('head-too-small') || paddingTop > 0 || paddingBottom > 0) {
+  
+  // Priority 1: Head size issues (distance)
+  if (issues.includes('head-too-small')) {
     guidance = 'move-closer';
-  } else if (issues.includes('head-too-large') || paddingLeft > 0 || paddingRight > 0) {
+  } else if (issues.includes('head-too-large')) {
     guidance = 'move-back';
-  } else if (issues.includes('face-not-centered')) {
+  }
+  // Priority 2: Vertical position issues
+  // Analyze WHY padding is needed - is it a position issue or size issue?
+  else if (paddingTop > 0 || paddingBottom > 0) {
+    // If head size is within valid range, this is a POSITION issue, not distance
+    if (headHeightPercent >= minHeadPercent - headTolerance && 
+        headHeightPercent <= maxHeadPercent + headTolerance) {
+      // Face is the right size but wrong vertical position
+      if (paddingTop > paddingBottom) {
+        // Need more room at top = face is too HIGH, move down
+        guidance = 'move-down';
+      } else {
+        // Need more room at bottom = face is too LOW, move up
+        guidance = 'move-up';
+      }
+    } else if (headHeightPercent < minHeadPercent) {
+      // Face too small causes padding issues
+      guidance = 'move-closer';
+    } else {
+      // Face too large but needs padding = weird edge case
+      guidance = 'move-back';
+    }
+  }
+  // Priority 3: Horizontal position issues
+  else if (paddingLeft > 0 || paddingRight > 0) {
+    // Horizontal padding typically means centering issue
+    guidance = 'center-face';
+  }
+  // Priority 4: Just a centering issue
+  else if (issues.includes('face-not-centered')) {
     guidance = 'center-face';
   }
   

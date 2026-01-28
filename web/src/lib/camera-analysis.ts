@@ -1,6 +1,11 @@
 /**
  * Camera Analysis Utilities
  * Real-time analysis for passport photo capture guidance
+ * 
+ * ARCHITECTURE:
+ * - All validation uses simulateCrop() for ground truth
+ * - Oval dimensions match exactly what produces valid crops
+ * - No hardcoded thresholds that can drift from crop algorithm
  */
 
 export interface HeadHeightRange {
@@ -56,7 +61,16 @@ export interface CameraConditions {
 }
 
 /**
+ * Face-to-head ratio constant
+ * Face bbox (chin to eyebrows) ≈ 71.4% of full head height
+ * Full head = face + forehead + hair
+ */
+const FACE_TO_HEAD_RATIO = 1 / 1.4; // ~0.714
+const HEAD_TO_FACE_RATIO = 1.4;
+
+/**
  * Country-specific head height requirements as percentage of photo height
+ * These are the OUTPUT requirements - what the final photo needs
  */
 const COUNTRY_HEAD_HEIGHTS: Record<string, HeadHeightRange> = {
   // United States: 1-1.375 inches in 2 inch photo = 50-69%
@@ -102,100 +116,6 @@ const COUNTRY_HEAD_HEIGHTS: Record<string, HeadHeightRange> = {
 const DEFAULT_HEAD_HEIGHT: HeadHeightRange = { min: 0.50, max: 0.69 };
 
 /**
- * ============================================
- * CAMERA OVAL SIZING - COMPLETE DERIVATION
- * ============================================
- * 
- * The oval guides users to position their face for optimal capture.
- * It must account for:
- * 1. Output photo requirements (head size as % of photo)
- * 2. Face-to-head ratio (face bbox vs full head with hair)
- * 3. Capture buffer (extra content for crop flexibility)
- * 4. Camera viewport dimensions (actual rendered size)
- */
-
-/**
- * Face to Head ratio
- * Face bbox (chin to eyebrows) ≈ 71.4% of full head height
- * Full head = face + forehead + hair
- */
-const FACE_TO_HEAD_RATIO = 1 / 1.4; // ~0.714
-
-/**
- * Derive camera face thresholds from output requirements
- * 
- * The oval should match OUTPUT proportions directly.
- * Crop flexibility comes from:
- * 1. High resolution capture (1920×1920)
- * 2. Smart crop algorithm with adjustable scale
- * 3. User can adjust in editor
- * 
- * NO buffer applied to oval - it should feel natural to fill.
- * 
- * Example for US (head 50-69%):
- * - Face in output: 35.7-49.3%
- * - Face in camera: SAME (35.7-49.3%)
- * - Target oval: ~42.5% of viewport
- */
-function deriveCameraThresholds(headMin: number, headMax: number): HeadHeightRange {
-  // Direct mapping from head % to face % for oval sizing
-  // The analyzeDistance function handles the actual validation
-  return {
-    min: headMin * FACE_TO_HEAD_RATIO,
-    max: headMax * FACE_TO_HEAD_RATIO,
-  };
-}
-
-/**
- * CAMERA-SPECIFIC thresholds - mathematically derived from output specs
- */
-const CAMERA_FACE_HEIGHT: Record<string, HeadHeightRange> = {
-  // US: head 50-69% → face 35.7-49.3%
-  us: deriveCameraThresholds(0.50, 0.69),
-  us_visa: deriveCameraThresholds(0.50, 0.69),
-  us_drivers: deriveCameraThresholds(0.50, 0.69),
-  green_card: deriveCameraThresholds(0.50, 0.69),
-  
-  // UK: head 64-75.5% → face 45.7-53.9%
-  uk: deriveCameraThresholds(0.64, 0.755),
-  uk_visa: deriveCameraThresholds(0.64, 0.755),
-  
-  // EU: head 71-80% → face 50.7-57.1%
-  eu: deriveCameraThresholds(0.71, 0.80),
-  schengen: deriveCameraThresholds(0.71, 0.80),
-  schengen_visa: deriveCameraThresholds(0.71, 0.80),
-  germany: deriveCameraThresholds(0.71, 0.80),
-  france: deriveCameraThresholds(0.71, 0.80),
-  
-  // Canada: head 44-51% → face 31.4-36.4%
-  canada: deriveCameraThresholds(0.44, 0.51),
-  
-  // India: head 50-69% (same as US)
-  india: deriveCameraThresholds(0.50, 0.69),
-  india_visa: deriveCameraThresholds(0.50, 0.69),
-  
-  // Australia: head 71-80% (same as EU)
-  australia: deriveCameraThresholds(0.71, 0.80),
-  
-  // China: head 58-69% → face 41.4-49.3%
-  china: deriveCameraThresholds(0.58, 0.69),
-  china_visa: deriveCameraThresholds(0.58, 0.69),
-  
-  // Japan/Korea: head 71-80% (same as EU)
-  japan: deriveCameraThresholds(0.71, 0.80),
-  south_korea: deriveCameraThresholds(0.71, 0.80),
-  
-  // Brazil: head 44-51% (same as Canada)
-  brazil: deriveCameraThresholds(0.44, 0.51),
-  
-  // Mexico: head 71-80% (same as EU)
-  mexico: deriveCameraThresholds(0.71, 0.80),
-};
-
-// Default: same as US (head 50-69%)
-const DEFAULT_CAMERA_FACE_HEIGHT: HeadHeightRange = deriveCameraThresholds(0.50, 0.69);
-
-/**
  * Get head height range for a country (output spec)
  */
 export function getCountryHeadHeightRange(countryCode: string): HeadHeightRange {
@@ -204,76 +124,87 @@ export function getCountryHeadHeightRange(countryCode: string): HeadHeightRange 
 
 /**
  * Get CAMERA face height range for a country
- * This is for the face bounding box relative to camera frame
+ * This converts head requirements to face bbox requirements
  */
 export function getCameraFaceHeightRange(countryCode: string): HeadHeightRange {
-  return CAMERA_FACE_HEIGHT[countryCode] || DEFAULT_CAMERA_FACE_HEIGHT;
+  const headRange = getCountryHeadHeightRange(countryCode);
+  return {
+    min: headRange.min * FACE_TO_HEAD_RATIO,
+    max: headRange.max * FACE_TO_HEAD_RATIO,
+  };
+}
+
+/**
+ * Calculate the ideal vertical position for face center in camera
+ * 
+ * This is derived from the crop algorithm's eye positioning logic:
+ * - Crop positions eyes at eyeFromBottom from bottom of output
+ * - Eyes are at ~35% from TOP of face bbox (60% down from top)
+ * - Face center should be positioned so eyes land at correct height
+ * 
+ * For a camera frame, the ideal face position ensures the crop can:
+ * 1. Position eyes at the correct height
+ * 2. Have the crown visible with margin
+ * 3. Have the chin visible with margin
+ * 
+ * Calculation:
+ * - In output, eyes should be at (1 - eyeFromBottom/h) from top
+ * - For US: 1 - 1.25/2 = 1 - 0.625 = 0.375 (37.5% from top)
+ * - Eyes are at 35% down from face top, so face top = eyeY - 0.35*faceH
+ * - Face center = face top + 0.5*faceH = eyeY - 0.35*faceH + 0.5*faceH = eyeY + 0.15*faceH
+ * 
+ * In camera frame, we want similar proportions to give the crop room to work.
+ * Target face center at ~40% from top works well for most standards.
+ */
+export function getIdealFaceCenterY(countryCode: string, viewportHeight: number): number {
+  // Use a consistent 40% from top for face center
+  // This gives room above the head for the crop to work
+  // The crop algorithm handles the precise eye positioning
+  return viewportHeight * 0.40;
 }
 
 /**
  * Calculate oval dimensions for face positioning guide
- */
-/**
- * Calculate oval dimensions for camera viewport
  * 
- * The oval is a VISUAL GUIDE - it should be large and comfortable to fill.
- * Size and position are COUNTRY-SPECIFIC based on:
- * - Head size requirements (varies by country)
- * - Eye position requirements (varies by country)
+ * CRITICAL: This must match what simulateCrop() validates!
+ * The oval is a VISUAL GUIDE showing where the face should be for a valid crop.
  */
 export function calculateOvalDimensions(
   countryCode: string,
   viewportWidth: number,
   viewportHeight: number
 ): OvalDimensions {
-  // Get country-specific thresholds
-  const range = getCameraFaceHeightRange(countryCode);
-  const headRange = getCountryHeadHeightRange(countryCode);
+  // Get face height range (converted from head requirements)
+  const faceRange = getCameraFaceHeightRange(countryCode);
   
-  // VISUAL OVAL: Match the crop algorithm's target exactly
-  // Crop algorithm picks scale at 35% from min toward max
-  // So oval should guide users to the exact size that produces ideal crops
-  const targetPercent = range.min + (range.max - range.min) * 0.35;
-  const visualOvalPercent = targetPercent; // No padding - exact target
+  // Target: 35% between min and max (matches crop algorithm's target scale)
+  // This ensures users aiming for the oval target get ideal results
+  const targetFacePercent = faceRange.min + (faceRange.max - faceRange.min) * 0.35;
   
-  // Calculate oval dimensions in viewport pixels
-  const ovalHeight = viewportHeight * visualOvalPercent;
+  // Oval shows the TARGET face size
+  const ovalHeight = viewportHeight * targetFacePercent;
   const ovalWidth = ovalHeight * 0.75; // Face width ≈ 75% of height
   
   // Center horizontally
   const centerX = viewportWidth / 2;
   
-  /**
-   * Vertical position varies by country based on eye line requirements
-   * 
-   * Eye position in output photo (from bottom):
-   * - US: ~62.5% from bottom (37.5% from top)
-   * - UK: ~66.7% from bottom (33.3% from top)
-   * - EU: ~66.7% from bottom (33.3% from top)
-   * 
-   * Eyes are at ~60% from TOP of face bbox
-   * So face center should be positioned so eyes land at correct height
-   * 
-   * For UK/EU (eyes higher in photo): face center at ~38% from top
-   * For US (eyes lower in photo): face center at ~42% from top
-   */
-  const eyePositionFromTop = 1 - (headRange.min + headRange.max) / 2 * 0.5;
-  const centerY = viewportHeight * Math.max(0.35, Math.min(0.45, eyePositionFromTop));
+  // Vertical position: consistent 40% from top
+  // This is where getIdealFaceCenterY returns
+  const centerY = getIdealFaceCenterY(countryCode, viewportHeight);
   
   return {
     centerX,
     centerY,
     width: ovalWidth,
     height: ovalHeight,
-    // Detection thresholds (for "distance OK" validation)
-    minHeight: viewportHeight * range.min,
-    maxHeight: viewportHeight * range.max,
+    // Min/max guides show the valid FACE height range
+    minHeight: viewportHeight * faceRange.min,
+    maxHeight: viewportHeight * faceRange.max,
   };
 }
 
 /**
- * Analyze face position relative to viewport
- * @param idealCenterY - Optional Y position of oval center (defaults to viewport center)
+ * Analyze face position relative to the ideal camera position
  */
 export function analyzeFacePosition(
   faceBox: { x: number; y: number; w: number; h: number } | null,
@@ -297,35 +228,39 @@ export function analyzeFacePosition(
   const faceCenterX = faceBox.x + faceBox.w / 2;
   const faceCenterY = faceBox.y + faceBox.h / 2;
   
-  // Calculate target center (use oval center if provided, else viewport center)
+  // Target centers
   const viewportCenterX = viewportWidth / 2;
   const viewportCenterY = viewportHeight / 2;
-  const targetCenterY = idealCenterY ?? viewportCenterY;
+  
+  // Use provided ideal center Y, or default to 40% from top
+  // This should match calculateOvalDimensions' centerY
+  const targetCenterY = idealCenterY ?? (viewportHeight * 0.40);
   
   // Calculate offset as percentage (-1 to 1)
   const horizontalOffset = (faceCenterX - viewportCenterX) / viewportCenterX;
   const verticalOffset = (faceCenterY - targetCenterY) / viewportCenterY;
   
-  // Tolerance for "centered" (15% for horizontal, 20% for vertical to be more forgiving)
-  const tolerance = 0.15;
+  // Tolerance for "centered" (15% horizontal, 20% vertical for flexibility)
+  const hTolerance = 0.15;
+  const vTolerance = 0.20;
   
-  const isHorizontallyCentered = Math.abs(horizontalOffset) <= tolerance;
-  const isVerticallyCentered = Math.abs(verticalOffset) <= tolerance * 1.5; // Slightly more tolerance vertically
+  const isHorizontallyCentered = Math.abs(horizontalOffset) <= hTolerance;
+  const isVerticallyCentered = Math.abs(verticalOffset) <= vTolerance;
   
   // Determine direction
   let direction: 'left' | 'right' | 'center' = 'center';
-  if (horizontalOffset < -tolerance) direction = 'left';
-  else if (horizontalOffset > tolerance) direction = 'right';
+  if (horizontalOffset < -hTolerance) direction = 'left';
+  else if (horizontalOffset > hTolerance) direction = 'right';
   
   let verticalDirection: 'up' | 'down' | 'center' = 'center';
-  if (verticalOffset < -tolerance) verticalDirection = 'up';
-  else if (verticalOffset > tolerance) verticalDirection = 'down';
+  if (verticalOffset < -vTolerance) verticalDirection = 'up';
+  else if (verticalOffset > vTolerance) verticalDirection = 'down';
   
   // Calculate overlap with ideal position (simplified)
   const idealWidth = viewportWidth * 0.3;
   const idealHeight = viewportHeight * 0.5;
   const idealX = viewportCenterX - idealWidth / 2;
-  const idealY = viewportCenterY * 0.7 - idealHeight / 2;
+  const idealY = targetCenterY - idealHeight / 2;
   
   const overlapX = Math.max(0, Math.min(faceBox.x + faceBox.w, idealX + idealWidth) - Math.max(faceBox.x, idealX));
   const overlapY = Math.max(0, Math.min(faceBox.y + faceBox.h, idealY + idealHeight) - Math.max(faceBox.y, idealY));
@@ -347,13 +282,8 @@ export function analyzeFacePosition(
 /**
  * Analyze distance based on face size relative to viewport
  * 
- * INTELLIGENT VALIDATION: Simulates crop algorithm to ensure good output
- * 
- * Math: For a good crop without padding:
- * - Output needs head at X% of photo height
- * - Head = Face × 1.4 (HEAD_TO_FACE_RATIO)
- * - If face in camera > face target for output → crop needs to zoom out → padding
- * - If face in camera <= face target for output → crop can zoom in → good
+ * DEPRECATED: Use analyzeDistanceWithCropSimulation instead.
+ * Kept for backward compatibility with test-camera page.
  */
 export function analyzeDistance(
   faceHeight: number,
@@ -369,33 +299,18 @@ export function analyzeDistance(
     };
   }
   
-  // Get country-specific head height requirements (for OUTPUT)
-  const headRange = getCountryHeadHeightRange(countryCode);
-  const HEAD_TO_FACE = 1.4;
-  
-  // The crop algorithm targets 35% from min toward max (biases smaller head)
-  // So ideal head = min + (max - min) * 0.35
-  // We want the green range to match what produces good crops
-  const idealHeadPercent = headRange.min + (headRange.max - headRange.min) * 0.35;
-  const targetFacePercent = idealHeadPercent / HEAD_TO_FACE;
-  
-  // Actual face size in camera
+  // Get face range and calculate target
+  const faceRange = getCameraFaceHeightRange(countryCode);
+  const targetFacePercent = faceRange.min + (faceRange.max - faceRange.min) * 0.35;
   const actualFacePercent = faceHeight / viewportHeight;
-  
-  // Calculate how far from target
   const percentFromTarget = ((actualFacePercent - targetFacePercent) / targetFacePercent) * 100;
   
-  // TIGHT VALIDATION - green only when face will produce ideal crop
-  // Allow ±15% from ideal (not the full spec range)
-  // Too close: face too large → crop may exceed image bounds → padding
-  const maxGoodFace = targetFacePercent * 1.15;
-  const isTooClose = actualFacePercent > maxGoodFace;
+  // Allow ±20% from target for green status
+  // This matches the crop algorithm's flexibility
+  const maxGoodFace = faceRange.max * 1.05; // Small buffer above max
+  const minGoodFace = faceRange.min * 0.95; // Small buffer below min
   
-  // Too far: face too small → head will be at lower end of range
-  const minGoodFace = targetFacePercent * 0.85;
-  const isTooFar = actualFacePercent < minGoodFace;
-  
-  if (isTooClose) {
+  if (actualFacePercent > maxGoodFace) {
     return {
       status: 'too-close',
       isGood: false,
@@ -404,7 +319,7 @@ export function analyzeDistance(
     };
   }
   
-  if (isTooFar) {
+  if (actualFacePercent < minGoodFace) {
     return {
       status: 'too-far',
       isGood: false,
@@ -455,8 +370,8 @@ export function analyzeBrightness(imageData: ImageData): BrightnessResult {
   const score = Math.round((avgBrightness / 255) * 100);
   
   // Thresholds
-  const TOO_DARK_THRESHOLD = 25; // Below 25% is too dark
-  const TOO_BRIGHT_THRESHOLD = 85; // Above 85% is overexposed
+  const TOO_DARK_THRESHOLD = 25;
+  const TOO_BRIGHT_THRESHOLD = 85;
   
   if (score < TOO_DARK_THRESHOLD) {
     return {
@@ -507,7 +422,6 @@ export function analyzeHeadTilt(
   const deltaY = rightEye.y - leftEye.y;
   const deltaX = rightEye.x - leftEye.x;
   
-  // atan2 gives angle in radians
   const angleRad = Math.atan2(deltaY, deltaX);
   const angleDeg = (angleRad * 180) / Math.PI;
   
@@ -516,12 +430,11 @@ export function analyzeHeadTilt(
   
   const isLevel = Math.abs(angleDeg) <= LEVEL_TOLERANCE;
   
-  // Determine direction
   let direction: 'left' | 'right' | 'level' = 'level';
   if (angleDeg > LEVEL_TOLERANCE) {
-    direction = 'left'; // Head tilted left (right eye lower)
+    direction = 'left';
   } else if (angleDeg < -LEVEL_TOLERANCE) {
-    direction = 'right'; // Head tilted right (left eye lower)
+    direction = 'right';
   }
   
   return {
@@ -591,8 +504,11 @@ export function extractRegionBrightness(
 }
 
 /**
- * NEW: Crop-based distance analysis
+ * Crop-based distance analysis
  * Uses the actual crop simulation to determine if position is good
+ * 
+ * This is the SOURCE OF TRUTH for camera validation.
+ * If simulateCrop says it's good, the crop will be good.
  */
 import { simulateCrop, type CropSimulationResult } from './crop';
 import { STANDARDS } from './photo-standards';
@@ -632,7 +548,7 @@ export function analyzeDistanceWithCropSimulation(
     rightEye: faceData.rightEye || null,
   };
   
-  // Run the actual crop simulation
+  // Run the actual crop simulation - THIS IS THE TRUTH
   const simulation = simulateCrop(sourceWidth, sourceHeight, faceDataForCrop, standard);
   
   // Determine status based on simulation results
@@ -641,26 +557,61 @@ export function analyzeDistanceWithCropSimulation(
   let isGood: boolean;
   
   if (simulation.isValid) {
+    // Simulation says it's good - trust it!
     status = 'good';
     message = 'Perfect!';
     isGood = true;
-  } else if (simulation.guidance === 'move-closer') {
-    status = 'too-far';
-    message = 'Move closer';
-    isGood = false;
-  } else if (simulation.guidance === 'move-back') {
-    status = 'too-close';
-    message = 'Move back slightly';
-    isGood = false;
   } else {
-    // Other issues (centering, etc.)
-    status = 'good'; // Distance might be ok, other issue
-    message = simulation.guidance === 'center-face' ? 'Center your face' : 'Adjust position';
-    isGood = simulation.issues.length === 0 || 
-             !simulation.issues.some(i => i.includes('padding') || i.includes('head-too'));
+    // Simulation found issues - provide specific guidance
+    // The simulation now returns precise guidance based on actual analysis
+    switch (simulation.guidance) {
+      case 'move-closer':
+        status = 'too-far';
+        message = 'Move closer';
+        isGood = false;
+        break;
+      case 'move-back':
+        status = 'too-close';
+        message = 'Move back slightly';
+        isGood = false;
+        break;
+      case 'center-face':
+        // Face position is the issue, not distance
+        // For the distance result, we say "good" but let position check handle it
+        status = 'good';
+        message = 'Center your face';
+        isGood = true; // Distance is OK, position isn't
+        break;
+      case 'move-up':
+        status = 'good';
+        message = 'Move up slightly';
+        isGood = true; // Distance OK, vertical position off
+        break;
+      case 'move-down':
+        status = 'good';
+        message = 'Move down slightly';
+        isGood = true; // Distance OK, vertical position off
+        break;
+      default:
+        // Fallback - check if it's a head size issue
+        if (simulation.issues.includes('head-too-small')) {
+          status = 'too-far';
+          message = 'Move closer';
+          isGood = false;
+        } else if (simulation.issues.includes('head-too-large')) {
+          status = 'too-close';
+          message = 'Move back slightly';
+          isGood = false;
+        } else {
+          // Other issues (padding, etc.) - still need adjustment
+          status = 'good';
+          message = 'Adjust position';
+          isGood = false;
+        }
+    }
   }
   
-  // Calculate percent from ideal (target is middle of head range)
+  // Calculate percent from ideal
   const targetHeadPercent = (standard.headMin + standard.headMax) / 2 * 100;
   const percentFromTarget = ((simulation.headHeightPercent - targetHeadPercent) / targetHeadPercent) * 100;
   

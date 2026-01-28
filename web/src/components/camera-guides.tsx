@@ -8,6 +8,7 @@ import {
   analyzeBrightness,
   analyzeHeadTilt,
   checkAllConditions,
+  getIdealFaceCenterY,
   FacePositionResult,
   DistanceResult,
   BrightnessResult,
@@ -34,12 +35,15 @@ export interface CameraGuidesProps {
   } | null;
 }
 
+import type { CropSimulationResult } from '@/lib/crop';
+
 interface AnalysisState {
   position: FacePositionResult;
   distance: DistanceResult;
   brightness: BrightnessResult;
   tilt: HeadTiltResult;
   conditions: CameraConditions;
+  simulation: CropSimulationResult | null;
 }
 
 const ANALYSIS_INTERVAL_MS = 100; // ~10fps
@@ -105,6 +109,7 @@ export function CameraGuides({
       brightness: defaultBrightness,
       tilt: defaultTilt,
       conditions: checkAllConditions(defaultPosition, defaultDistance, defaultBrightness, defaultTilt),
+      simulation: null,
     };
   });
   
@@ -145,6 +150,7 @@ export function CameraGuides({
         brightness: defaultBrightness,
         tilt: defaultTilt,
         conditions: checkAllConditions(defaultPosition, defaultDistance, defaultBrightness, defaultTilt),
+        simulation: null,
       });
       setCountdown(null);
     }
@@ -236,16 +242,16 @@ export function CameraGuides({
     // Use external face data if provided
     const faceData = externalFaceData || null;
     
-    // Calculate ideal centerY in video coordinates (same formula as calculateOvalDimensions)
-    // The oval is positioned at ~40% from top based on eye line requirements
-    const idealCenterY = video.videoHeight * 0.40;
+    // Calculate ideal centerY in video coordinates
+    // CRITICAL: Use the SAME function as calculateOvalDimensions to ensure alignment
+    const idealCenterY = getIdealFaceCenterY(countryCode, video.videoHeight);
     
     // Analyze face position relative to oval center
     const position = analyzeFacePosition(faceData, video.videoWidth, video.videoHeight, idealCenterY);
     
-    // NEW: Use crop simulation for distance analysis
+    // Use crop simulation for distance analysis
     // This uses the actual crop algorithm to determine if position will produce good results
-    const { distance } = analyzeDistanceWithCropSimulation(
+    const { distance, simulation } = analyzeDistanceWithCropSimulation(
       faceData,
       video.videoWidth,
       video.videoHeight,
@@ -261,7 +267,7 @@ export function CameraGuides({
     // Check all conditions
     const conditions = checkAllConditions(position, distance, brightness, tilt);
     
-    setAnalysisState({ position, distance, brightness, tilt, conditions });
+    setAnalysisState({ position, distance, brightness, tilt, conditions, simulation });
     
     // Notify parent
     onConditionsChange?.(conditions);
@@ -323,19 +329,52 @@ export function CameraGuides({
     return null;
   }
   
-  const { position, distance, brightness, tilt, conditions } = analysisState;
+  const { position, distance, brightness, tilt, conditions, simulation } = analysisState;
   
   // Determine oval color
   const ovalStatus = conditions.allGood ? 'good' : 'warning';
   const ovalColor = ovalStatus === 'good' ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.4)';
   const ovalBorderColor = ovalStatus === 'good' ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)';
   
-  // Generate guidance message - suggest zoom when face size is off
+  // Generate guidance message based on crop simulation results
+  // This ensures the guidance matches what the crop algorithm needs
   let guidanceMessage = 'Position your face in the oval';
   let guidanceSubtext = '';
   
   if (!position.faceDetected) {
     guidanceMessage = 'Position your face in the oval';
+  } else if (simulation && !simulation.isValid) {
+    // Use simulation guidance - it's the source of truth
+    switch (simulation.guidance) {
+      case 'move-closer':
+        guidanceMessage = 'Pinch to zoom in';
+        guidanceSubtext = 'or move closer';
+        break;
+      case 'move-back':
+        guidanceMessage = 'Pinch to zoom out';
+        guidanceSubtext = 'or move back';
+        break;
+      case 'move-up':
+        guidanceMessage = 'Move up slightly';
+        break;
+      case 'move-down':
+        guidanceMessage = 'Move down slightly';
+        break;
+      case 'center-face':
+        if (position.direction !== 'center') {
+          guidanceMessage = `Move ${position.direction === 'left' ? 'right' : 'left'}`;
+        } else {
+          guidanceMessage = 'Center your face';
+        }
+        break;
+      default:
+        // Fallback to position-based guidance
+        if (position.direction !== 'center') {
+          guidanceMessage = `Move ${position.direction === 'left' ? 'right' : 'left'}`;
+        } else if (position.verticalDirection !== 'center') {
+          guidanceMessage = `Move ${position.verticalDirection === 'up' ? 'down' : 'up'}`;
+        }
+    }
   } else if (!position.isCentered) {
     if (position.direction !== 'center') {
       guidanceMessage = `Move ${position.direction === 'left' ? 'right' : 'left'}`;
@@ -343,7 +382,7 @@ export function CameraGuides({
       guidanceMessage = `Move ${position.verticalDirection === 'up' ? 'down' : 'up'}`;
     }
   } else if (!distance.isGood) {
-    // Suggest zoom instead of physical movement
+    // Distance issue not caught by simulation (edge case)
     if (distance.status === 'too-far') {
       guidanceMessage = 'Pinch to zoom in';
       guidanceSubtext = 'or move closer';
