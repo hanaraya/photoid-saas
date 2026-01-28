@@ -68,25 +68,40 @@ export function calculateMeasurementState(
   // Head height as percentage of output photo height
   const headHeightPercent = (headInOutputPx / spec.h) * 100;
   
-  // Calculate eye position from bottom in output
-  const eyeY = faceData.leftEye && faceData.rightEye
-    ? (faceData.leftEye.y + faceData.rightEye.y) / 2
-    : faceData.y + faceData.h * 0.35;
-  
-  // Eye position should be at spec.eyeFromBottom in output
+  // Eye position in output is fixed by spec (eyes placed at spec.eyeFromBottom)
   // Calculate as percentage of output height from bottom
   const eyePositionPercent = (spec.eyeFromBottom / spec.h) * 100;
   
-  // Calculate margins based on head position in output
-  // Crown is at face.y minus crown clearance in source, scales to output
-  const crownY = faceData.y - faceData.h * CROWN_CLEARANCE_RATIO;
-  const chinY = faceData.y + faceData.h;
+  // Calculate ACTUAL head position in output based on eye positioning
+  // The crop algorithm places eyes at spec.eyeFromBottom from the bottom
   
-  // The top margin depends on where the crop positions the head
-  // For now, estimate based on the target positioning
-  // Top margin = (output height - head height - eye position adjustment) / 2
-  const topMarginPercent = Math.max(0, (100 - headHeightPercent) / 3); // ~1/3 above
-  const bottomMarginPercent = Math.max(0, 100 - headHeightPercent - topMarginPercent);
+  // In source coordinates:
+  // - Eye Y position in face bbox
+  const eyeInFace = faceData.leftEye && faceData.rightEye
+    ? ((faceData.leftEye.y + faceData.rightEye.y) / 2) - faceData.y
+    : faceData.h * 0.35;
+  
+  // - Crown is above face bbox by CROWN_CLEARANCE_RATIO * face height
+  const crownAboveFaceTop = faceData.h * CROWN_CLEARANCE_RATIO;
+  
+  // - Distance from crown to eyes (in source coords)
+  const crownToEyeSource = crownAboveFaceTop + eyeInFace;
+  
+  // - Distance from eyes to chin (in source coords)
+  const eyeToChinSource = faceData.h - eyeInFace;
+  
+  // In output coordinates (after scaling):
+  const crownToEyeOutput = crownToEyeSource * effectiveScale;
+  const eyeToChinOutput = eyeToChinSource * effectiveScale;
+  
+  // Eye is positioned at spec.eyeFromBottom from bottom
+  // So crown position from top = output height - eyeFromBottom - crownToEye
+  const crownFromTop = spec.h - spec.eyeFromBottom - crownToEyeOutput;
+  const chinFromTop = spec.h - spec.eyeFromBottom + eyeToChinOutput;
+  
+  // Convert to percentages
+  const topMarginPercent = Math.max(0, (crownFromTop / spec.h) * 100);
+  const bottomMarginPercent = Math.max(0, ((spec.h - chinFromTop) / spec.h) * 100);
   
   // Determine compliance status based on head height range
   const minHeadPercent = (spec.headMin / spec.h) * 100;
