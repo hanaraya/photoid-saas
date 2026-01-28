@@ -1,9 +1,21 @@
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
-export const metadata = {
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
   title: 'Terms of Service | SafePassportPic',
-  description: 'Terms of service for SafePassportPic passport photo service',
+  description:
+    'Terms of service for SafePassportPic. Simple terms for a simple service — create passport photos privately in your browser.',
+  openGraph: {
+    title: 'Terms of Service | SafePassportPic',
+    description: 'Simple terms for a simple service — create passport photos privately.',
+    type: 'website',
+    url: 'https://safepassportpic.com/terms',
+  },
+  alternates: {
+    canonical: 'https://safepassportpic.com/terms',
+  },
 };
 
 export default function TermsPage() {

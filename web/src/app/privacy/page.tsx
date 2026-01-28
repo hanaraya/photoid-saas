@@ -1,9 +1,22 @@
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
-export const metadata = {
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
   title: 'Privacy Policy | SafePassportPic',
-  description: 'Privacy policy for SafePassportPic passport photo service',
+  description:
+    'SafePassportPic privacy policy. Your photos never leave your device — all processing happens in your browser. Zero data collection.',
+  openGraph: {
+    title: 'Privacy Policy | SafePassportPic',
+    description:
+      'Your photos never leave your device — all processing happens in your browser.',
+    type: 'website',
+    url: 'https://safepassportpic.com/privacy',
+  },
+  alternates: {
+    canonical: 'https://safepassportpic.com/privacy',
+  },
 };
 
 export default function PrivacyPage() {

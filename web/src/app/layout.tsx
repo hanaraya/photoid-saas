@@ -123,6 +123,16 @@ const jsonLd = {
       ],
     },
     {
+      '@type': 'WebSite',
+      '@id': 'https://safepassportpic.com/#website',
+      name: 'SafePassportPic',
+      url: 'https://safepassportpic.com',
+      description: 'Create compliant passport photos in 60 seconds. 100% private — processed in your browser.',
+      publisher: {
+        '@id': 'https://safepassportpic.com/#organization',
+      },
+    },
+    {
       '@type': 'Organization',
       '@id': 'https://safepassportpic.com/#organization',
       name: 'SafePassportPic',

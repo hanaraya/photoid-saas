@@ -14,6 +14,12 @@ export const metadata: Metadata = {
     type: 'website',
     url: 'https://safepassportpic.com/blog',
   },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blog — SafePassportPic',
+    description: 'Tips, guides, and insights about passport photos and privacy.',
+    images: ['https://safepassportpic.com/og-image.png'],
+  },
   alternates: {
     canonical: 'https://safepassportpic.com/blog',
   },

@@ -26,6 +26,20 @@ export const metadata: Metadata = {
     type: 'article',
     url: 'https://safepassportpic.com/blog/passport-photo-privacy',
     publishedTime: '2025-01-27',
+    images: [
+      {
+        url: 'https://safepassportpic.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Passport Photo Privacy Guide',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Why Your Passport Photo App Might Be a Privacy Nightmare',
+    description: 'Most passport photo apps upload your biometric data to servers. Learn the risks.',
+    images: ['https://safepassportpic.com/og-image.png'],
   },
   alternates: {
     canonical: 'https://safepassportpic.com/blog/passport-photo-privacy',

@@ -52,7 +52,10 @@ export function Hero() {
 
           <p className="mt-4 text-sm text-muted-foreground">
             Only <strong className="text-foreground">$4.99</strong> for digital
-            download · No subscription
+            download · No subscription ·{' '}
+            <Link href="/us-passport-photo" className="underline hover:text-primary">
+              US Requirements Guide
+            </Link>
           </p>
 
           {/* Country flags */}

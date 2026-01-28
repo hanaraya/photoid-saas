@@ -29,6 +29,20 @@ export const metadata: Metadata = {
       'Create a compliant US passport photo instantly. AI-powered, 100% private, processed in your browser.',
     type: 'website',
     url: 'https://safepassportpic.com/us-passport-photo',
+    images: [
+      {
+        url: 'https://safepassportpic.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'US Passport Photo Online',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'US Passport Photo Online — 2x2 Compliant in 60 Seconds',
+    description: 'Create a compliant US passport photo instantly. AI-powered, 100% private.',
+    images: ['https://safepassportpic.com/og-image.png'],
   },
   alternates: {
     canonical: 'https://safepassportpic.com/us-passport-photo',

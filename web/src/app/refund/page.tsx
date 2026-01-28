@@ -1,9 +1,21 @@
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
 
-export const metadata = {
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
   title: 'Refund Policy | SafePassportPic',
-  description: 'Refund policy for SafePassportPic passport photo service',
+  description:
+    '30-day money-back guarantee. If your passport photo is rejected by the government agency, contact us for a full refund.',
+  openGraph: {
+    title: 'Refund Policy | SafePassportPic',
+    description: '30-day money-back guarantee on all passport photos.',
+    type: 'website',
+    url: 'https://safepassportpic.com/refund',
+  },
+  alternates: {
+    canonical: 'https://safepassportpic.com/refund',
+  },
 };
 
 export default function RefundPage() {
