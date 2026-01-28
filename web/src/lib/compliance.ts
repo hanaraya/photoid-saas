@@ -58,25 +58,27 @@ export function checkCompliance(
     });
 
     // 2. Head size check
-    const { cropW } = calculateCrop(
-      sourceWidth,
-      sourceHeight,
-      faceData,
-      standard
-    );
-    const zoomFactor = 100 / userZoom;
-    const effectiveScale = spec.w / (cropW * zoomFactor);
+    // Calculate head height percentage using SAME formula as compliance-overlay.tsx
     const estimatedHeadH = faceData.h * HEAD_TO_FACE_RATIO;
-    const headInOutput = estimatedHeadH * effectiveScale;
+    const targetHeadHeight = spec.headTarget;
+    const baseScale = targetHeadHeight / estimatedHeadH;
+    const zoomFactor = userZoom / 100;
+    const effectiveScale = baseScale / zoomFactor;
+    const headInOutputPx = estimatedHeadH * effectiveScale;
+    const headHeightPercent = (headInOutputPx / spec.h) * 100;
+    
+    // Compare against percentage range (derived from spec)
+    const minHeadPercent = (spec.headMin / spec.h) * 100;
+    const maxHeadPercent = (spec.headMax / spec.h) * 100;
 
-    if (headInOutput >= spec.headMin && headInOutput <= spec.headMax) {
+    if (headHeightPercent >= minHeadPercent && headHeightPercent <= maxHeadPercent) {
       checks.push({
         id: 'head_size',
         label: 'Head Size',
         status: 'pass',
         message: `Head height is within acceptable range`,
       });
-    } else if (headInOutput < spec.headMin) {
+    } else if (headHeightPercent < minHeadPercent) {
       checks.push({
         id: 'head_size',
         label: 'Head Size',
