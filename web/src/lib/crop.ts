@@ -109,7 +109,12 @@ export function simulateCrop(
     : maxScaleHead;
   const minScaleCropY = eyeY > 0 ? targetEyeFromTop / eyeY : minScaleHead;
   
-  const minScale = Math.max(minScaleHead, minScaleCropY);
+  // CRITICAL: Ensure crop fits within source (no white padding!)
+  const minScaleFitWidth = spec.w / sourceWidth;
+  const minScaleFitHeight = spec.h / sourceHeight;
+  const minScaleFit = Math.max(minScaleFitWidth, minScaleFitHeight);
+  
+  const minScale = Math.max(minScaleHead, minScaleCropY, minScaleFit);
   const maxScale = Math.min(maxScaleHead, maxScaleCrown);
   
   // Pick target scale
@@ -295,8 +300,15 @@ export function calculateCrop(
     // cropY = eyeY - targetEyeFromTop/scale >= 0  =>  scale >= targetEyeFromTop/eyeY
     const minScaleCropY = eyeY > 0 ? targetEyeFromTop / eyeY : minScaleHead;
     
+    // CRITICAL: Scale bound to ensure crop fits within source (no white padding!)
+    // cropW = spec.w / scale <= sourceWidth  =>  scale >= spec.w / sourceWidth
+    // cropH = spec.h / scale <= sourceHeight  =>  scale >= spec.h / sourceHeight
+    const minScaleFitWidth = spec.w / sourceWidth;
+    const minScaleFitHeight = spec.h / sourceHeight;
+    const minScaleFit = Math.max(minScaleFitWidth, minScaleFitHeight);
+    
     // Final scale bounds - must satisfy ALL constraints
-    const minScale = Math.max(minScaleHead, minScaleCropY);
+    const minScale = Math.max(minScaleHead, minScaleCropY, minScaleFit);
     const maxScale = Math.min(maxScaleHead, maxScaleCrown);
     
     // Target scale: aim for middle of valid range, biased toward smaller head
