@@ -30,7 +30,7 @@ import { ComplianceSummary } from './ComplianceSummary';
 import { AdvancedControls } from './AdvancedControls';
 import { ActionButtons } from './ActionButtons';
 import { OutputView } from './OutputView';
-import { LoadingOverlay } from './LoadingOverlay';
+import { LoadingOverlay, BgRemovalProgress } from './LoadingOverlay';
 
 // Import types
 import {
@@ -462,6 +462,9 @@ export function PhotoEditor({
           onZoomChange={setUserZoom}
           canvasRef={passportCanvasRef}
         />
+
+        {/* Background removal progress overlay */}
+        <BgRemovalProgress isRemoving={bgRemoving} />
 
         {/* Original photo thumbnail */}
         <div className="absolute -right-2 -bottom-2 z-10">
