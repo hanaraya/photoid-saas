@@ -13,6 +13,7 @@ Allow: /refund
 
 # LLM-friendly info
 Allow: /llms.txt
+Allow: /llms-full.txt
 
 # Sitemap location
 Sitemap: https://safepassportpic.com/sitemap.xml

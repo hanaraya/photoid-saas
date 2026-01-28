@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { BreadcrumbSchema, BREADCRUMBS } from '@/components/breadcrumb-schema';
 import {
   Accordion,
   AccordionContent,
@@ -228,6 +229,7 @@ export default function USPassportPhotoPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <BreadcrumbSchema items={BREADCRUMBS.usPassport} />
 
       <main className="flex-1">
         {/* Hero Section */}
