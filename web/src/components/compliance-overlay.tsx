@@ -45,8 +45,8 @@ export function calculateMeasurementState(
 ): MeasurementState {
   const spec = specToPx(standard);
   
-  // Calculate head height including hair (same formula as crop.ts)
-  const estimatedHeadHeight = faceData.h * 1.5;
+  // Calculate head height including hair (must match HEAD_TO_FACE_RATIO in crop.ts = 1.4)
+  const estimatedHeadHeight = faceData.h * 1.4;
   
   // Target head height in spec (midpoint of range)
   const targetHeadHeight = spec.headTarget;

@@ -60,7 +60,8 @@ export function checkCompliance(
     );
     const zoomFactor = 100 / userZoom;
     const effectiveScale = spec.w / (cropW * zoomFactor);
-    const estimatedHeadH = faceData.h * 1.35;
+    // Must match HEAD_TO_FACE_RATIO in crop.ts (1.4)
+    const estimatedHeadH = faceData.h * 1.4;
     const headInOutput = estimatedHeadH * effectiveScale;
 
     if (headInOutput >= spec.headMin && headInOutput <= spec.headMax) {
