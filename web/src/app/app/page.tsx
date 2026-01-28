@@ -26,6 +26,7 @@ function AppContent() {
     EditState | undefined
   >(undefined);
   const [selectedStandardId, setSelectedStandardId] = useState('us');
+  const [countryFromUrl, setCountryFromUrl] = useState(false);
   const currentEditStateRef = useRef<EditState | undefined>(undefined);
 
   // Set country from URL parameter (e.g., /app?country=uk)
@@ -33,6 +34,7 @@ function AppContent() {
     const country = searchParams.get('country');
     if (country && STANDARDS[country]) {
       setSelectedStandardId(country);
+      setCountryFromUrl(true);
     }
   }, [searchParams]);
 
@@ -220,13 +222,32 @@ function AppContent() {
 
             {/* Country/Standard Selection */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-foreground">
-                Select Photo Type
-              </label>
-              <CountrySelector
-                value={selectedStandardId}
-                onValueChange={setSelectedStandardId}
-              />
+              {countryFromUrl ? (
+                // Simplified view when coming from country-specific page
+                <div className="flex items-center justify-between rounded-lg border border-border bg-card p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{STANDARDS[selectedStandardId]?.flag}</span>
+                    <span className="font-medium">{STANDARDS[selectedStandardId]?.name}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCountryFromUrl(false)}
+                    className="text-sm text-muted-foreground hover:text-foreground underline"
+                  >
+                    Change
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <label className="text-sm font-medium text-foreground">
+                    Select Photo Type
+                  </label>
+                  <CountrySelector
+                    value={selectedStandardId}
+                    onValueChange={setSelectedStandardId}
+                  />
+                </>
+              )}
             </div>
 
             <PhotoUpload onImageLoaded={handleImageLoaded} />
