@@ -138,9 +138,12 @@ const FACE_TO_HEAD_RATIO = 1 / 1.4; // ~0.714
  * - Target oval: ~42.5% of viewport
  */
 function deriveCameraThresholds(headMin: number, headMax: number): HeadHeightRange {
+  // Scale down to capture more content (user stands farther back)
+  // 0.85 means face should be 85% of what output requires, giving 15% more room
+  const captureScale = 0.85;
   return {
-    min: headMin * FACE_TO_HEAD_RATIO,
-    max: headMax * FACE_TO_HEAD_RATIO,
+    min: headMin * FACE_TO_HEAD_RATIO * captureScale,
+    max: headMax * FACE_TO_HEAD_RATIO * captureScale,
   };
 }
 
