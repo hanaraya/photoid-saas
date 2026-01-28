@@ -42,11 +42,12 @@ export function ComplianceSummary({
   if (totalCount === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden">
+    <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden" data-testid="compliance-checker">
       {/* Summary header - always visible */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors"
+        data-testid="compliance-summary-toggle"
       >
         <div className="flex items-center gap-3">
           <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
@@ -116,6 +117,8 @@ export function ComplianceSummary({
           {failedChecks.map((check) => (
             <div
               key={check.id}
+              data-testid={`check-${check.id}`}
+              data-check-status={check.status}
               className={`flex items-start gap-3 p-3 rounded-xl ${
                 check.status === 'fail'
                   ? 'bg-red-500/5 border border-red-500/20'
@@ -126,8 +129,8 @@ export function ComplianceSummary({
                 {check.status === 'fail' ? '✗' : '!'}
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium">{check.label}</div>
-                <div className="text-xs text-muted-foreground">{check.message}</div>
+                <div className="text-sm font-medium" data-testid={`check-${check.id}-label`}>{check.label}</div>
+                <div className="text-xs text-muted-foreground" data-testid={`check-${check.id}-message`}>{check.message}</div>
               </div>
             </div>
           ))}
@@ -141,11 +144,16 @@ export function ComplianceSummary({
                 </svg>
                 {passedCount} passed checks
               </summary>
-              <div className="mt-2 space-y-1.5 pl-4">
+              <div className="mt-2 space-y-1.5 pl-4" data-testid="passed-checks">
                 {checks.filter((c) => c.status === 'pass').map((check) => (
-                  <div key={check.id} className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <div 
+                    key={check.id} 
+                    data-testid={`check-${check.id}`}
+                    data-check-status="pass"
+                    className="flex items-center gap-2 text-xs text-muted-foreground"
+                  >
                     <span className="text-emerald-500">✓</span>
-                    <span>{check.label}</span>
+                    <span data-testid={`check-${check.id}-label`}>{check.label}</span>
                   </div>
                 ))}
               </div>

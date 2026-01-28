@@ -81,13 +81,41 @@ export async function waitForProcessing(page: Page, timeout = 45000): Promise<vo
  * Get compliance check results from the page
  */
 export async function getComplianceChecks(page: Page): Promise<ComplianceCheck[]> {
+  // First expand the compliance checker if collapsed
+  const toggle = page.locator('[data-testid="compliance-summary-toggle"]');
+  if (await toggle.isVisible({ timeout: 3000 })) {
+    await toggle.click();
+    await page.waitForTimeout(300); // Let animation complete
+  }
+  
   return page.evaluate(() => {
     const checks: ComplianceCheck[] = [];
     
-    // Find compliance check items - try multiple selectors
+    // Primary method: use data-testid attributes
+    const checkElements = document.querySelectorAll('[data-testid^="check-"][data-check-status]');
+    
+    checkElements.forEach((el) => {
+      const testId = el.getAttribute('data-testid') || '';
+      const status = el.getAttribute('data-check-status') as 'pass' | 'fail' | 'warn' | 'pending';
+      
+      // Extract check id from data-testid (e.g., "check-sharpness" -> "sharpness")
+      const checkId = testId.replace('check-', '');
+      
+      // Get label and message from child elements
+      const labelEl = el.querySelector(`[data-testid="check-${checkId}-label"]`);
+      const messageEl = el.querySelector(`[data-testid="check-${checkId}-message"]`);
+      
+      const label = labelEl?.textContent?.trim() || checkId;
+      const message = messageEl?.textContent?.trim() || '';
+      
+      checks.push({ label, status: status || 'pending', message });
+    });
+    
+    if (checks.length > 0) return checks;
+    
+    // Fallback: parse from class-based selectors
     const selectors = [
       '[class*="compliance"] [class*="flex items-start"]',
-      '[data-testid*="check"]',
       '.compliance-item',
       '[class*="check-item"]',
     ];
@@ -100,11 +128,11 @@ export async function getComplianceChecks(page: Page): Promise<ComplianceCheck[]
         let status: 'pass' | 'fail' | 'warn' | 'pending' = 'pending';
         
         // Detect status from icons/colors
-        if (el.querySelector('.text-green-500, [class*="green"]') || text.includes('✓')) {
+        if (el.querySelector('.text-emerald-500, [class*="emerald"]') || text.includes('✓')) {
           status = 'pass';
         } else if (el.querySelector('.text-red-500, [class*="red"]') || text.includes('✗')) {
           status = 'fail';
-        } else if (el.querySelector('.text-yellow-500, [class*="yellow"]') || text.includes('!')) {
+        } else if (el.querySelector('.text-amber-500, [class*="amber"]') || text.includes('!')) {
           status = 'warn';
         }
         
@@ -149,6 +177,41 @@ export async function getComplianceChecks(page: Page): Promise<ComplianceCheck[]
     
     return checks;
   });
+}
+
+/**
+ * Get a specific compliance check by ID
+ */
+export async function getCheckById(page: Page, checkId: string): Promise<ComplianceCheck | null> {
+  // First expand the compliance checker if collapsed
+  const toggle = page.locator('[data-testid="compliance-summary-toggle"]');
+  if (await toggle.isVisible({ timeout: 3000 })) {
+    await toggle.click();
+    await page.waitForTimeout(300);
+  }
+  
+  // Also expand passed checks if looking for a pass status
+  const passedDetails = page.locator('details:has([data-testid="passed-checks"])');
+  if (await passedDetails.isVisible({ timeout: 1000 })) {
+    const isOpen = await passedDetails.getAttribute('open');
+    if (isOpen === null) {
+      await passedDetails.locator('summary').click();
+      await page.waitForTimeout(200);
+    }
+  }
+  
+  const check = page.locator(`[data-testid="check-${checkId}"]`);
+  
+  if (await check.isVisible({ timeout: 2000 })) {
+    const status = await check.getAttribute('data-check-status') as 'pass' | 'fail' | 'warn' | 'pending';
+    const label = await check.locator(`[data-testid="check-${checkId}-label"]`).textContent() || checkId;
+    const messageEl = check.locator(`[data-testid="check-${checkId}-message"]`);
+    const message = await messageEl.isVisible() ? await messageEl.textContent() || '' : '';
+    
+    return { label: label.trim(), status: status || 'pending', message: message.trim() };
+  }
+  
+  return null;
 }
 
 /**
