@@ -138,12 +138,11 @@ const FACE_TO_HEAD_RATIO = 1 / 1.4; // ~0.714
  * - Target oval: ~42.5% of viewport
  */
 function deriveCameraThresholds(headMin: number, headMax: number): HeadHeightRange {
-  // Scale down to capture more content (user stands farther back)
-  // 0.85 means face should be 85% of what output requires, giving 15% more room
-  const captureScale = 0.85;
+  // Direct mapping from head % to face % for oval sizing
+  // The analyzeDistance function handles the actual validation
   return {
-    min: headMin * FACE_TO_HEAD_RATIO * captureScale,
-    max: headMax * FACE_TO_HEAD_RATIO * captureScale,
+    min: headMin * FACE_TO_HEAD_RATIO,
+    max: headMax * FACE_TO_HEAD_RATIO,
   };
 }
 
@@ -343,6 +342,14 @@ export function analyzeFacePosition(
 
 /**
  * Analyze distance based on face size relative to viewport
+ * 
+ * INTELLIGENT VALIDATION: Simulates crop algorithm to ensure good output
+ * 
+ * Math: For a good crop without padding:
+ * - Output needs head at X% of photo height
+ * - Head = Face × 1.4 (HEAD_TO_FACE_RATIO)
+ * - If face in camera > face target for output → crop needs to zoom out → padding
+ * - If face in camera <= face target for output → crop can zoom in → good
  */
 export function analyzeDistance(
   faceHeight: number,
@@ -358,27 +365,42 @@ export function analyzeDistance(
     };
   }
   
-  // Use CAMERA-specific thresholds (accounts for cropping needs)
-  const range = getCameraFaceHeightRange(countryCode);
-  const targetPercent = (range.min + range.max) / 2;
-  const actualPercent = faceHeight / viewportHeight;
+  // Get country-specific head height requirements (for OUTPUT)
+  const headRange = getCountryHeadHeightRange(countryCode);
+  const HEAD_TO_FACE = 1.4;
   
-  // Check if within acceptable range
-  const isWithinRange = actualPercent >= range.min && actualPercent <= range.max;
+  // Calculate what face % in camera would give ideal head % in output
+  // Target: middle of acceptable range
+  const targetHeadPercent = (headRange.min + headRange.max) / 2;
+  const targetFacePercent = targetHeadPercent / HEAD_TO_FACE;
+  
+  // What face % in camera would give minimum/maximum acceptable head
+  const maxFacePercent = headRange.max / HEAD_TO_FACE;  // Face larger = head larger
+  const minFacePercent = headRange.min / HEAD_TO_FACE;  // Face smaller = head smaller
+  
+  // Actual face size in camera
+  const actualFacePercent = faceHeight / viewportHeight;
   
   // Calculate how far from target
-  const percentFromTarget = ((actualPercent - targetPercent) / targetPercent) * 100;
+  const percentFromTarget = ((actualFacePercent - targetFacePercent) / targetFacePercent) * 100;
   
-  // STRICT validation - no buffer on "too close" to prevent excess padding in output
-  // Small buffer (3%) on "too far" for user experience
-  const isTooClose = actualPercent > range.max;  // No buffer - strict on close
-  const isTooFar = actualPercent < range.min - 0.03;  // 3% buffer on far
+  // INTELLIGENT VALIDATION:
+  // Too close: face > maxFacePercent means head would be > headRange.max → too large
+  // This ALSO means crop would need to zoom out, potentially needing padding
+  // Add 5% buffer to be conservative (better to reject slightly early than have padding)
+  const safeMaxFace = maxFacePercent * 0.95;  // 5% safety margin
+  const isTooClose = actualFacePercent > safeMaxFace;
+  
+  // Too far: face < minFacePercent means head would be < headRange.min → too small
+  // Allow 10% buffer for user experience (face slightly small is less problematic)
+  const safeMinFace = minFacePercent * 0.90;  // 10% buffer
+  const isTooFar = actualFacePercent < safeMinFace;
   
   if (isTooClose) {
     return {
       status: 'too-close',
       isGood: false,
-      message: 'Move back from the camera',
+      message: 'Move back slightly',
       percentFromTarget,
     };
   }
@@ -387,7 +409,7 @@ export function analyzeDistance(
     return {
       status: 'too-far',
       isGood: false,
-      message: 'Move closer to the camera',
+      message: 'Move closer',
       percentFromTarget,
     };
   }
@@ -395,7 +417,7 @@ export function analyzeDistance(
   return {
     status: 'good',
     isGood: true,
-    message: 'Perfect distance',
+    message: 'Perfect!',
     percentFromTarget,
   };
 }
