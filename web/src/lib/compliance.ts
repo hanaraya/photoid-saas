@@ -287,6 +287,58 @@ export function checkCompliance(
         message: 'Face lighting is even',
       });
     }
+
+    // 10. Exposure check (brightness analysis)
+    if (imageAnalysis.exposure) {
+      if (imageAnalysis.exposure.isOverexposed) {
+        checks.push({
+          id: 'exposure',
+          label: 'Photo Exposure',
+          status: 'fail',
+          message: `Photo is overexposed (too bright) — avoid direct sunlight or flash`,
+        });
+      } else if (imageAnalysis.exposure.isUnderexposed) {
+        checks.push({
+          id: 'exposure',
+          label: 'Photo Exposure',
+          status: 'fail',
+          message: `Photo is underexposed (too dark) — use better lighting`,
+        });
+      } else {
+        checks.push({
+          id: 'exposure',
+          label: 'Photo Exposure',
+          status: 'pass',
+          message: 'Photo exposure is good',
+        });
+      }
+    }
+
+    // 11. Halo/edge artifact check (background removal quality)
+    if (imageAnalysis.halo) {
+      if (imageAnalysis.halo.hasHaloArtifacts) {
+        checks.push({
+          id: 'edge_quality',
+          label: 'Background Quality',
+          status: 'warn',
+          message: `Halo artifacts detected around edges — background may need cleanup`,
+        });
+      } else if (imageAnalysis.halo.edgeQuality < 50) {
+        checks.push({
+          id: 'edge_quality',
+          label: 'Background Quality',
+          status: 'warn',
+          message: `Rough edges detected — background cutout quality is poor`,
+        });
+      } else {
+        checks.push({
+          id: 'edge_quality',
+          label: 'Background Quality',
+          status: 'pass',
+          message: 'Background edges are clean',
+        });
+      }
+    }
   }
 
   // 10. Glasses reminder (US requirement since 2016)

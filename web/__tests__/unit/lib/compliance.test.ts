@@ -311,7 +311,7 @@ describe('Compliance Checking', () => {
         id: 'background',
         label: 'Background',
         status: 'warn',
-        message: 'Click "Remove Background" for white background',
+        message: 'Background needs to be white for passport standards',
       });
     });
   });

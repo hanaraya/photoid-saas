@@ -1,0 +1,121 @@
+{
+  "description": "Test photo specifications for E2E testing",
+  "generatedWith": "../utils/image-generator.ts",
+  "categories": {
+    "pass": {
+      "goodUSPhoto": {
+        "description": "Valid US passport photo with correct proportions",
+        "dimensions": "800x800",
+        "faceSize": "55%",
+        "background": "white",
+        "expectedResult": "all checks pass"
+      },
+      "goodUKPhoto": {
+        "description": "Valid UK passport photo with correct proportions",
+        "dimensions": "700x900",
+        "faceSize": "72%",
+        "background": "white",
+        "expectedResult": "all checks pass"
+      }
+    },
+    "fail": {
+      "noFace": {
+        "description": "Image without detectable face",
+        "expectedCheck": "Face Detection",
+        "expectedStatus": "fail"
+      },
+      "coloredBackground": {
+        "description": "Non-white background",
+        "expectedCheck": "Background",
+        "expectedStatus": "warn",
+        "note": "Should prompt for background removal"
+      },
+      "lowResolution": {
+        "description": "Below minimum resolution",
+        "dimensions": "300x300",
+        "expectedCheck": "Resolution",
+        "expectedStatus": "warn or fail"
+      },
+      "grayscale": {
+        "description": "Black and white image",
+        "expectedCheck": "Color Photo",
+        "expectedStatus": "fail"
+      }
+    },
+    "warn": {
+      "headTooSmall": {
+        "description": "Head smaller than minimum spec",
+        "faceSize": "35%",
+        "expectedCheck": "Head Size",
+        "expectedStatus": "warn"
+      },
+      "headTooLarge": {
+        "description": "Head larger than maximum spec",
+        "faceSize": "85%",
+        "expectedCheck": "Head Size",
+        "expectedStatus": "warn"
+      },
+      "tiltedFace": {
+        "description": "Face tilted more than 8 degrees",
+        "tiltAngle": 15,
+        "expectedCheck": "Face Angle",
+        "expectedStatus": "warn"
+      },
+      "offCenter": {
+        "description": "Face not horizontally centered",
+        "facePositionX": 0.3,
+        "expectedCheck": "Head Centering",
+        "expectedStatus": "warn or fail"
+      },
+      "unevenLighting": {
+        "description": "Strong shadows on face",
+        "expectedCheck": "Face Lighting",
+        "expectedStatus": "warn"
+      },
+      "blurryPhoto": {
+        "description": "Out of focus image",
+        "expectedCheck": "Image Sharpness",
+        "expectedStatus": "warn or fail"
+      }
+    },
+    "edgeCases": {
+      "withGlasses": {
+        "description": "Person wearing glasses",
+        "note": "US photos require no glasses since 2016",
+        "expectedBehavior": "Show glasses policy reminder for US photos"
+      },
+      "eyesClosed": {
+        "description": "Eyes closed",
+        "expectedBehavior": "May affect eye position detection"
+      },
+      "headCropped": {
+        "description": "Crown or chin cut off",
+        "expectedCheck": "Head Framing",
+        "expectedStatus": "fail"
+      }
+    },
+    "qualityIssues": {
+      "haloArtifact": {
+        "description": "Visible halo from bad background removal",
+        "expectedBehavior": "Visual quality analysis should detect"
+      },
+      "unnaturalSkin": {
+        "description": "Over-processed skin with unnatural tones",
+        "expectedBehavior": "Visual quality analysis should detect"
+      }
+    }
+  },
+  "usSpecs": {
+    "dimensions": "2x2 inches (600x600 pixels at 300dpi)",
+    "headHeightRange": "1 to 1-3/8 inches (50-69% of frame)",
+    "eyePosition": "Between 1-1/8 and 1-3/8 inches from bottom",
+    "background": "White",
+    "glasses": "Not allowed since November 2016"
+  },
+  "ukSpecs": {
+    "dimensions": "35x45mm (413x531 pixels at 300dpi)",
+    "headHeightRange": "29-34mm (64-76% of frame)",
+    "eyePosition": "Approximately 30mm from bottom",
+    "background": "Plain cream or light grey"
+  }
+}

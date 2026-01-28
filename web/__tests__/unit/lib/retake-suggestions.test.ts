@@ -176,7 +176,7 @@ describe('retake-suggestions', () => {
       
       expect(suggestions).toHaveLength(1);
       expect(suggestions[0].id).toBe('background');
-      expect(suggestions[0].solution).toContain('Remove Background');
+      expect(suggestions[0].solution).toContain('Fix button');
     });
 
     it('returns suggestion for head not centered', () => {

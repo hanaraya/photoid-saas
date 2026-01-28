@@ -1,0 +1,86 @@
+[
+  {
+    "name": "good-centered-face",
+    "file": "good-centered-face.jpg",
+    "shouldPass": true,
+    "description": "Well-centered face with proper proportions"
+  },
+  {
+    "name": "good-uk-standard",
+    "file": "good-uk-standard.jpg",
+    "shouldPass": true,
+    "description": "UK/EU standard dimensions"
+  },
+  {
+    "name": "good-canada-standard",
+    "file": "good-canada-standard.jpg",
+    "shouldPass": true,
+    "description": "Canada standard dimensions"
+  },
+  {
+    "name": "bad-blurry",
+    "file": "bad-blurry.jpg",
+    "shouldPass": false,
+    "description": "Blurry out-of-focus photo"
+  },
+  {
+    "name": "bad-off-center",
+    "file": "bad-off-center.jpg",
+    "shouldPass": false,
+    "description": "Face not centered in frame"
+  },
+  {
+    "name": "bad-head-too-small",
+    "file": "bad-head-too-small.jpg",
+    "shouldPass": false,
+    "description": "Head too small in frame"
+  },
+  {
+    "name": "bad-head-too-large",
+    "file": "bad-head-too-large.jpg",
+    "shouldPass": false,
+    "description": "Head too large in frame"
+  },
+  {
+    "name": "bad-dark-background",
+    "file": "bad-dark-background.jpg",
+    "shouldPass": false,
+    "description": "Non-white background"
+  },
+  {
+    "name": "bad-overexposed",
+    "file": "bad-overexposed.jpg",
+    "shouldPass": false,
+    "description": "Overexposed photo"
+  },
+  {
+    "name": "bad-underexposed",
+    "file": "bad-underexposed.jpg",
+    "shouldPass": false,
+    "description": "Underexposed photo"
+  },
+  {
+    "name": "bad-halo-artifact",
+    "file": "bad-halo-artifact.jpg",
+    "shouldPass": false,
+    "description": "Background removal halo artifact"
+  },
+  {
+    "name": "bad-unnatural-colors",
+    "file": "bad-unnatural-colors.jpg",
+    "shouldPass": false,
+    "description": "Unnatural/oversaturated colors"
+  },
+  {
+    "name": "bad-low-resolution",
+    "file": "bad-low-resolution.jpg",
+    "shouldPass": false,
+    "description": "Resolution too low for print"
+  },
+  {
+    "name": "bad-shadows",
+    "file": "bad-shadows.jpg",
+    "shouldPass": false,
+    "description": "Shadows on face"
+  }
+]

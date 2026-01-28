@@ -2,7 +2,22 @@
  * Image analysis utilities for compliance checking
  * - Blur detection (Laplacian variance)
  * - Face angle detection (eye alignment)
+ * - Exposure detection (brightness histogram)
+ * - Halo/edge artifact detection
  */
+
+export interface ExposureAnalysis {
+  brightness: number; // 0-255 mean brightness
+  isOverexposed: boolean; // > 200 mean brightness
+  isUnderexposed: boolean; // < 60 mean brightness
+  isProperlyExposed: boolean; // Within acceptable range
+}
+
+export interface HaloAnalysis {
+  haloScore: number; // 0-100, higher = more halo artifacts
+  hasHaloArtifacts: boolean; // > 30 indicates significant halos
+  edgeQuality: number; // 0-100, higher = better edges
+}
 
 export interface ImageAnalysis {
   blurScore: number; // Higher = sharper, < 100 is blurry
@@ -12,6 +27,8 @@ export interface ImageAnalysis {
   isGrayscale: boolean; // True if image lacks color
   faceLightingScore: number; // 0-100, higher = more even lighting
   hasUnevenLighting: boolean; // True if significant shadows detected
+  exposure: ExposureAnalysis; // Brightness/exposure analysis
+  halo: HaloAnalysis; // Halo/edge artifact analysis
 }
 
 /**
@@ -88,6 +105,217 @@ export function calculateEyeTilt(
   const angleDeg = (angleRad * 180) / Math.PI;
 
   return angleDeg;
+}
+
+/**
+ * Analyze image exposure using brightness histogram
+ * Returns brightness metrics and exposure status
+ */
+export function analyzeExposure(img: HTMLImageElement): ExposureAnalysis {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    return {
+      brightness: 128,
+      isOverexposed: false,
+      isUnderexposed: false,
+      isProperlyExposed: true,
+    };
+  }
+
+  // Use smaller size for performance
+  const maxSize = 200;
+  const scale = Math.min(maxSize / img.naturalWidth, maxSize / img.naturalHeight, 1);
+  canvas.width = Math.round(img.naturalWidth * scale);
+  canvas.height = Math.round(img.naturalHeight * scale);
+
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  
+  let brightnessSum = 0;
+  const pixelCount = canvas.width * canvas.height;
+  
+  // Build brightness histogram
+  const histogram = new Array(256).fill(0);
+  
+  for (let i = 0; i < imageData.data.length; i += 4) {
+    const r = imageData.data[i];
+    const g = imageData.data[i + 1];
+    const b = imageData.data[i + 2];
+    // Use luminance formula for perceived brightness
+    const brightness = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+    brightnessSum += brightness;
+    histogram[brightness]++;
+  }
+  
+  const meanBrightness = brightnessSum / pixelCount;
+  
+  // Check for overexposure: significant pixels at max brightness
+  const overexposedPixels = histogram.slice(245).reduce((a, b) => a + b, 0);
+  const overexposedRatio = overexposedPixels / pixelCount;
+  
+  // Check for underexposure: significant pixels at min brightness
+  const underexposedPixels = histogram.slice(0, 30).reduce((a, b) => a + b, 0);
+  const underexposedRatio = underexposedPixels / pixelCount;
+  
+  // Thresholds
+  const isOverexposed = meanBrightness > 200 || overexposedRatio > 0.3;
+  const isUnderexposed = meanBrightness < 60 || underexposedRatio > 0.4;
+  const isProperlyExposed = !isOverexposed && !isUnderexposed;
+  
+  return {
+    brightness: meanBrightness,
+    isOverexposed,
+    isUnderexposed,
+    isProperlyExposed,
+  };
+}
+
+/**
+ * Calculate blur score using Laplacian variance on raw image data
+ * Works with ImageData from canvas (for server-side or worker use)
+ */
+export function calculateBlurScore(imageData: ImageData): number {
+  const width = imageData.width;
+  const height = imageData.height;
+  const data = imageData.data;
+  
+  // Convert to grayscale
+  const gray = new Float32Array(width * height);
+  
+  for (let i = 0; i < gray.length; i++) {
+    const r = data[i * 4];
+    const g = data[i * 4 + 1];
+    const b = data[i * 4 + 2];
+    gray[i] = 0.299 * r + 0.587 * g + 0.114 * b;
+  }
+
+  // Apply Laplacian kernel and compute variance
+  const laplacian: number[] = [];
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const idx = y * width + x;
+      const lap =
+        gray[idx - width] +
+        gray[idx - 1] +
+        -4 * gray[idx] +
+        gray[idx + 1] +
+        gray[idx + width];
+      laplacian.push(lap);
+    }
+  }
+
+  if (laplacian.length === 0) return 0;
+
+  // Compute variance
+  const mean = laplacian.reduce((a, b) => a + b, 0) / laplacian.length;
+  const variance =
+    laplacian.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+    laplacian.length;
+
+  return variance;
+}
+
+/**
+ * Detect halo artifacts around the subject (common after background removal)
+ * Analyzes edge regions for suspicious brightness patterns
+ */
+export function detectHaloArtifacts(
+  img: HTMLImageElement,
+  faceData: { x: number; y: number; w: number; h: number } | null
+): HaloAnalysis {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  if (!ctx) {
+    return { haloScore: 0, hasHaloArtifacts: false, edgeQuality: 100 };
+  }
+
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  ctx.drawImage(img, 0, 0);
+  
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const width = canvas.width;
+  const height = canvas.height;
+  const data = imageData.data;
+  
+  // Define scan region around expected face/head area
+  const centerX = faceData ? faceData.x + faceData.w / 2 : width / 2;
+  const centerY = faceData ? faceData.y + faceData.h * 0.3 : height * 0.35;
+  const scanRadius = faceData ? Math.max(faceData.w, faceData.h) * 0.8 : Math.min(width, height) * 0.35;
+  
+  let haloPixelCount = 0;
+  let edgePixelCount = 0;
+  let transitionScore = 0;
+  
+  // Scan in a ring around the subject area
+  for (let angle = 0; angle < Math.PI * 2; angle += 0.1) {
+    for (let r = scanRadius * 0.7; r < scanRadius * 1.3; r += 3) {
+      const x = Math.floor(centerX + Math.cos(angle) * r);
+      const y = Math.floor(centerY + Math.sin(angle) * r);
+      
+      if (x >= 1 && x < width - 1 && y >= 1 && y < height - 1) {
+        edgePixelCount++;
+        const idx = (y * width + x) * 4;
+        
+        const r_val = data[idx];
+        const g_val = data[idx + 1];
+        const b_val = data[idx + 2];
+        const brightness = (r_val + g_val + b_val) / 3;
+        
+        // Detect bright halo pixels (not quite white, but bright)
+        // These indicate poor edge quality from background removal
+        if (brightness > 220 && brightness < 252) {
+          // Check if neighboring pixel is darker (edge transition)
+          const innerIdx = ((y - Math.sign(Math.sin(angle))) * width + (x - Math.sign(Math.cos(angle)))) * 4;
+          const innerBrightness = (data[innerIdx] + data[innerIdx + 1] + data[innerIdx + 2]) / 3;
+          
+          if (innerBrightness < brightness - 30) {
+            haloPixelCount++;
+          }
+        }
+        
+        // Check for rough edges (high local variance)
+        const neighbors = [
+          ((y - 1) * width + x) * 4,
+          ((y + 1) * width + x) * 4,
+          (y * width + x - 1) * 4,
+          (y * width + x + 1) * 4,
+        ];
+        
+        let variance = 0;
+        for (const nIdx of neighbors) {
+          const nBrightness = (data[nIdx] + data[nIdx + 1] + data[nIdx + 2]) / 3;
+          variance += Math.abs(brightness - nBrightness);
+        }
+        variance /= 4;
+        
+        // High variance at edges suggests rough cutout
+        if (variance > 50) {
+          transitionScore++;
+        }
+      }
+    }
+  }
+  
+  // Calculate halo score (0-100)
+  const haloRatio = edgePixelCount > 0 ? haloPixelCount / edgePixelCount : 0;
+  const haloScore = Math.min(100, haloRatio * 200);
+  
+  // Calculate edge quality (100 = smooth, 0 = rough)
+  const roughnessRatio = edgePixelCount > 0 ? transitionScore / edgePixelCount : 0;
+  const edgeQuality = Math.max(0, 100 - roughnessRatio * 150);
+  
+  // Has halo if score > 30 (15% of edge pixels show halo pattern)
+  const hasHaloArtifacts = haloScore > 30;
+  
+  return {
+    haloScore,
+    hasHaloArtifacts,
+    edgeQuality,
+  };
 }
 
 /**
@@ -200,6 +428,8 @@ export function analyzeImage(
   const eyeTilt = faceData ? calculateEyeTilt(faceData.leftEye, faceData.rightEye) : 0;
   const isGrayscale = detectGrayscale(img);
   const faceLightingScore = analyzeFaceLighting(img, faceData);
+  const exposure = analyzeExposure(img);
+  const halo = detectHaloArtifacts(img, faceData);
 
   return {
     blurScore,
@@ -209,5 +439,7 @@ export function analyzeImage(
     isGrayscale,
     faceLightingScore,
     hasUnevenLighting: faceLightingScore < 60, // Less than 60 = significant shadow
+    exposure,
+    halo,
   };
 }

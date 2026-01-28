@@ -81,7 +81,8 @@ describe('Background Removal', () => {
       expect(mockRemoveBackground).toHaveBeenCalledWith(
         expect.any(Blob),
         expect.objectContaining({
-          model: 'isnet',
+          debug: true,
+          device: 'cpu',
           output: { format: 'image/png', quality: 1.0 },
         })
       );

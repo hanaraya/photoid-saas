@@ -69,7 +69,7 @@ describe('AppPage', () => {
     render(<AppPage />);
     expect(
       screen.getByText(
-        /Upload a photo → auto-detect face → get printable passport photos/
+        /Snap a selfie → auto-detect face → get printable passport photos/
       )
     ).toBeInTheDocument();
   });

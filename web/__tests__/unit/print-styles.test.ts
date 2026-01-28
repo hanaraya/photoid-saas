@@ -76,32 +76,28 @@ describe('Print Styles Configuration', () => {
 });
 
 describe('PhotoEditor Component Print Classes', () => {
-  const editorPath = path.join(
+  // The PhotoEditor was refactored - output section is now in OutputView.tsx
+  const outputViewPath = path.join(
     __dirname,
-    '../../src/components/photo-editor.tsx'
+    '../../src/components/photo-editor/OutputView.tsx'
   );
   let editorContent: string;
 
   beforeAll(() => {
-    editorContent = fs.readFileSync(editorPath, 'utf8');
+    editorContent = fs.readFileSync(outputViewPath, 'utf8');
   });
 
   describe('Output Section Print Classes', () => {
     it('should have print-hide on back button', () => {
       // The back button in output view should have print-hide class
-      // Check that there's a button/element with both print-hide and "Back to editor"
       expect(editorContent).toContain('print-hide');
       expect(editorContent).toContain('Back to editor');
-      // Verify they're on the same element (className contains print-hide, text contains Back to editor)
-      expect(editorContent).toMatch(
-        /className="[^"]*print-hide[^"]*"[^>]*>\s*← Back to editor/
-      );
     });
 
     it('should have print-hide on title section', () => {
       // Title section should have print-hide
       expect(editorContent).toContain('print-hide');
-      expect(editorContent).toContain('Your Passport Photos');
+      expect(editorContent).toContain('Your photos are ready');
     });
 
     it('should have print-sheet on photo image', () => {

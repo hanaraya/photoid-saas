@@ -162,7 +162,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Loading face detection/i)
+            screen.queryByText(/Analyzing your photo/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -195,7 +195,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Loading face detection/i)
+            screen.queryByText(/Analyzing your photo/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -226,7 +226,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Loading face detection/i)
+            screen.queryByText(/Analyzing your photo/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -260,14 +260,14 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Loading face detection/i)
+            screen.queryByText(/Analyzing your photo/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
 
-      // Click the "← Start over" back button (not the "Start over to change" hint)
-      const backButton = screen.getByText(/← Start over/i);
+      // Click the "Start over" back button
+      const backButton = screen.getByText(/Start over/i);
       await user.click(backButton);
 
       expect(mockOnBack).toHaveBeenCalled();
@@ -286,7 +286,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       );
 
       // Should show loading text
-      expect(screen.getByText(/Loading|Detecting/i)).toBeInTheDocument();
+      expect(screen.getByText(/Analyzing your photo/i)).toBeInTheDocument();
     });
   });
 
@@ -304,15 +304,15 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Loading face detection/i)
+            screen.queryByText(/Analyzing your photo/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
 
-      // Should show face detected indicator
-      const faceElements = screen.getAllByText(/Face detected/i);
-      expect(faceElements.length).toBeGreaterThan(0);
+      // Should show compliance summary - displays "Ready to print" or "X/Y checks passed"
+      const complianceElements = screen.getAllByText(/Ready to print|checks passed/i);
+      expect(complianceElements.length).toBeGreaterThan(0);
     });
 
     it('should show no face found status when face is not detected', async () => {
@@ -341,14 +341,14 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Loading face detection/i)
+            screen.queryByText(/Analyzing your photo/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
 
-      // Should show no face found indicator
-      const noFaceBadge = screen.queryByText(/No face found/i);
+      // Should show no face indicator (displays as "✗ No face")
+      const noFaceBadge = screen.queryByText(/No face/i);
       expect(noFaceBadge).toBeInTheDocument();
     });
   });
@@ -367,7 +367,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Loading face detection/i)
+            screen.queryByText(/Analyzing your photo/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }

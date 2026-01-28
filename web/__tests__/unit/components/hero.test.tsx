@@ -76,7 +76,7 @@ describe('Hero Component', () => {
   it('should display description text', () => {
     render(<Hero />);
 
-    expect(screen.getByText(/Upload a selfie/)).toBeInTheDocument();
+    expect(screen.getByText(/Snap a selfie/)).toBeInTheDocument();
     expect(screen.getByText(/AI handles the rest/)).toBeInTheDocument();
   });
 

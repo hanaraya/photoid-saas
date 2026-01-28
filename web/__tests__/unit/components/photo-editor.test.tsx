@@ -132,7 +132,7 @@ describe('PhotoEditor Component', () => {
     );
 
     // Initially shows loading
-    expect(screen.getByText(/Loading|Detecting/i)).toBeInTheDocument();
+    expect(screen.getByText(/Analyzing your photo/i)).toBeInTheDocument();
   });
 
   it('should render back button', async () => {
@@ -147,11 +147,15 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        const backButton = screen.getByRole('button', { name: /start over/i });
-        expect(backButton).toBeInTheDocument();
+        expect(
+          screen.queryByText(/Analyzing your photo/i)
+        ).not.toBeInTheDocument();
       },
-      { timeout: 2000 }
+      { timeout: 3000 }
     );
+
+    const backButton = screen.getByText(/Start over/i);
+    expect(backButton).toBeInTheDocument();
   });
 
   it('should call onBack when back button clicked', async () => {
@@ -169,13 +173,13 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
-    const backButton = screen.getByRole('button', { name: /start over/i });
+    const backButton = screen.getByText(/Start over/i);
     await user.click(backButton);
 
     expect(mockOnBack).toHaveBeenCalled();
@@ -194,14 +198,14 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
-    // Should show read-only standard display with "Start over to change" hint
-    expect(screen.getByText(/Start over to change/i)).toBeInTheDocument();
+    // Should show the photo standard badge with country name (US Passport by default)
+    expect(screen.getByText(/US Passport/i)).toBeInTheDocument();
   });
 
   it('should render without crashing', () => {
@@ -230,7 +234,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -238,9 +242,7 @@ describe('PhotoEditor Component', () => {
 
     // When paid, the component should render properly (behavior differs from free)
     // Just verify the component still renders with isPaid=true
-    expect(
-      screen.getByRole('button', { name: /generate|printable|sheet/i })
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Generate Printable Photos/i)).toBeInTheDocument();
   });
 
   it('should handle canvas ref', async () => {
@@ -256,7 +258,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -280,7 +282,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -304,22 +306,20 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
-    // Should show compliance info - use getAllByText since there might be multiple matches
-    const faceDetectionElements = screen.getAllByText(
-      /Face Detection|Face detected/i
-    );
-    expect(faceDetectionElements.length).toBeGreaterThan(0);
+    // Should show compliance summary - displays "Ready to print" when all checks pass
+    expect(screen.getByText(/Ready to print|item.*to review/i)).toBeInTheDocument();
   });
 
   it('should handle face not found', async () => {
-    const { detectFace } = require('@/lib/face-detection');
+    const { detectFace, detectFaces } = require('@/lib/face-detection');
     detectFace.mockResolvedValueOnce(null);
+    detectFaces.mockResolvedValueOnce({ face: null, faceCount: 0 });
 
     render(
       <PhotoEditor
@@ -333,14 +333,14 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
     // Should still render without crashing
-    expect(screen.getByRole('button', { name: /start over/i })).toBeInTheDocument();
+    expect(screen.getByText(/Start over/i)).toBeInTheDocument();
   });
 
   it('should show Generate button', async () => {
@@ -356,16 +356,14 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
     // Should show generate printable sheet button
-    expect(
-      screen.getByRole('button', { name: /generate|printable|sheet/i })
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Generate Printable Photos/i)).toBeInTheDocument();
   });
 
   it('should show Remove Background button when needed', async () => {
@@ -389,21 +387,16 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
     // Should show remove background button when background needs removal
-    const removeButton = screen.queryByRole('button', {
-      name: /remove background/i,
-    });
     // The button may or may not be rendered depending on the state
     // Just verify component renders successfully
-    expect(
-      screen.getByRole('button', { name: /generate|printable|sheet/i })
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Generate Printable Photos/i)).toBeInTheDocument();
   });
 
   it('should handle zoom slider interaction', async () => {
@@ -421,7 +414,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Loading face detection/i)
+          screen.queryByText(/Analyzing your photo/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
