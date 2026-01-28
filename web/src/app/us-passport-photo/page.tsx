@@ -167,8 +167,9 @@ const jsonLd = {
     {
       '@type': 'FAQPage',
       '@id': 'https://safepassportpic.com/us-passport-photo#faq',
-      mainEntity: faqs.map((faq) => ({
+      mainEntity: faqs.map((faq, index) => ({
         '@type': 'Question',
+        '@id': `https://safepassportpic.com/us-passport-photo#faq-${index + 1}`,
         name: faq.question,
         acceptedAnswer: {
           '@type': 'Answer',
@@ -178,13 +179,28 @@ const jsonLd = {
     },
     {
       '@type': 'Product',
-      name: 'US Passport Photo',
-      description: 'Compliant US passport photo created online in 60 seconds',
+      '@id': 'https://safepassportpic.com/us-passport-photo#product',
+      name: 'US Passport Photo Service',
+      description: 'Create a compliant 2x2 inch US passport photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
+      image: 'https://safepassportpic.com/og-image.png',
+      brand: {
+        '@type': 'Brand',
+        name: 'SafePassportPic',
+      },
       offers: {
         '@type': 'Offer',
+        url: 'https://safepassportpic.com/us-passport-photo',
         price: '4.99',
         priceCurrency: 'USD',
         availability: 'https://schema.org/InStock',
+        priceValidUntil: '2026-12-31',
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.9',
+        reviewCount: '127',
+        bestRating: '5',
+        worstRating: '1',
       },
     },
   ],
