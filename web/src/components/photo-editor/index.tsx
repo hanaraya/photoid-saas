@@ -310,9 +310,9 @@ export function PhotoEditor({
     } catch (err) {
       console.error('BG removal failed:', err);
       setBgRemoving(false);
-      const errorMsg = err instanceof Error ? err.message : String(err);
+      // User-friendly error message - don't expose technical details
       const retry = window.confirm(
-        `Background removal failed: ${errorMsg}\n\nThis can happen on some devices due to memory constraints. Would you like to retry?`
+        `Background removal couldn't complete on this device.\n\nThis usually happens due to limited memory. Would you like to try again?`
       );
       if (retry) {
         resetBgRemoval();

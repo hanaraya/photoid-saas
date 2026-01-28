@@ -106,6 +106,48 @@ export function CameraGuides({
     };
   });
   
+  // Reset state when camera becomes active (handles "start over" case)
+  useEffect(() => {
+    if (isActive) {
+      const defaultPosition: FacePositionResult = {
+        isCentered: false,
+        faceDetected: false,
+        horizontalOffset: 0,
+        verticalOffset: 0,
+        direction: 'center',
+        verticalDirection: 'center',
+        overlapPercent: 0,
+      };
+      const defaultDistance: DistanceResult = {
+        status: 'too-far',
+        isGood: false,
+        message: 'Position your face in the oval',
+        percentFromTarget: 0,
+      };
+      const defaultBrightness: BrightnessResult = {
+        status: 'good',
+        isGood: true,
+        icon: '☀️',
+        message: 'Checking lighting...',
+        score: 50,
+      };
+      const defaultTilt: HeadTiltResult = {
+        isLevel: true,
+        eyesDetected: false,
+        tiltAngle: 0,
+        direction: 'level',
+      };
+      setAnalysisState({
+        position: defaultPosition,
+        distance: defaultDistance,
+        brightness: defaultBrightness,
+        tilt: defaultTilt,
+        conditions: checkAllConditions(defaultPosition, defaultDistance, defaultBrightness, defaultTilt),
+      });
+      setCountdown(null);
+    }
+  }, [isActive]);
+
   // Calculate oval dimensions based on country and RENDERED dimensions
   // This ensures the oval matches what the user actually sees on screen
   const oval = useMemo<OvalDimensions>(() => {
