@@ -64,8 +64,10 @@ export function PreviewPanel({
   }, [userV]);
 
   // Calculate canvas dimensions based on standard aspect ratio
-  const canvasWidth = standard.w >= standard.h ? 280 : Math.round(280 * (standard.w / standard.h));
-  const canvasHeight = standard.h >= standard.w ? 280 : Math.round(280 * (standard.h / standard.w));
+  // Increased base size for better mobile experience
+  const baseSize = 300;
+  const canvasWidth = standard.w >= standard.h ? baseSize : Math.round(baseSize * (standard.w / standard.h));
+  const canvasHeight = standard.h >= standard.w ? baseSize : Math.round(baseSize * (standard.h / standard.w));
 
   // Render preview whenever dependencies change
   useEffect(() => {
@@ -160,7 +162,7 @@ export function PreviewPanel({
         </span>
       </div>
 
-      <div className="rounded-2xl border border-border/50 bg-gradient-to-b from-muted/30 to-muted/10 p-8">
+      <div className="rounded-2xl border border-border/50 bg-gradient-to-b from-muted/30 to-muted/10 p-3 sm:p-6">
         <div className="relative flex items-center justify-center">
           {/* Main canvas */}
           <div className="relative">
