@@ -20,7 +20,7 @@ export function calculateCrop(
     const face = faceData;
     const faceCenterX = face.x + face.w / 2;
 
-    // Eye line Y position
+    // Eye line Y position in source
     let eyeY: number;
     if (face.leftEye && face.rightEye) {
       eyeY = (face.leftEye.y + face.rightEye.y) / 2;
@@ -28,79 +28,75 @@ export function calculateCrop(
       eyeY = face.y + face.h * 0.35;
     }
 
-    // Key positions
+    // Key positions in source
     const crownY = face.y - face.h * 0.5; // Top of head (including hair)
     const chinY = face.y + face.h; // Bottom of chin
 
-    // Full head height estimate (face bbox + hair)
-    // Face detection bbox is chin-to-eyebrows (~71.4% of full head)
-    // Full head = face × 1.4 (adds forehead + hair)
-    // This constant must match FACE_TO_HEAD_RATIO in camera-analysis.ts
+    // Full head height estimate
     const HEAD_TO_FACE_RATIO = 1.4;
     const estimatedHeadH = face.h * HEAD_TO_FACE_RATIO;
 
-    // Required margins (in output pixels)
-    const minTopMargin = spec.h * 0.08; // 8% above crown (reduced from 10%)
-    const minBottomMargin = spec.h * 0.05; // 5% below chin
+    // Spec requirements (all in output pixels)
+    const targetEyeFromTop = spec.h - spec.eyeFromBottom;
+    const minTopMargin = spec.h * 0.05; // 5% above crown minimum
     
-    // Minimum body visible below chin
-    const minBodyBelow = spec.h * 0.10; // 10% (reduced from 15%)
-
-    // Calculate scale to fit head at TARGET size
-    // Scale > 1 means zoom in (crop smaller area), < 1 means zoom out
-    let scale = spec.headTarget / estimatedHeadH;
+    // Distance from crown to eyes in source
+    const crownToEye = eyeY - crownY;
     
-    // Clamp scale to valid range immediately
-    const maxScale = spec.headMax / estimatedHeadH; // Don't make head too big
-    const minScale = spec.headMin / estimatedHeadH; // Don't make head too small
-    scale = Math.max(minScale, Math.min(maxScale, scale));
+    // CONSTRAINT SOLVING:
+    // We need to find a scale that satisfies:
+    // 1. Head height in range: scale ∈ [headMin/headH, headMax/headH]
+    // 2. Crown has margin: when eyes are at targetEyeFromTop, crown is at >= minTopMargin
+    //    Crown position in output = targetEyeFromTop - crownToEye * scale
+    //    Constraint: targetEyeFromTop - crownToEye * scale >= minTopMargin
+    //    => crownToEye * scale <= targetEyeFromTop - minTopMargin
+    //    => scale <= (targetEyeFromTop - minTopMargin) / crownToEye
     
-    console.log('[CROP] Initial scale:', { 
-      faceH: face.h, 
-      estimatedHeadH, 
-      headTarget: spec.headTarget,
-      headMin: spec.headMin,
-      scale: scale.toFixed(3),
-      minScale: minScale.toFixed(3),
-      maxScale: maxScale.toFixed(3)
-    });
+    // Scale bounds from head height
+    const minScaleHead = spec.headMin / estimatedHeadH;
+    const maxScaleHead = spec.headMax / estimatedHeadH;
+    
+    // Scale bound from crown margin (ensure crown doesn't get cut off when eyes are positioned)
+    const maxScaleCrown = crownToEye > 0 
+      ? (targetEyeFromTop - minTopMargin) / crownToEye 
+      : maxScaleHead;
+    
+    // Final scale bounds
+    const minScale = minScaleHead;
+    const maxScale = Math.min(maxScaleHead, maxScaleCrown);
+    
+    // Target scale: aim for middle of valid range, biased toward smaller head
+    let scale: number;
+    if (minScale <= maxScale) {
+      // Valid range exists - pick 35% from min (smaller head = more breathing room)
+      scale = minScale + (maxScale - minScale) * 0.35;
+    } else {
+      // Constraints conflict - pick best compromise
+      // Prioritize head size compliance over crown margin
+      scale = Math.max(minScaleHead, Math.min(maxScaleHead, maxScaleCrown));
+    }
 
     // Calculate crop dimensions
     const cropW = spec.w / scale;
     const cropH = spec.h / scale;
 
-    // Position based on eye line - THIS IS THE PRIMARY POSITIONING RULE
-    // Eyes must be at spec.eyeFromBottom from the bottom of the output
-    const targetEyeFromTop = spec.h - spec.eyeFromBottom;
+    // Position crop so eyes are at the correct position
     const eyeFromTopInSrc = targetEyeFromTop / scale;
     let cropY = eyeY - eyeFromTopInSrc;
 
     // Center horizontally on face
     let cropX = faceCenterX - cropW / 2;
 
-    // Simple boundary clamping - scale is already set for compliance
-    // Don't change scale here, just clamp position to fit within image
-    
-    // Vertical clamping
+    // Boundary clamping (only if absolutely necessary)
     if (cropY + cropH > sourceHeight) {
       cropY = sourceHeight - cropH;
     }
     cropY = Math.max(0, cropY);
     
-    // Horizontal clamping
     if (cropX + cropW > sourceWidth) {
       cropX = sourceWidth - cropW;
     }
     cropX = Math.max(0, cropX);
-
-    console.log('[CROP]', {
-      source: { w: sourceWidth, h: sourceHeight },
-      face: { y: face.y, h: face.h },
-      crownY,
-      chinY,
-      scale: scale.toFixed(3),
-      crop: { x: cropX.toFixed(0), y: cropY.toFixed(0), w: cropW.toFixed(0), h: cropH.toFixed(0) },
-    });
 
     return { cropX, cropY, cropW, cropH };
   }
