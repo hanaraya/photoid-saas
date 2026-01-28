@@ -59,6 +59,8 @@ export function CameraGuides({
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
   
   const [countdown, setCountdown] = useState<number | null>(null);
+  // Track if we've done at least one real analysis (prevents premature green)
+  const [hasAnalyzed, setHasAnalyzed] = useState(false);
   // Video source dimensions (raw pixels)
   const [videoDimensions, setVideoDimensions] = useState({ width: 640, height: 480 });
   // Actual rendered dimensions on screen (accounting for object-fit)
@@ -145,6 +147,7 @@ export function CameraGuides({
         conditions: checkAllConditions(defaultPosition, defaultDistance, defaultBrightness, defaultTilt),
       });
       setCountdown(null);
+      setHasAnalyzed(false);
     }
   }, [isActive]);
 
@@ -251,6 +254,7 @@ export function CameraGuides({
     const conditions = checkAllConditions(position, distance, brightness, tilt);
     
     setAnalysisState({ position, distance, brightness, tilt, conditions });
+    setHasAnalyzed(true);
     
     // Notify parent
     onConditionsChange?.(conditions);
@@ -315,7 +319,7 @@ export function CameraGuides({
   const { position, distance, brightness, tilt, conditions } = analysisState;
   
   // Determine oval color
-  const ovalStatus = conditions.allGood ? 'good' : 'warning';
+  const ovalStatus = (hasAnalyzed && conditions.allGood) ? 'good' : 'warning';
   const ovalColor = ovalStatus === 'good' ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.4)';
   const ovalBorderColor = ovalStatus === 'good' ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)';
   
