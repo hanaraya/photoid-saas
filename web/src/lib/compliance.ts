@@ -63,7 +63,7 @@ export function checkCompliance(
     const targetHeadHeight = spec.headTarget;
     const baseScale = targetHeadHeight / estimatedHeadH;
     const zoomFactor = userZoom / 100;
-    const effectiveScale = baseScale / zoomFactor;
+    const effectiveScale = baseScale * zoomFactor; // zoom in = head appears larger
     const headInOutputPx = estimatedHeadH * effectiveScale;
     const headHeightPercent = (headInOutputPx / spec.h) * 100;
     

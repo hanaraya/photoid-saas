@@ -58,9 +58,9 @@ export function calculateMeasurementState(
   // Scale factor: how much we scale the source to fit head at target size
   const baseScale = targetHeadHeight / estimatedHeadHeight;
   
-  // User zoom adjusts this
+  // User zoom adjusts this (zoom in = head appears larger)
   const zoomFactor = userZoom / 100;
-  const effectiveScale = baseScale / zoomFactor;
+  const effectiveScale = baseScale * zoomFactor;
   
   // Actual head height in output pixels
   const headInOutputPx = estimatedHeadHeight * effectiveScale;
