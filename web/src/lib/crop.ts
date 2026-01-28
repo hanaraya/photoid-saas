@@ -441,18 +441,28 @@ export function renderPassportPhoto(
       adjCropY = Math.max(0, maxCropY);
     }
 
-    // Limit horizontal offset (but respect image bounds)
+    // Limit horizontal offset (but ALWAYS respect image bounds - no white space)
     const faceCenterX = faceData.x + faceData.w / 2;
     const maxHorizontalOffset = adjCropW * 0.15;
     const idealCropX = faceCenterX - adjCropW / 2;
-    const minX = Math.max(0, idealCropX - maxHorizontalOffset);
-    const maxX = Math.min(srcW - adjCropW, idealCropX + maxHorizontalOffset);
     
+    // Calculate allowed range, but ALWAYS clamp to image bounds first
+    const absoluteMinX = 0;
+    const absoluteMaxX = Math.max(0, srcW - adjCropW);
+    
+    // Then apply face centering preference within those absolute bounds
+    const minX = Math.max(absoluteMinX, idealCropX - maxHorizontalOffset);
+    const maxX = Math.min(absoluteMaxX, idealCropX + maxHorizontalOffset);
+    
+    // Clamp adjCropX to the valid range
     if (adjCropX < minX) {
-      adjCropX = minX;
+      adjCropX = Math.max(absoluteMinX, minX);
     } else if (adjCropX > maxX) {
-      adjCropX = maxX;
+      adjCropX = Math.min(absoluteMaxX, maxX);
     }
+    
+    // Final safety clamp - NEVER exceed image bounds
+    adjCropX = Math.max(0, Math.min(srcW - adjCropW, adjCropX));
   }
 
   // Brightness
