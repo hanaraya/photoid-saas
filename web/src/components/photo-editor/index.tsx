@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -192,7 +193,8 @@ export function PhotoEditor({
               })
               .catch((err) => { 
                 console.error('[BG-REMOVAL] Preload failed:', err);
-                setBgModelPreloading(false); 
+                setBgModelPreloading(false);
+                toast.error('Background removal failed to load. You can still proceed manually.');
               });
           }
 
@@ -310,7 +312,7 @@ export function PhotoEditor({
     } catch (err) {
       console.error('BG removal failed:', err);
       setBgRemoving(false);
-      // Silent fail - user can retry manually via the button
+      toast.error('Background removal failed. Please try again or use a photo with a plain background.');
     }
   }, [imageBlob]);
 
