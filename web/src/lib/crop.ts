@@ -123,25 +123,28 @@ export function simulateCrop(
   let cropY = eyeY - eyeFromTopInSrc;
   let cropX = faceCenterX - cropW / 2;
   
-  // Check for padding (crop exceeds source bounds)
+  // SAFETY MARGIN: Account for render's head framing constraints
+  // The render enforces 8% padding around crown/chin, which can push the crop
+  // Add 10% safety margin to ensure we never hit the edge
+  const safetyMargin = Math.max(cropW, cropH) * 0.10;
+  
+  // Check for padding (crop exceeds source bounds WITH safety margin)
   let paddingTop = 0, paddingBottom = 0, paddingLeft = 0, paddingRight = 0;
   
-  if (cropY < 0) {
-    paddingTop = Math.abs(cropY);
+  if (cropY < safetyMargin) {
+    paddingTop = safetyMargin - cropY;
     issues.push('needs-padding-top');
-    cropY = 0;
   }
-  if (cropY + cropH > sourceHeight) {
-    paddingBottom = (cropY + cropH) - sourceHeight;
+  if (cropY + cropH > sourceHeight - safetyMargin) {
+    paddingBottom = (cropY + cropH) - (sourceHeight - safetyMargin);
     issues.push('needs-padding-bottom');
   }
-  if (cropX < 0) {
-    paddingLeft = Math.abs(cropX);
+  if (cropX < safetyMargin) {
+    paddingLeft = safetyMargin - cropX;
     issues.push('needs-padding-left');
-    cropX = 0;
   }
-  if (cropX + cropW > sourceWidth) {
-    paddingRight = (cropX + cropW) - sourceWidth;
+  if (cropX + cropW > sourceWidth - safetyMargin) {
+    paddingRight = (cropX + cropW) - (sourceWidth - safetyMargin);
     issues.push('needs-padding-right');
   }
   
