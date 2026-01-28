@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -311,11 +310,7 @@ export function PhotoEditor({
     } catch (err) {
       console.error('BG removal failed:', err);
       setBgRemoving(false);
-      // User-friendly toast - non-blocking, shows once
-      toast.error('Background removal failed', {
-        description: 'This can happen on some devices. Try refreshing the page.',
-        duration: 5000,
-      });
+      // Silent fail - user can retry manually via the button
     }
   }, [imageBlob]);
 
