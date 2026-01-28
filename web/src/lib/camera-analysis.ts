@@ -230,10 +230,12 @@ export function calculateOvalDimensions(
   const range = getCameraFaceHeightRange(countryCode);
   const headRange = getCountryHeadHeightRange(countryCode);
   
-  // VISUAL OVAL: Use the MAX of detection range + 10% padding
-  // This makes oval comfortable to fill while ensuring face is large enough
-  // No global cap - let it scale with country requirements
-  const visualOvalPercent = range.max * 1.10;
+  // VISUAL OVAL: Target the middle-upper range for better results
+  // Previous: range.max * 1.10 (too large, users end up with small heads)
+  // Now: use midpoint of range with slight padding toward larger
+  // This encourages users to get closer, resulting in better head size
+  const targetPercent = (range.min + range.max) / 2;
+  const visualOvalPercent = targetPercent * 1.05; // 5% padding
   
   // Calculate oval dimensions in viewport pixels
   const ovalHeight = viewportHeight * visualOvalPercent;
