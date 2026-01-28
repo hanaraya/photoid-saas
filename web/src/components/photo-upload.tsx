@@ -22,6 +22,7 @@ export function PhotoUpload({
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [cameraConditions, setCameraConditions] = useState<CameraConditions | null>(null);
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   
   // Real-time face detection for camera preview
   const liveFaceData = useLiveFaceDetection(videoRef, showCamera);
@@ -93,7 +94,7 @@ export function PhotoUpload({
       // Request camera with country-appropriate aspect ratio
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
-          facingMode: 'user',
+          facingMode: facingMode,
           width: { ideal: isPortrait ? 1440 : 1920, min: 1080 },
           height: { ideal: isPortrait ? 1920 : 1920, min: 1080 },
           aspectRatio: { 
@@ -142,6 +143,42 @@ export function PhotoUpload({
       setStream(null);
     }
     setShowCamera(false);
+  };
+
+  const switchCamera = async () => {
+    // Stop current stream
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+    }
+    // Toggle facing mode
+    const newMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(newMode);
+    
+    // Get new stream with switched camera
+    try {
+      const aspectRatios: Record<string, number> = {
+        us: 1, us_visa: 1, us_drivers: 1, green_card: 1,
+        uk: 35/45, uk_visa: 35/45, eu: 35/45, schengen_visa: 35/45,
+        germany: 35/45, france: 35/45, canada: 50/70,
+        india: 1, india_visa: 1, australia: 35/45,
+        china: 33/48, china_visa: 33/48, japan: 35/45,
+        south_korea: 35/45, brazil: 50/70, mexico: 35/45,
+      };
+      const targetAspect = aspectRatios[countryCode] || 1;
+      const isPortrait = targetAspect < 1;
+      
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: newMode,
+          width: { ideal: isPortrait ? 1440 : 1920, min: 1080 },
+          height: { ideal: isPortrait ? 1920 : 1920, min: 1080 },
+          aspectRatio: { ideal: targetAspect, min: targetAspect * 0.8, max: targetAspect * 1.25 },
+        },
+      });
+      setStream(mediaStream);
+    } catch {
+      alert('Could not switch camera.');
+    }
   };
 
   return (
@@ -230,7 +267,7 @@ export function PhotoUpload({
                 autoPlay
                 playsInline
                 className="w-full max-h-[80vh] rounded-xl object-contain"
-                style={{ transform: 'scaleX(-1)' }}
+                style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }}
               />
               {/* Camera Guides Overlay */}
               {enableCameraGuides && (
@@ -240,8 +277,17 @@ export function PhotoUpload({
                   isActive={showCamera}
                   onConditionsChange={setCameraConditions}
                   faceData={liveFaceData}
+                  mirror={facingMode === 'user'}
                 />
               )}
+              {/* Switch Camera Button */}
+              <button
+                onClick={switchCamera}
+                className="absolute top-3 right-3 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
+                title={facingMode === 'user' ? 'Switch to back camera' : 'Switch to front camera'}
+              >
+                🔄
+              </button>
             </div>
             <div className="flex gap-3">
               <Button 

@@ -23,6 +23,7 @@ export interface CameraGuidesProps {
   onConditionsChange?: (conditions: CameraConditions) => void;
   onAutoCapture?: () => void;
   enableCountdown?: boolean;
+  mirror?: boolean;
   faceData?: {
     x: number;
     y: number;
@@ -50,6 +51,7 @@ export function CameraGuides({
   onConditionsChange,
   onAutoCapture,
   enableCountdown = false,
+  mirror = true,
   faceData: externalFaceData,
 }: CameraGuidesProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -365,7 +367,7 @@ export function CameraGuides({
           top: `${renderDimensions.offsetY}px`,
           width: `${renderDimensions.width}px`,
           height: `${renderDimensions.height}px`,
-          transform: 'scaleX(-1)', // Mirror to match video
+          transform: mirror ? 'scaleX(-1)' : 'none', // Mirror to match video when using front camera
         }}
         viewBox={`0 0 ${renderDimensions.width} ${renderDimensions.height}`}
         preserveAspectRatio="none"
