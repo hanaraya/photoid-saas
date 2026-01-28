@@ -366,10 +366,10 @@ export function analyzeDistance(
   // Calculate how far from target
   const percentFromTarget = ((actualPercent - targetPercent) / targetPercent) * 100;
   
-  // Add small buffer (5%) for user experience
-  const buffer = 0.05;
-  const isTooClose = actualPercent > range.max + buffer;
-  const isTooFar = actualPercent < range.min - buffer;
+  // STRICT validation - no buffer on "too close" to prevent excess padding in output
+  // Small buffer (3%) on "too far" for user experience
+  const isTooClose = actualPercent > range.max;  // No buffer - strict on close
+  const isTooFar = actualPercent < range.min - 0.03;  // 3% buffer on far
   
   if (isTooClose) {
     return {
