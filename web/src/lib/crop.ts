@@ -122,7 +122,8 @@ export function simulateCrop(
   if (minScale <= maxScale) {
     scale = minScale + (maxScale - minScale) * 0.35;
   } else {
-    scale = Math.max(minScaleHead, Math.min(maxScaleHead, maxScaleCrown));
+    // Constraints conflict - MUST include minScaleFit to prevent padding!
+    scale = Math.max(minScaleHead, minScaleFit, Math.min(maxScaleHead, maxScaleCrown));
   }
   
   // Calculate crop dimensions
@@ -134,29 +135,24 @@ export function simulateCrop(
   let cropY = eyeY - eyeFromTopInSrc;
   let cropX = faceCenterX - cropW / 2;
   
-  // SAFETY MARGIN: Account for render's head framing constraints
-  // The render enforces 8% padding around crown/chin, which can push the crop
-  // Add 10% safety margin to ensure we never hit the edge
-  const safetyMargin = Math.max(cropW, cropH) * 0.10;
-  
-  // Check for padding (crop exceeds source bounds WITH safety margin)
+  // Check for REAL padding issues - only when crop dimensions EXCEED source
+  // Position issues are handled by clamping in render, so don't report those as padding
   let paddingTop = 0, paddingBottom = 0, paddingLeft = 0, paddingRight = 0;
   
-  if (cropY < safetyMargin) {
-    paddingTop = safetyMargin - cropY;
-    issues.push('needs-padding-top');
-  }
-  if (cropY + cropH > sourceHeight - safetyMargin) {
-    paddingBottom = (cropY + cropH) - (sourceHeight - safetyMargin);
-    issues.push('needs-padding-bottom');
-  }
-  if (cropX < safetyMargin) {
-    paddingLeft = safetyMargin - cropX;
+  // Only report padding if crop is LARGER than source (can't be fixed by clamping)
+  if (cropW > sourceWidth) {
+    const excess = cropW - sourceWidth;
+    paddingLeft = excess / 2;
+    paddingRight = excess / 2;
     issues.push('needs-padding-left');
-  }
-  if (cropX + cropW > sourceWidth - safetyMargin) {
-    paddingRight = (cropX + cropW) - (sourceWidth - safetyMargin);
     issues.push('needs-padding-right');
+  }
+  if (cropH > sourceHeight) {
+    const excess = cropH - sourceHeight;
+    paddingTop = excess / 2;
+    paddingBottom = excess / 2;
+    issues.push('needs-padding-top');
+    issues.push('needs-padding-bottom');
   }
   
   // Calculate output metrics
@@ -318,8 +314,8 @@ export function calculateCrop(
       scale = minScale + (maxScale - minScale) * 0.35;
     } else {
       // Constraints conflict - pick best compromise
-      // Prioritize head size compliance over crown margin
-      scale = Math.max(minScaleHead, Math.min(maxScaleHead, maxScaleCrown));
+      // MUST include minScaleFit to prevent padding!
+      scale = Math.max(minScaleHead, minScaleFit, Math.min(maxScaleHead, maxScaleCrown));
     }
 
     // Calculate crop dimensions
