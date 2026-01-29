@@ -22,8 +22,6 @@ Sitemap: https://safepassportpic.com/sitemap.xml
 Disallow: /api/
 Disallow: /_next/
 Disallow: /.well-known/
-Disallow: /demo-retake
-Disallow: /test-camera
 
 # AI crawlers welcome
 User-agent: GPTBot
