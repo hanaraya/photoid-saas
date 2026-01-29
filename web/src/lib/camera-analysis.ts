@@ -181,7 +181,10 @@ export function calculateOvalDimensions(
   const targetFacePercent = faceRange.min + (faceRange.max - faceRange.min) * 0.35;
   
   // Oval shows the TARGET face size
-  const ovalHeight = viewportHeight * targetFacePercent;
+  // Visual scale factor makes the oval slightly larger for easier alignment
+  // This is display-only; doesn't affect face detection calculations
+  const OVAL_VISUAL_SCALE = 1.15; // 15% larger for better visibility
+  const ovalHeight = viewportHeight * targetFacePercent * OVAL_VISUAL_SCALE;
   const ovalWidth = ovalHeight * 0.75; // Face width ≈ 75% of height
   
   // Center horizontally
