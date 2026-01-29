@@ -251,9 +251,9 @@ export function PhotoEditor({
     const canvasWidth = standard.w >= standard.h ? 280 : Math.round(280 * (standard.w / standard.h));
     const canvasHeight = standard.h >= standard.w ? 280 : Math.round(280 * (standard.h / standard.w));
 
-    const state = calculateMeasurementState(faceData, standard, canvasWidth, canvasHeight, userZoom);
+    const state = calculateMeasurementState(faceData, standard, canvasWidth, canvasHeight, userZoom, cropParams);
     setMeasurementState(state);
-  }, [faceData, standard, userZoom]);
+  }, [faceData, standard, userZoom, cropParams]);
 
   // Auto-generate sheet when returning from payment
   useEffect(() => {

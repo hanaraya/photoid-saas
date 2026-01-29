@@ -2,10 +2,12 @@
 
 import React from 'react';
 import type { FaceData } from '@/lib/face-detection';
+import type { CropParams } from '@/lib/crop';
 import { 
   type PhotoStandard,
   specToPx,
   HEAD_TO_FACE_RATIO,
+  CROWN_CLEARANCE_RATIO,
 } from '@/lib/photo-standards';
 
 export type ComplianceStatus = 'pass' | 'warn' | 'fail';
@@ -34,65 +36,93 @@ export interface ComplianceOverlayProps {
 }
 
 /**
- * Calculate measurement state from face data and photo standard
+ * Calculate measurement state from face data, crop params, and photo standard
  * 
- * The key insight: we need to calculate what percentage of the OUTPUT photo
- * the head occupies, based on the crop and scale applied during rendering.
+ * Uses ACTUAL crop params to determine where the head appears in the output,
+ * ensuring the overlay matches the rendered preview exactly.
  */
 export function calculateMeasurementState(
   faceData: FaceData,
   standard: PhotoStandard,
   _canvasWidth: number,
   _canvasHeight: number,
-  userZoom: number
+  userZoom: number,
+  cropParams?: CropParams
 ): MeasurementState {
   const spec = specToPx(standard);
   
-  // Calculate head height including hair
+  // If we have actual crop params, calculate EXACTLY where the head appears
+  if (cropParams) {
+    // Scale factor from source to output
+    const scale = spec.w / cropParams.cropW;
+    
+    // Calculate crown and chin positions in output
+    const crownYSource = faceData.y - faceData.h * CROWN_CLEARANCE_RATIO;
+    const chinYSource = faceData.y + faceData.h;
+    
+    // Apply user zoom adjustment (zoom > 100 = head appears larger)
+    const zoomFactor = userZoom / 100;
+    const zoomOffset = (spec.h * (1 - 1/zoomFactor)) / 2; // How much we've zoomed in
+    
+    // Position in output (accounting for crop and zoom)
+    const crownYOutput = (crownYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
+    const chinYOutput = (chinYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
+    
+    // Head height in output
+    const headHeightOutput = chinYOutput - crownYOutput;
+    const headHeightPercent = (headHeightOutput / spec.h) * 100;
+    
+    // Eye position (actual, from face data)
+    const eyeYSource = faceData.leftEye && faceData.rightEye
+      ? (faceData.leftEye.y + faceData.rightEye.y) / 2
+      : faceData.y + faceData.h * 0.35;
+    const eyeYOutput = (eyeYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
+    const eyePositionPercent = ((spec.h - eyeYOutput) / spec.h) * 100; // From bottom
+    
+    // Convert to margins (as percentages from top/bottom)
+    const topMarginPercent = Math.max(0, Math.min(100, (crownYOutput / spec.h) * 100));
+    const bottomMarginPercent = Math.max(0, Math.min(100, ((spec.h - chinYOutput) / spec.h) * 100));
+    
+    // Compliance status
+    const minHeadPercent = (spec.headMin / spec.h) * 100;
+    const maxHeadPercent = (spec.headMax / spec.h) * 100;
+    
+    let complianceStatus: ComplianceStatus;
+    if (headHeightPercent >= minHeadPercent && headHeightPercent <= maxHeadPercent) {
+      complianceStatus = 'pass';
+    } else if (headHeightPercent >= minHeadPercent * 0.9 && headHeightPercent <= maxHeadPercent * 1.1) {
+      complianceStatus = 'warn';
+    } else {
+      complianceStatus = 'fail';
+    }
+    
+    return {
+      headHeightPercent: Math.round(headHeightPercent * 10) / 10,
+      eyePositionPercent: Math.round(eyePositionPercent * 10) / 10,
+      topMarginPercent: Math.round(topMarginPercent * 10) / 10,
+      bottomMarginPercent: Math.round(bottomMarginPercent * 10) / 10,
+      complianceStatus,
+    };
+  }
+  
+  // Fallback: estimate from face data without crop params (less accurate)
   const estimatedHeadHeight = faceData.h * HEAD_TO_FACE_RATIO;
-  
-  // Target head height in spec (midpoint of range)
   const targetHeadHeight = spec.headTarget;
-  
-  // Scale factor: how much we scale the source to fit head at target size
   const baseScale = targetHeadHeight / estimatedHeadHeight;
-  
-  // User zoom adjusts this (zoom in = head appears larger)
   const zoomFactor = userZoom / 100;
   const effectiveScale = baseScale * zoomFactor;
-  
-  // Actual head height in output pixels
   const headInOutputPx = estimatedHeadHeight * effectiveScale;
-  
-  // Head height as percentage of output photo height
   const headHeightPercent = (headInOutputPx / spec.h) * 100;
-  
-  // Eye position in output is fixed by spec (eyes placed at spec.eyeFromBottom)
-  // Calculate as percentage of output height from bottom
   const eyePositionPercent = (spec.eyeFromBottom / spec.h) * 100;
   
-  // Derive bracket position from headHeightPercent and eye position
-  // Using anthropometric ratios for eye position within head:
-  // - Eyes are typically ~40% down from crown (60% up from chin)
-  // This ensures the visual bracket is CONSISTENT with the displayed percentage
-  
-  const EYE_FROM_CROWN_RATIO = 0.40; // Eyes are 40% down from crown
-  const EYE_FROM_CHIN_RATIO = 0.60;  // Eyes are 60% up from chin
-  
-  // Eye position from TOP of photo (not bottom)
+  // Use anthropometric ratios for bracket position
+  const EYE_FROM_CROWN_RATIO = 0.40;
   const eyePositionFromTop = 100 - eyePositionPercent;
-  
-  // Crown position = eye position minus (crown-to-eye distance)
-  // Crown-to-eye = 40% of total head height
   const crownToEyePercent = headHeightPercent * EYE_FROM_CROWN_RATIO;
   const crownFromTopPercent = eyePositionFromTop - crownToEyePercent;
-  
-  // Chin position = eye position plus (eye-to-chin distance)  
-  // Eye-to-chin = 60% of total head height
-  const eyeToChinPercent = headHeightPercent * EYE_FROM_CHIN_RATIO;
+  const eyeToChinPercent = headHeightPercent * (1 - EYE_FROM_CROWN_RATIO);
   const chinFromTopPercent = eyePositionFromTop + eyeToChinPercent;
   
-  // Margins are the space OUTSIDE the head
   const topMarginPercent = Math.max(0, crownFromTopPercent);
   const bottomMarginPercent = Math.max(0, 100 - chinFromTopPercent);
   
