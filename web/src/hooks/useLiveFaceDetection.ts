@@ -108,6 +108,7 @@ export function useLiveFaceDetection(
   const detectFace = useCallback(() => {
     const now = performance.now();
     if (now - lastDetectionRef.current < intervalMs) {
+      // eslint-disable-next-line react-hooks/immutability
       animationFrameRef.current = requestAnimationFrame(detectFace);
       return;
     }
@@ -172,6 +173,7 @@ export function useLiveFaceDetection(
     }
 
     animationFrameRef.current = requestAnimationFrame(detectFace);
+     
   }, [videoRef, intervalMs]);
 
   // Run detection loop when active

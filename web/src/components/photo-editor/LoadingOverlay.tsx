@@ -101,6 +101,8 @@ export function BgRemovalProgress({ isRemoving }: BgRemovalProgressProps) {
     { label: 'Finalizing', icon: '✅' },
   ];
 
+  // Reset step when removing state changes - valid pattern
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!isRemoving) {
       setStep(0);

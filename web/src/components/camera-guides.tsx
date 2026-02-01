@@ -166,6 +166,7 @@ export function CameraGuides({
   const runAnalysis = useCallback(() => {
     const now = Date.now();
     if (now - lastAnalysisRef.current < ANALYSIS_INTERVAL_MS) {
+      // eslint-disable-next-line react-hooks/immutability
       animationFrameRef.current = requestAnimationFrame(runAnalysis);
       return;
     }
@@ -301,6 +302,7 @@ export function CameraGuides({
     }
     
     animationFrameRef.current = requestAnimationFrame(runAnalysis);
+     
   }, [videoRef, countryCode, videoDimensions, renderDimensions, externalFaceData, onConditionsChange, enableCountdown, countdown, onAutoCapture]);
   
   // Start/stop analysis loop

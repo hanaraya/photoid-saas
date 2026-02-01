@@ -40,7 +40,7 @@ export function OutputView({
       <div className="text-center print-hide">
         <h2 className="text-2xl font-semibold tracking-tight">Your photos are ready</h2>
         <p className="mt-2 text-muted-foreground">
-          Print on 4×6" glossy paper at 100% scale
+          Print on 4×6&quot; glossy paper at 100% scale
         </p>
       </div>
 

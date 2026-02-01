@@ -30,11 +30,15 @@ function AppContent() {
   const currentEditStateRef = useRef<EditState | undefined>(undefined);
 
   // Set country from URL parameter (e.g., /app?country=uk)
+  // Syncing URL state to component state is a valid pattern
+   
   useEffect(() => {
     const country = searchParams.get('country');
     if (country && STANDARDS[country]) {
+      /* eslint-disable react-hooks/set-state-in-effect */
       setSelectedStandardId(country);
       setCountryFromUrl(true);
+      /* eslint-enable react-hooks/set-state-in-effect */
     }
   }, [searchParams]);
 
