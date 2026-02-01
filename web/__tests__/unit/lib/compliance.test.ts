@@ -508,6 +508,429 @@ describe('Compliance Checking', () => {
     });
   });
 
+  describe('Image Analysis Compliance', () => {
+    it('should pass sharpness check when image is not blurry', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { isBlurry: false } as any
+      );
+
+      const sharpnessCheck = result.find((check) => check.id === 'sharpness');
+      expect(sharpnessCheck?.status).toBe('pass');
+      expect(sharpnessCheck?.message).toContain('sharp and in focus');
+    });
+
+    it('should fail sharpness check when image is blurry', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { isBlurry: true } as any
+      );
+
+      const sharpnessCheck = result.find((check) => check.id === 'sharpness');
+      expect(sharpnessCheck?.status).toBe('fail');
+      expect(sharpnessCheck?.message).toContain('blurry');
+    });
+
+    it('should pass face angle check when face is straight', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { isTilted: false, eyeTilt: 0 } as any
+      );
+
+      const faceAngleCheck = result.find((check) => check.id === 'face_angle');
+      expect(faceAngleCheck?.status).toBe('pass');
+      expect(faceAngleCheck?.message).toContain('straight and front-facing');
+    });
+
+    it('should warn face angle check when face is tilted', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { isTilted: true, eyeTilt: 15.5 } as any
+      );
+
+      const faceAngleCheck = result.find((check) => check.id === 'face_angle');
+      expect(faceAngleCheck?.status).toBe('warn');
+      expect(faceAngleCheck?.message).toContain('tilted');
+      expect(faceAngleCheck?.message).toContain('15.5°');
+    });
+
+    it('should pass color check when image is in color', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { isGrayscale: false } as any
+      );
+
+      const colorCheck = result.find((check) => check.id === 'color_photo');
+      expect(colorCheck?.status).toBe('pass');
+      expect(colorCheck?.message).toContain('in color');
+    });
+
+    it('should fail color check when image is grayscale', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { isGrayscale: true } as any
+      );
+
+      const colorCheck = result.find((check) => check.id === 'color_photo');
+      expect(colorCheck?.status).toBe('fail');
+      expect(colorCheck?.message).toContain('must be in color');
+    });
+
+    it('should pass lighting check when lighting is even', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { hasUnevenLighting: false, faceLightingScore: 90 } as any
+      );
+
+      const lightingCheck = result.find((check) => check.id === 'lighting');
+      expect(lightingCheck?.status).toBe('pass');
+      expect(lightingCheck?.message).toContain('even');
+    });
+
+    it('should warn lighting check when lighting is uneven', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { hasUnevenLighting: true, faceLightingScore: 45 } as any
+      );
+
+      const lightingCheck = result.find((check) => check.id === 'lighting');
+      expect(lightingCheck?.status).toBe('warn');
+      expect(lightingCheck?.message).toContain('Uneven lighting');
+      expect(lightingCheck?.message).toContain('45%');
+    });
+
+    it('should pass exposure check when exposure is good', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { exposure: { isOverexposed: false, isUnderexposed: false } } as any
+      );
+
+      const exposureCheck = result.find((check) => check.id === 'exposure');
+      expect(exposureCheck?.status).toBe('pass');
+      expect(exposureCheck?.message).toContain('good');
+    });
+
+    it('should fail exposure check when overexposed', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { exposure: { isOverexposed: true, isUnderexposed: false } } as any
+      );
+
+      const exposureCheck = result.find((check) => check.id === 'exposure');
+      expect(exposureCheck?.status).toBe('fail');
+      expect(exposureCheck?.message).toContain('overexposed');
+    });
+
+    it('should fail exposure check when underexposed', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { exposure: { isOverexposed: false, isUnderexposed: true } } as any
+      );
+
+      const exposureCheck = result.find((check) => check.id === 'exposure');
+      expect(exposureCheck?.status).toBe('fail');
+      expect(exposureCheck?.message).toContain('underexposed');
+    });
+
+    it('should pass edge quality check when no halo artifacts', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { halo: { hasHaloArtifacts: false, edgeQuality: 80 } } as any
+      );
+
+      const edgeCheck = result.find((check) => check.id === 'edge_quality');
+      expect(edgeCheck?.status).toBe('pass');
+      expect(edgeCheck?.message).toContain('clean');
+    });
+
+    it('should warn edge quality check when halo artifacts detected', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { halo: { hasHaloArtifacts: true, edgeQuality: 60 } } as any
+      );
+
+      const edgeCheck = result.find((check) => check.id === 'edge_quality');
+      expect(edgeCheck?.status).toBe('warn');
+      expect(edgeCheck?.message).toContain('Halo artifacts');
+    });
+
+    it('should warn edge quality check when edge quality is poor', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        { halo: { hasHaloArtifacts: false, edgeQuality: 30 } } as any
+      );
+
+      const edgeCheck = result.find((check) => check.id === 'edge_quality');
+      expect(edgeCheck?.status).toBe('warn');
+      expect(edgeCheck?.message).toContain('Rough edges');
+    });
+
+    it('should handle all image analysis properties together', () => {
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        mockStandard,
+        true,
+        100,
+        {
+          isBlurry: false,
+          isTilted: false,
+          eyeTilt: 2,
+          isGrayscale: false,
+          hasUnevenLighting: false,
+          faceLightingScore: 85,
+          exposure: { isOverexposed: false, isUnderexposed: false },
+          halo: { hasHaloArtifacts: false, edgeQuality: 75 },
+        } as any
+      );
+
+      // Should have all image analysis checks
+      const sharpnessCheck = result.find((check) => check.id === 'sharpness');
+      const faceAngleCheck = result.find((check) => check.id === 'face_angle');
+      const colorCheck = result.find((check) => check.id === 'color_photo');
+      const lightingCheck = result.find((check) => check.id === 'lighting');
+      const exposureCheck = result.find((check) => check.id === 'exposure');
+      const edgeCheck = result.find((check) => check.id === 'edge_quality');
+
+      expect(sharpnessCheck).toBeDefined();
+      expect(faceAngleCheck).toBeDefined();
+      expect(colorCheck).toBeDefined();
+      expect(lightingCheck).toBeDefined();
+      expect(exposureCheck).toBeDefined();
+      expect(edgeCheck).toBeDefined();
+
+      // All should pass
+      expect(sharpnessCheck?.status).toBe('pass');
+      expect(faceAngleCheck?.status).toBe('pass');
+      expect(colorCheck?.status).toBe('pass');
+      expect(lightingCheck?.status).toBe('pass');
+      expect(exposureCheck?.status).toBe('pass');
+      expect(edgeCheck?.status).toBe('pass');
+    });
+  });
+
+  describe('US Standard Glasses Policy', () => {
+    it('should include glasses reminder for US standards', () => {
+      const usStandard: PhotoStandard = {
+        ...mockStandard,
+        id: 'us',
+      };
+
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        usStandard,
+        true,
+        100
+      );
+
+      const glassesCheck = result.find((check) => check.id === 'glasses');
+      expect(glassesCheck).toBeDefined();
+      expect(glassesCheck?.status).toBe('pass');
+      expect(glassesCheck?.message).toContain('no glasses');
+    });
+
+    it('should include glasses reminder for US visa', () => {
+      const usVisaStandard: PhotoStandard = {
+        ...mockStandard,
+        id: 'us_visa',
+      };
+
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        usVisaStandard,
+        true,
+        100
+      );
+
+      const glassesCheck = result.find((check) => check.id === 'glasses');
+      expect(glassesCheck).toBeDefined();
+    });
+
+    it('should include glasses reminder for US drivers license', () => {
+      const usDriversStandard: PhotoStandard = {
+        ...mockStandard,
+        id: 'us_drivers',
+      };
+
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        usDriversStandard,
+        true,
+        100
+      );
+
+      const glassesCheck = result.find((check) => check.id === 'glasses');
+      expect(glassesCheck).toBeDefined();
+    });
+
+    it('should include glasses reminder for green card', () => {
+      const greenCardStandard: PhotoStandard = {
+        ...mockStandard,
+        id: 'green_card',
+      };
+
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        greenCardStandard,
+        true,
+        100
+      );
+
+      const glassesCheck = result.find((check) => check.id === 'glasses');
+      expect(glassesCheck).toBeDefined();
+    });
+
+    it('should not include glasses reminder for non-US standards', () => {
+      const ukStandard: PhotoStandard = {
+        ...mockStandard,
+        id: 'uk',
+      };
+
+      const result = checkCompliance(
+        1000,
+        800,
+        mockFaceData,
+        ukStandard,
+        true,
+        100
+      );
+
+      const glassesCheck = result.find((check) => check.id === 'glasses');
+      expect(glassesCheck).toBeUndefined();
+    });
+  });
+
+  describe('Head Framing Edge Cases', () => {
+    it('should fail when source has insufficient headroom (crown above image)', () => {
+      // Face positioned such that crown would be above image (y - h*0.3 < 0)
+      const faceTooHigh: FaceData = {
+        x: 150,
+        y: 20,  // Very close to top
+        w: 200,
+        h: 250, // crown would be at 20 - 250*0.3 = 20 - 75 = -55 (above image)
+        leftEye: { x: 200, y: 150 },
+        rightEye: { x: 250, y: 150 },
+      };
+
+      const result = checkCompliance(
+        1000,
+        800,
+        faceTooHigh,
+        mockStandard,
+        true,
+        100
+      );
+
+      const framingCheck = result.find((check) => check.id === 'head_framing');
+      expect(framingCheck?.status).toBe('fail');
+      expect(framingCheck?.message).toContain('more space above head');
+    });
+
+    it('should pass head framing when full head is visible', () => {
+      // Face properly positioned with room above and below
+      const properlyFramed: FaceData = {
+        x: 150,
+        y: 200,  // Good distance from top
+        w: 200,
+        h: 250,
+        leftEye: { x: 200, y: 250 },
+        rightEye: { x: 250, y: 250 },
+      };
+
+      const result = checkCompliance(
+        1000,
+        800,
+        properlyFramed,
+        mockStandard,
+        true,
+        100
+      );
+
+      const framingCheck = result.find((check) => check.id === 'head_framing');
+      expect(framingCheck?.status).toBe('pass');
+      expect(framingCheck?.message).toContain('Full head visible');
+    });
+  });
+
   describe('Business Logic Validation', () => {
     it('should prioritize face detection failure over other checks', () => {
       const result = checkCompliance(1000, 800, null, mockStandard, true, 100);

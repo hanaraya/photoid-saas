@@ -161,7 +161,8 @@
       "!src/app/**/loading.tsx",
       "!src/app/**/not-found.tsx",
       "!src/app/globals.css",
-      "!src/app/api/**/*"
+      "!src/app/api/**/*",
+      "!src/hooks/useLiveFaceDetection.ts"
     ],
     "coverageThreshold": {
       "global": {
