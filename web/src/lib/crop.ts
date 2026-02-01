@@ -132,8 +132,8 @@ export function simulateCrop(
   
   // Position crop
   const eyeFromTopInSrc = targetEyeFromTop / scale;
-  let cropY = eyeY - eyeFromTopInSrc;
-  let cropX = faceCenterX - cropW / 2;
+  const cropY = eyeY - eyeFromTopInSrc;
+  const cropX = faceCenterX - cropW / 2;
   
   // Check for REAL padding issues - only when crop dimensions EXCEED source
   // Position issues are handled by clamping in render, so don't report those as padding

@@ -25,10 +25,23 @@ jest.mock('@/lib/face-detection', () => ({
   detectFaces: (...args: unknown[]) => mockDetectFaces(...args),
 }));
 
+const mockIsBgRemovalReady = jest.fn();
+const mockResetBgRemoval = jest.fn();
+const mockGetBgRemovalError = jest.fn();
+
 jest.mock('@/lib/bg-removal', () => ({
   removeImageBackground: (...args: unknown[]) =>
     mockRemoveImageBackground(...args),
   initBgRemoval: (...args: unknown[]) => mockInitBgRemoval(...args),
+  isBgRemovalReady: (...args: unknown[]) => mockIsBgRemovalReady(...args),
+  resetBgRemoval: (...args: unknown[]) => mockResetBgRemoval(...args),
+  getBgRemovalError: (...args: unknown[]) => mockGetBgRemovalError(...args),
+}));
+
+const mockAnalyzeImage = jest.fn();
+
+jest.mock('@/lib/image-analysis', () => ({
+  analyzeImage: (...args: unknown[]) => mockAnalyzeImage(...args),
 }));
 
 jest.mock('@/lib/crop', () => ({
@@ -144,6 +157,24 @@ describe('PhotoEditor Output and Download Tests', () => {
       cropW: 100,
       cropH: 100,
     });
+    mockIsBgRemovalReady.mockReturnValue(true);
+    mockResetBgRemoval.mockReturnValue(undefined);
+    mockGetBgRemovalError.mockReturnValue(null);
+    mockAnalyzeImage.mockReturnValue({
+      quality: {
+        sharpness: 85,
+        noise: 10,
+        contrast: 70,
+        brightness: 128,
+        overall: 80,
+      },
+      compliance: {
+        eyeLinePercent: 62.5,
+        headHeightPercent: 55,
+        topMarginPercent: 10,
+        bottomMarginPercent: 10,
+      },
+    });
   });
 
   describe('Generate and Output Flow', () => {
@@ -162,7 +193,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Analyzing your photo/i)
+            screen.queryByText(/Detecting face/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -195,7 +226,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Analyzing your photo/i)
+            screen.queryByText(/Detecting face/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -226,7 +257,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Analyzing your photo/i)
+            screen.queryByText(/Detecting face/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -260,7 +291,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Analyzing your photo/i)
+            screen.queryByText(/Detecting face/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -286,7 +317,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       );
 
       // Should show loading text
-      expect(screen.getByText(/Analyzing your photo/i)).toBeInTheDocument();
+      expect(screen.getByText(/Detecting face/i)).toBeInTheDocument();
     });
   });
 
@@ -304,7 +335,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Analyzing your photo/i)
+            screen.queryByText(/Detecting face/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -341,7 +372,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Analyzing your photo/i)
+            screen.queryByText(/Detecting face/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }
@@ -367,7 +398,7 @@ describe('PhotoEditor Output and Download Tests', () => {
       await waitFor(
         () => {
           expect(
-            screen.queryByText(/Analyzing your photo/i)
+            screen.queryByText(/Detecting face/i)
           ).not.toBeInTheDocument();
         },
         { timeout: 3000 }

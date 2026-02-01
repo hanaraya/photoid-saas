@@ -105,20 +105,15 @@ describe('Compliance Checking', () => {
     });
 
     it('should warn when head is too small', () => {
-      // To get headInOutput < 300: estimatedHeadH * 1.5 < 300 → estimatedHeadH < 200
-      // faceData.h * 1.35 < 200 → faceData.h < 148.14
-      const smallFaceData: FaceData = {
-        ...mockFaceData,
-        h: 140, // This should result in "too small"
-      };
-
+      // The compliance algorithm auto-scales to target size, so face size doesn't matter
+      // To trigger "too small", use low userZoom (<88.4% for US passport)
       const result = checkCompliance(
         1000,
         800,
-        smallFaceData,
+        mockFaceData,
         mockStandard,
         true,
-        100
+        70  // Low zoom factor pushes head below min threshold
       );
 
       const headCheck = result.find((check) => check.id === 'head_size');
@@ -128,36 +123,15 @@ describe('Compliance Checking', () => {
     });
 
     it('should warn when head is too large', () => {
-      // Use the original mockFaceData which should be large enough to trigger "too large"
-      // mockFaceData.h = 250 → estimatedHeadH = 337.5 → headInOutput = 506.25 > 412.5
+      // The compliance algorithm auto-scales to target size, so face size doesn't matter
+      // To trigger "too large", use high userZoom (>121.5% for US passport)
       const result = checkCompliance(
         1000,
         800,
         mockFaceData,
         mockStandard,
         true,
-        100
-      );
-
-      const headCheck = result.find((check) => check.id === 'head_size');
-      expect(headCheck?.status).toBe('warn');
-      expect(headCheck?.message).toContain('too large');
-      expect(headCheck?.message).toContain('zooming out');
-    });
-
-    it('should warn when head is too large', () => {
-      const largeFaceData: FaceData = {
-        ...mockFaceData,
-        h: 800, // Very large head
-      };
-
-      const result = checkCompliance(
-        1000,
-        800,
-        largeFaceData,
-        mockStandard,
-        true,
-        100
+        150  // High zoom factor pushes head above max threshold
       );
 
       const headCheck = result.find((check) => check.id === 'head_size');

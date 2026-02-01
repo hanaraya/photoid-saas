@@ -104,9 +104,10 @@ describe('ComplianceOverlay Component', () => {
       expect(screen.getByText(/55%/)).toBeInTheDocument();
     });
 
-    it('should render eye position label', () => {
+    it('should render eye position indicator', () => {
       render(<ComplianceOverlay {...baseProps} />);
-      expect(screen.getByText(/Eye Line/i)).toBeInTheDocument();
+      // Eye line is visual-only (no text label), verified via testid
+      expect(screen.getByTestId('eye-line-indicator')).toBeInTheDocument();
     });
   });
 
@@ -314,9 +315,10 @@ describe('ComplianceOverlay Component', () => {
       expect(eyeLine).toHaveStyle({ bottom: '62.5%' });
     });
 
-    it('should show eye line label', () => {
+    it('should show eye line indicator', () => {
       render(<ComplianceOverlay {...baseProps} />);
-      expect(screen.getByText(/Eye Line/i)).toBeInTheDocument();
+      // Eye line is now visual-only (no text label), verified via testid
+      expect(screen.getByTestId('eye-line-indicator')).toBeInTheDocument();
     });
 
     it('should update position when eye data changes', () => {

@@ -39,6 +39,27 @@ jest.mock('@/lib/bg-removal', () => ({
     .fn()
     .mockResolvedValue(new Blob(['removed-bg'], { type: 'image/png' })),
   initBgRemoval: jest.fn().mockResolvedValue(undefined),
+  isBgRemovalReady: jest.fn().mockReturnValue(true),
+  resetBgRemoval: jest.fn(),
+  getBgRemovalError: jest.fn().mockReturnValue(null),
+}));
+
+jest.mock('@/lib/image-analysis', () => ({
+  analyzeImage: jest.fn().mockReturnValue({
+    quality: {
+      sharpness: 85,
+      noise: 10,
+      contrast: 70,
+      brightness: 128,
+      overall: 80,
+    },
+    compliance: {
+      eyeLinePercent: 62.5,
+      headHeightPercent: 55,
+      topMarginPercent: 10,
+      bottomMarginPercent: 10,
+    },
+  }),
 }));
 
 jest.mock('@/lib/crop', () => ({
@@ -131,8 +152,8 @@ describe('PhotoEditor Component', () => {
       />
     );
 
-    // Initially shows loading
-    expect(screen.getByText(/Analyzing your photo/i)).toBeInTheDocument();
+    // Loading overlay shows step-based progress
+    expect(screen.getByText(/Detecting face/i)).toBeInTheDocument();
   });
 
   it('should render back button', async () => {
@@ -148,7 +169,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -173,7 +194,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -198,7 +219,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -234,7 +255,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -258,7 +279,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -282,7 +303,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -306,7 +327,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -333,7 +354,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -356,7 +377,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -387,7 +408,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }
@@ -414,7 +435,7 @@ describe('PhotoEditor Component', () => {
     await waitFor(
       () => {
         expect(
-          screen.queryByText(/Analyzing your photo/i)
+          screen.queryByText(/Detecting face/i)
         ).not.toBeInTheDocument();
       },
       { timeout: 3000 }

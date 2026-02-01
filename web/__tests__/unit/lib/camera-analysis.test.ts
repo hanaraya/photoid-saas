@@ -72,14 +72,14 @@ describe('Camera Analysis Utilities', () => {
     it('should calculate correct oval for US standard', () => {
       const oval = calculateOvalDimensions('us', viewportWidth, viewportHeight);
       
-      // US: face max ~49.3%, visual oval = 49.3% × 1.10 = ~54%
+      // US: face range 35.7-49.3%, target @ 35% = ~40.5%, with 1.15 visual scale = ~46.5%
       expect(oval.centerX).toBe(320); // Center of 640
       expect(oval.centerY).toBeGreaterThan(viewportHeight * 0.35);
       expect(oval.centerY).toBeLessThanOrEqual(viewportHeight * 0.45);
       
-      // Oval should be ~54% of viewport
-      expect(oval.height).toBeGreaterThan(viewportHeight * 0.50);
-      expect(oval.height).toBeLessThan(viewportHeight * 0.60);
+      // Oval should be ~46-47% of viewport with visual scale
+      expect(oval.height).toBeGreaterThan(viewportHeight * 0.44);
+      expect(oval.height).toBeLessThan(viewportHeight * 0.50);
       
       // Oval width is typically ~75% of height for face proportions
       expect(oval.width).toBeGreaterThan(oval.height * 0.65);
@@ -114,9 +114,9 @@ describe('Camera Analysis Utilities', () => {
     it('should calculate correct oval for India standard', () => {
       const oval = calculateOvalDimensions('india', viewportWidth, viewportHeight);
       
-      // India same as US (~54%)
-      expect(oval.height).toBeGreaterThan(viewportHeight * 0.50);
-      expect(oval.height).toBeLessThan(viewportHeight * 0.60);
+      // India same as US (~46-47% with visual scale)
+      expect(oval.height).toBeGreaterThan(viewportHeight * 0.44);
+      expect(oval.height).toBeLessThan(viewportHeight * 0.50);
     });
 
     it('should handle different viewport aspect ratios', () => {

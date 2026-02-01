@@ -35,7 +35,7 @@ describe('HomePage', () => {
     render(<HomePage />);
     // There are multiple CTA links on the page - use getAllBy
     const ctaLinks = screen.getAllByRole('link', {
-      name: /make your passport photo|get started/i,
+      name: /Create Passport Photo|get started/i,
     });
     expect(ctaLinks.length).toBeGreaterThan(0);
   });
@@ -109,7 +109,7 @@ describe('HomePage', () => {
     render(<HomePage />);
     // Multiple links to app - just check at least one exists
     const appLinks = screen.getAllByRole('link', {
-      name: /make your passport photo/i,
+      name: /Create Passport Photo/i,
     });
     expect(appLinks[0]).toHaveAttribute('href', '/app');
   });

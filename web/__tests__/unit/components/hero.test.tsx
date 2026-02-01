@@ -44,7 +44,7 @@ describe('Hero Component', () => {
     render(<Hero />);
 
     const appLink = screen.getByRole('link', {
-      name: /make your passport photo/i,
+      name: /Create Passport Photo/i,
     });
     expect(appLink).toHaveAttribute('href', '/app');
   });
@@ -61,9 +61,9 @@ describe('Hero Component', () => {
   it('should display trust badges', () => {
     render(<Hero />);
 
-    expect(screen.getByText(/Privacy-First/)).toBeInTheDocument();
-    expect(screen.getByText(/Instant/)).toBeInTheDocument();
-    expect(screen.getByText(/Compliance Guaranteed/)).toBeInTheDocument();
+    expect(screen.getByText(/30-Day Money Back/)).toBeInTheDocument();
+    expect(screen.getByText(/100% Private/)).toBeInTheDocument();
+    expect(screen.getByText(/Save \$12 vs CVS/)).toBeInTheDocument();
   });
 
   it('should display main headline', () => {
@@ -83,7 +83,9 @@ describe('Hero Component', () => {
   it('should display pricing information', () => {
     render(<Hero />);
 
-    expect(screen.getByText(/\$4\.99/)).toBeInTheDocument();
+    // $4.99 appears multiple times (in CTA and in description)
+    const priceElements = screen.getAllByText(/\$4\.99/);
+    expect(priceElements.length).toBeGreaterThan(0);
   });
 
   it('should display country flags', () => {

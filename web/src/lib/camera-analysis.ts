@@ -8,6 +8,8 @@
  * - No hardcoded thresholds that can drift from crop algorithm
  */
 
+import { HEAD_TO_FACE_RATIO } from './photo-standards';
+
 export interface HeadHeightRange {
   min: number; // As decimal (0.50 = 50%)
   max: number;
