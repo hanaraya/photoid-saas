@@ -42,3 +42,10 @@ export {
   PassportPhotoComplianceChecker,
   verifyPassportPhoto,
 } from './checker';
+
+// Image analyzer
+export {
+  analyzeImage,
+  convertFaceApiResult,
+  convertMediaPipeResult,
+} from './analyzer';
