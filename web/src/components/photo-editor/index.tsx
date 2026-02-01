@@ -19,6 +19,11 @@ import { removeImageBackground, isBgRemovalReady, resetBgRemoval, getBgRemovalEr
 import { renderPassportPhoto, renderSheet, calculateCrop } from '@/lib/crop';
 import { checkCompliance } from '@/lib/compliance';
 import { analyzeImage } from '@/lib/image-analysis';
+import { 
+  verifyPassportPhoto, 
+  analyzeImage as complianceAnalyzeImage,
+  type ComplianceResult,
+} from '@/lib/compliance/index';
 import { STANDARDS } from '@/lib/photo-standards';
 import { analyzeBackground } from '@/lib/bg-analysis';
 import { FeedbackModal } from '../feedback-modal';
@@ -99,6 +104,7 @@ export function PhotoEditor({
   const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(null);
   const [moderationResult, setModerationResult] = useState<ModerationResult | null>(null);
   const [measurementState, setMeasurementState] = useState<MeasurementState | null>(null);
+  const [runtimeComplianceResult, setRuntimeComplianceResult] = useState<ComplianceResult | null>(null);
 
   // UI state
   const [showDragHint, setShowDragHint] = useState(true);
@@ -200,6 +206,59 @@ export function PhotoEditor({
 
           const imgAnalysis = analyzeImage(img, face);
           setImageAnalysis(imgAnalysis);
+
+          // Run comprehensive compliance validation
+          try {
+            const complianceAnalysis = await complianceAnalyzeImage(img, {
+              detected: true,
+              count: 1,
+              confidence: 0.95,
+              boundingBox: {
+                x: face.x,
+                y: face.y,
+                width: face.w,
+                height: face.h,
+              },
+              landmarks: face.leftEye && face.rightEye ? {
+                leftEye: face.leftEye,
+                rightEye: face.rightEye,
+                nose: { x: face.x + face.w / 2, y: face.y + face.h * 0.6 },
+                mouth: { x: face.x + face.w / 2, y: face.y + face.h * 0.8 },
+                chin: { x: face.x + face.w / 2, y: face.y + face.h },
+              } : undefined,
+            });
+            
+            // Map standard ID to country code (US, UK, CA, etc.)
+            const countryMap: Record<string, 'US' | 'UK' | 'CA' | 'IN' | 'EU' | 'AU'> = {
+              us: 'US', us_visa: 'US', us_drivers: 'US', green_card: 'US',
+              uk: 'UK', uk_visa: 'UK',
+              canada: 'CA',
+              india: 'IN', india_visa: 'IN',
+              eu: 'EU', schengen_visa: 'EU', germany: 'EU', france: 'EU',
+              australia: 'AU',
+            };
+            const countryCode = countryMap[standardId] || 'US';
+            
+            const result = verifyPassportPhoto(complianceAnalysis, countryCode);
+            setRuntimeComplianceResult(result);
+            
+            // Log analytics for country selection
+            console.log('[ANALYTICS] Country selected:', {
+              country: countryCode,
+              standardId,
+              timestamp: new Date().toISOString(),
+              complianceScore: result.overallScore,
+            });
+            
+            // Show toast for critical issues
+            if (result.criticalFailures.length > 0) {
+              toast.warning(`Photo may need adjustments: ${result.criticalFailures[0]}`, {
+                duration: 5000,
+              });
+            }
+          } catch (complianceErr) {
+            console.error('[COMPLIANCE] Runtime validation error:', complianceErr);
+          }
         } else {
           setFaceData(null);
           setFaceStatus('not-found');
@@ -212,6 +271,30 @@ export function PhotoEditor({
 
           const imgAnalysis = analyzeImage(img, null);
           setImageAnalysis(imgAnalysis);
+          
+          // Run compliance check even without face (will report face not detected)
+          try {
+            const complianceAnalysis = await complianceAnalyzeImage(img);
+            const countryMap: Record<string, 'US' | 'UK' | 'CA' | 'IN' | 'EU' | 'AU'> = {
+              us: 'US', us_visa: 'US', us_drivers: 'US', green_card: 'US',
+              uk: 'UK', uk_visa: 'UK',
+              canada: 'CA',
+              india: 'IN', india_visa: 'IN',
+              eu: 'EU', schengen_visa: 'EU', germany: 'EU', france: 'EU',
+              australia: 'AU',
+            };
+            const countryCode = countryMap[standardId] || 'US';
+            const result = verifyPassportPhoto(complianceAnalysis, countryCode);
+            setRuntimeComplianceResult(result);
+            
+            console.log('[ANALYTICS] Country selected (no face):', {
+              country: countryCode,
+              standardId,
+              timestamp: new Date().toISOString(),
+            });
+          } catch (complianceErr) {
+            console.error('[COMPLIANCE] Runtime validation error:', complianceErr);
+          }
         }
       } catch {
         if (!cancelled) {

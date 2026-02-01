@@ -8,7 +8,7 @@
  * - No hardcoded thresholds that can drift from crop algorithm
  */
 
-import { HEAD_TO_FACE_RATIO } from './photo-standards';
+import { HEAD_TO_FACE_RATIO, STANDARDS } from './photo-standards';
 
 export interface HeadHeightRange {
   min: number; // As decimal (0.50 = 50%)
@@ -515,7 +515,7 @@ export function extractRegionBrightness(
  * If simulateCrop says it's good, the crop will be good.
  */
 import { simulateCrop, type CropSimulationResult } from './crop';
-import { STANDARDS, HEAD_TO_FACE_RATIO } from './photo-standards';
+// STANDARDS already imported at top of file
 
 export interface CropBasedAnalysis {
   distance: DistanceResult;
