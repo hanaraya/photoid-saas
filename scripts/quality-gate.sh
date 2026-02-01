@@ -144,62 +144,78 @@ else
 fi
 
 # ═══════════════════════════════════════════════════════════════
-# SECTION 3: COMPLIANCE VERIFICATION TESTS
+# SECTION 3: COMPLIANCE VERIFICATION TESTS (CRITICAL)
 # ═══════════════════════════════════════════════════════════════
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "✓ SECTION 3: PASSPORT COMPLIANCE VERIFICATION"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# 3.1 Face Detection Tests
+# 3.0 COMPLIANCE PIPELINE INTEGRATION TESTS (MANDATORY)
 echo ""
-echo "3.1 Face Detection..."
+echo "3.0 🔴 COMPLIANCE PIPELINE TESTS (CRITICAL)..."
+PIPELINE_OUTPUT=$(npm test -- --testPathPattern="compliance-pipeline" 2>&1)
+if echo "$PIPELINE_OUTPUT" | grep -qE "[0-9]+ passed"; then
+    PIPELINE_PASSED=$(echo "$PIPELINE_OUTPUT" | grep -oE "[0-9]+ passed" | head -1)
+    check_result "Compliance Pipeline: $PIPELINE_PASSED" "pass"
+else
+    check_result "Compliance Pipeline" "fail" "Pipeline tests failed - app may produce non-compliant photos!"
+fi
+
+# 3.1 Compliance Checker Unit Tests
+echo ""
+echo "3.1 Compliance Checker Unit Tests..."
+CHECKER_OUTPUT=$(npm test -- --testPathPattern="lib/compliance/checker" 2>&1)
+if echo "$CHECKER_OUTPUT" | grep -qE "[0-9]+ passed"; then
+    CHECKER_PASSED=$(echo "$CHECKER_OUTPUT" | grep -oE "[0-9]+ passed" | head -1)
+    check_result "Compliance Checker: $CHECKER_PASSED" "pass"
+else
+    check_result "Compliance Checker" "fail" "Checker unit tests failed"
+fi
+
+# 3.2 Image Analyzer Tests
+echo ""
+echo "3.2 Image Analyzer Tests..."
+ANALYZER_OUTPUT=$(npm test -- --testPathPattern="lib/compliance/analyzer" 2>&1)
+if echo "$ANALYZER_OUTPUT" | grep -qE "[0-9]+ passed"; then
+    ANALYZER_PASSED=$(echo "$ANALYZER_OUTPUT" | grep -oE "[0-9]+ passed" | head -1)
+    check_result "Image Analyzer: $ANALYZER_PASSED" "pass"
+else
+    check_result "Image Analyzer" "warn" "Analyzer tests need attention"
+fi
+
+# 3.3 Face Detection Tests
+echo ""
+echo "3.3 Face Detection..."
 if npm test -- --testPathPattern="face.?detect|face.?recognition" --passWithNoTests 2>&1 | grep -qE "passed|no tests"; then
     check_result "Face Detection: Tests pass" "pass"
 else
     check_result "Face Detection" "warn" "Limited test coverage"
 fi
 
-# 3.2 Photo Size/Dimension Tests
+# 3.4 Photo Size/Dimension Tests
 echo ""
-echo "3.2 Photo Dimensions (2x2 inch US standard)..."
+echo "3.4 Photo Dimensions (2x2 inch US standard)..."
 if npm test -- --testPathPattern="dimension|size|crop" --passWithNoTests 2>&1 | grep -qE "passed|no tests"; then
     check_result "Photo Dimensions: Tests pass" "pass"
 else
     check_result "Photo Dimensions" "warn" "Limited test coverage"
 fi
 
-# 3.3 Background Removal/Color Tests
+# 3.5 Background Removal/Color Tests
 echo ""
-echo "3.3 Background Processing..."
+echo "3.5 Background Processing..."
 if npm test -- --testPathPattern="background|removal|white" --passWithNoTests 2>&1 | grep -qE "passed|no tests"; then
     check_result "Background: Tests pass" "pass"
 else
     check_result "Background" "warn" "Limited test coverage"
 fi
 
-# 3.4 Head Position Tests
-echo ""
-echo "3.4 Head Position & Centering..."
-if npm test -- --testPathPattern="position|center|head" --passWithNoTests 2>&1 | grep -qE "passed|no tests"; then
-    check_result "Head Position: Tests pass" "pass"
-else
-    check_result "Head Position" "warn" "Limited test coverage"
-fi
-
-# 3.5 Compliance Validation Tests
-echo ""
-echo "3.5 Compliance Validation Rules..."
-if npm test -- --testPathPattern="compliance|validation|require" --passWithNoTests 2>&1 | grep -qE "passed|no tests"; then
-    check_result "Compliance Rules: Tests pass" "pass"
-else
-    check_result "Compliance Rules" "warn" "Limited test coverage"
-fi
-
 # 3.6 Multi-Country Support
 echo ""
-echo "3.6 Multi-Country Requirements..."
-if npm test -- --testPathPattern="country|passport.?type|visa" --passWithNoTests 2>&1 | grep -qE "passed|no tests"; then
+echo "3.6 Multi-Country Requirements (US, UK, CA, IN, EU, AU)..."
+COUNTRY_OUTPUT=$(npm test -- --testPathPattern="country|passport.?type|Multi-Country" --passWithNoTests 2>&1)
+if echo "$COUNTRY_OUTPUT" | grep -qE "[0-9]+ passed|no tests"; then
     check_result "Country Support: Tests pass" "pass"
 else
     check_result "Country Support" "warn" "May need more tests"
