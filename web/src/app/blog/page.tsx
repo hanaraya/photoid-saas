@@ -27,6 +27,17 @@ export const metadata: Metadata = {
 
 const posts = [
   {
+    slug: 'passport-photo-at-home',
+    title:
+      'How to Take a Perfect Passport Photo at Home (2026 Guide)',
+    description:
+      'Learn how to take a passport photo at home with your smartphone. Complete guide covers lighting, background, positioning & official requirements. Save $15+ today!',
+    date: '2026-02-02',
+    readTime: '12 min read',
+    category: 'How-To Guide',
+    featured: true,
+  },
+  {
     slug: 'passport-photo-privacy',
     title:
       'Why Your Passport Photo App Might Be a Privacy Nightmare (And How to Stay Safe)',
@@ -35,9 +46,8 @@ const posts = [
     date: '2025-01-27',
     readTime: '5 min read',
     category: 'Privacy',
-    featured: true,
+    featured: false,
   },
-  // Add more blog posts here as they're created
 ];
 
 export default function BlogPage() {

@@ -1,23 +1,35 @@
 #!/bin/bash
 # Check Google Search Console metrics for SafePassportPic
-# Uses agent-browser for dashboard access
+# Uses saved cookies for authentication
+
+set -e
+
+COOKIES_FILE="$HOME/.agent-browser/profiles/google-gsc-cookies.json"
+GSC_URL="https://search.google.com/search-console?resource_id=https%3A%2F%2Fsafepassportpic.com%2F"
+PERF_URL="https://search.google.com/search-console/performance/search-analytics?resource_id=https%3A%2F%2Fsafepassportpic.com%2F"
 
 echo "📊 Google Search Console Check"
 echo "=============================="
 echo ""
-echo "Dashboard: https://search.google.com/search-console?resource_id=sc-domain:safepassportpic.com"
-echo "Account: harish.narayanappa@gmail.com"
+
+if [ ! -f "$COOKIES_FILE" ]; then
+    echo "❌ Cookies file not found: $COOKIES_FILE"
+    echo "   Run cookie export from Chrome with GSC logged in"
+    exit 1
+fi
+
+echo "🔐 Loading saved cookies..."
+agent-browser cookies set < "$COOKIES_FILE"
+
+echo "🌐 Opening Search Console..."
+agent-browser open "$GSC_URL"
+sleep 2
+
 echo ""
-echo "To check metrics programmatically, use agent-browser:"
+echo "📈 Overview:"
+agent-browser snapshot 2>/dev/null | grep -E "(clicks|impressions|indexed|not indexed)" | head -10
+
 echo ""
-echo "  agent-browser open 'https://search.google.com/search-console/performance/search-analytics?resource_id=sc-domain:safepassportpic.com'"
+echo "Done! For detailed metrics, run:"
 echo "  agent-browser snapshot -i"
-echo "  # Look for impressions, clicks, CTR, position"
-echo ""
-echo "Key pages to monitor:"
-echo "  - / (homepage)"
-echo "  - /app (main conversion page)"
-echo "  - /us-passport-photo"
-echo "  - /uk-passport-photo"
-echo "  - /indian-passport-photo"
 echo ""

@@ -60,6 +60,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/blog/passport-photo-at-home`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/blog/passport-photo-privacy`,
       lastModified: now,
       changeFrequency: 'monthly',
