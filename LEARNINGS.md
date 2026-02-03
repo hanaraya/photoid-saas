@@ -209,3 +209,27 @@
 2. Review and deploy blog post
 3. Submit to Google Search Console
 
+---
+
+### 2026-02-03 - Operations - Morning Ops (Week 2 Day 2)
+**Action:** Morning health check, discovered deployment blockage, fixed and deployed
+**Result:**
+- ✅ Production healthy (200)
+- ✅ 1,370 tests passing (90 suites)
+- ✅ 84.8% coverage (above threshold)
+- ✅ Quality gate passed
+- 🚨 **Found:** All Vercel deployments since Feb 2 were "Canceled" (SSL upload issues)
+- ✅ **Fixed:** Manual deployment successful
+- ✅ **Blog Post #1 NOW LIVE:** https://safepassportpic.com/blog/passport-photo-at-home
+
+**Learning:**
+1. Vercel deployments can silently fail due to SSL/network issues — always verify latest deployment status
+2. Git push succeeding ≠ deployment succeeding — check `vercel list` for actual status
+3. Manual `vercel --prod` bypasses auto-deploy issues
+
+**Next:**
+1. Submit blog post to Google Search Console
+2. Monitor indexing (expect 1-3 days)
+3. Continue content plan (Blog Post #2: Baby Passport Photos)
+4. Afternoon ops: Check GSC data
+
