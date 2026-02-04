@@ -256,3 +256,24 @@
 3. Create outline for Blog Post #2 (Baby Passport Photos)
 4. Afternoon ops: Deploy fixes, continue content work
 
+---
+
+### 2026-02-04 - Tech - Coverage Fix Completed
+**Action:** Engineer fixed 0.22% coverage gap
+**Result:**
+- ✅ Coverage: 79.78% → 82.21% (now above 80% threshold)
+- ✅ Tests: 1,220 passing (added 21 new tests)
+- ✅ Added: Face-detection eye estimation tests (6 tests)
+- ✅ Added: Breadcrumb-schema component tests (15 tests)
+- ✅ Build clean, 0 ESLint errors
+- ✅ Changes pushed to GitHub
+
+**Learning:**
+1. Breadcrumb-schema component had 0% coverage — adding tests for simple components can quickly push coverage up
+2. Face-detection eye estimation branches (lines 168-173) were uncovered — now tested
+3. Pre-existing callback tests were failing (not related to coverage work) — unit tests pass, e2e had port conflict
+
+**Next:**
+1. Deploy in afternoon ops
+2. Continue with Blog Post #2 content creation
+
