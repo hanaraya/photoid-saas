@@ -349,7 +349,8 @@ export interface SpecPx {
 export function specToPx(spec: PhotoStandard): SpecPx {
   const scale = spec.unit === 'mm' ? DPI / 25.4 : DPI;
   // Target position within valid range (closer to minimum for more breathing room)
-  const headTarget = spec.headMin + (spec.headMax - spec.headMin) * TARGET_HEAD_POSITION;
+  const headTarget =
+    spec.headMin + (spec.headMax - spec.headMin) * TARGET_HEAD_POSITION;
   return {
     w: Math.round(spec.w * scale),
     h: Math.round(spec.h * scale),

@@ -63,16 +63,19 @@ export function CameraGuides({
   const animationFrameRef = useRef<number>(0);
   const lastAnalysisRef = useRef<number>(0);
   const countdownRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   const [countdown, setCountdown] = useState<number | null>(null);
   // Video source dimensions (raw pixels)
-  const [videoDimensions, setVideoDimensions] = useState({ width: 640, height: 480 });
+  const [videoDimensions, setVideoDimensions] = useState({
+    width: 640,
+    height: 480,
+  });
   // Actual rendered dimensions on screen (accounting for object-fit)
-  const [renderDimensions, setRenderDimensions] = useState({ 
-    width: 640, 
+  const [renderDimensions, setRenderDimensions] = useState({
+    width: 640,
     height: 480,
     offsetX: 0,
-    offsetY: 0 
+    offsetY: 0,
   });
   const [analysisState, setAnalysisState] = useState<AnalysisState>(() => {
     const defaultPosition: FacePositionResult = {
@@ -108,11 +111,16 @@ export function CameraGuides({
       distance: defaultDistance,
       brightness: defaultBrightness,
       tilt: defaultTilt,
-      conditions: checkAllConditions(defaultPosition, defaultDistance, defaultBrightness, defaultTilt),
+      conditions: checkAllConditions(
+        defaultPosition,
+        defaultDistance,
+        defaultBrightness,
+        defaultTilt
+      ),
       simulation: null,
     };
   });
-  
+
   // Reset state when camera becomes active (handles "start over" case)
   useEffect(() => {
     if (isActive) {
@@ -149,7 +157,12 @@ export function CameraGuides({
         distance: defaultDistance,
         brightness: defaultBrightness,
         tilt: defaultTilt,
-        conditions: checkAllConditions(defaultPosition, defaultDistance, defaultBrightness, defaultTilt),
+        conditions: checkAllConditions(
+          defaultPosition,
+          defaultDistance,
+          defaultBrightness,
+          defaultTilt
+        ),
         simulation: null,
       });
       setCountdown(null);
@@ -159,9 +172,13 @@ export function CameraGuides({
   // Calculate oval dimensions based on country and RENDERED dimensions
   // This ensures the oval matches what the user actually sees on screen
   const oval = useMemo<OvalDimensions>(() => {
-    return calculateOvalDimensions(countryCode, renderDimensions.width, renderDimensions.height);
+    return calculateOvalDimensions(
+      countryCode,
+      renderDimensions.width,
+      renderDimensions.height
+    );
   }, [countryCode, renderDimensions.width, renderDimensions.height]);
-  
+
   // Main analysis loop
   const runAnalysis = useCallback(() => {
     const now = Date.now();
@@ -171,29 +188,35 @@ export function CameraGuides({
       return;
     }
     lastAnalysisRef.current = now;
-    
+
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    
+
     if (!video || !canvas || video.readyState < 2) {
       animationFrameRef.current = requestAnimationFrame(runAnalysis);
       return;
     }
-    
+
     // Update video source dimensions
-    if (video.videoWidth !== videoDimensions.width || video.videoHeight !== videoDimensions.height) {
+    if (
+      video.videoWidth !== videoDimensions.width ||
+      video.videoHeight !== videoDimensions.height
+    ) {
       if (video.videoWidth > 0 && video.videoHeight > 0) {
-        setVideoDimensions({ width: video.videoWidth, height: video.videoHeight });
+        setVideoDimensions({
+          width: video.videoWidth,
+          height: video.videoHeight,
+        });
       }
     }
-    
+
     // Calculate actual rendered dimensions (accounting for object-fit: contain)
     const videoRect = video.getBoundingClientRect();
     const videoAspect = video.videoWidth / video.videoHeight;
     const containerAspect = videoRect.width / videoRect.height;
-    
+
     let renderW, renderH, offsetX, offsetY;
-    
+
     if (videoAspect > containerAspect) {
       // Video is wider than container - letterboxed top/bottom
       renderW = videoRect.width;
@@ -207,31 +230,33 @@ export function CameraGuides({
       offsetX = (videoRect.width - renderW) / 2;
       offsetY = 0;
     }
-    
+
     // Update render dimensions if changed significantly
-    if (Math.abs(renderW - renderDimensions.width) > 5 || 
-        Math.abs(renderH - renderDimensions.height) > 5) {
-      setRenderDimensions({ 
-        width: renderW, 
-        height: renderH, 
-        offsetX, 
-        offsetY 
+    if (
+      Math.abs(renderW - renderDimensions.width) > 5 ||
+      Math.abs(renderH - renderDimensions.height) > 5
+    ) {
+      setRenderDimensions({
+        width: renderW,
+        height: renderH,
+        offsetX,
+        offsetY,
       });
     }
-    
+
     const ctx = canvas.getContext('2d');
     if (!ctx) {
       animationFrameRef.current = requestAnimationFrame(runAnalysis);
       return;
     }
-    
+
     // Set canvas size
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    
+
     // Draw video frame to canvas for analysis
     ctx.drawImage(video, 0, 0);
-    
+
     // Analyze brightness from center region
     const centerX = Math.round(video.videoWidth * 0.25);
     const centerY = Math.round(video.videoHeight * 0.15);
@@ -239,17 +264,22 @@ export function CameraGuides({
     const regionH = Math.round(video.videoHeight * 0.7);
     const imageData = ctx.getImageData(centerX, centerY, regionW, regionH);
     const brightness = analyzeBrightness(imageData);
-    
+
     // Use external face data if provided
     const faceData = externalFaceData || null;
-    
+
     // Calculate ideal centerY in video coordinates
     // CRITICAL: Use the SAME function as calculateOvalDimensions to ensure alignment
     const idealCenterY = getIdealFaceCenterY(countryCode, video.videoHeight);
-    
+
     // Analyze face position relative to oval center
-    const position = analyzeFacePosition(faceData, video.videoWidth, video.videoHeight, idealCenterY);
-    
+    const position = analyzeFacePosition(
+      faceData,
+      video.videoWidth,
+      video.videoHeight,
+      idealCenterY
+    );
+
     // Use crop simulation for distance analysis
     // This uses the actual crop algorithm to determine if position will produce good results
     const { distance, simulation } = analyzeDistanceWithCropSimulation(
@@ -258,21 +288,28 @@ export function CameraGuides({
       video.videoHeight,
       countryCode
     );
-    
+
     // Analyze tilt
     const tilt = analyzeHeadTilt(
       faceData?.leftEye || null,
       faceData?.rightEye || null
     );
-    
+
     // Check all conditions
     const conditions = checkAllConditions(position, distance, brightness, tilt);
-    
-    setAnalysisState({ position, distance, brightness, tilt, conditions, simulation });
-    
+
+    setAnalysisState({
+      position,
+      distance,
+      brightness,
+      tilt,
+      conditions,
+      simulation,
+    });
+
     // Notify parent
     onConditionsChange?.(conditions);
-    
+
     // Handle countdown
     if (enableCountdown && conditions.allGood && countdown === null) {
       // Start countdown
@@ -300,11 +337,20 @@ export function CameraGuides({
       }
       setCountdown(null);
     }
-    
+
     animationFrameRef.current = requestAnimationFrame(runAnalysis);
-     
-  }, [videoRef, countryCode, videoDimensions, renderDimensions, externalFaceData, onConditionsChange, enableCountdown, countdown, onAutoCapture]);
-  
+  }, [
+    videoRef,
+    countryCode,
+    videoDimensions,
+    renderDimensions,
+    externalFaceData,
+    onConditionsChange,
+    enableCountdown,
+    countdown,
+    onAutoCapture,
+  ]);
+
   // Start/stop analysis loop
   useEffect(() => {
     if (!isActive) {
@@ -315,9 +361,9 @@ export function CameraGuides({
       }
       return;
     }
-    
+
     animationFrameRef.current = requestAnimationFrame(runAnalysis);
-    
+
     return () => {
       cancelAnimationFrame(animationFrameRef.current);
       if (countdownRef.current) {
@@ -326,23 +372,26 @@ export function CameraGuides({
       }
     };
   }, [isActive, runAnalysis]);
-  
+
   if (!isActive) {
     return null;
   }
-  
-  const { position, distance, brightness, tilt, conditions, simulation } = analysisState;
-  
+
+  const { position, distance, brightness, tilt, conditions, simulation } =
+    analysisState;
+
   // Determine oval color
   const ovalStatus = conditions.allGood ? 'good' : 'warning';
-  const ovalColor = ovalStatus === 'good' ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.4)';
-  const ovalBorderColor = ovalStatus === 'good' ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)';
-  
+  const ovalColor =
+    ovalStatus === 'good' ? 'rgba(34, 197, 94, 0.6)' : 'rgba(239, 68, 68, 0.4)';
+  const ovalBorderColor =
+    ovalStatus === 'good' ? 'rgb(34, 197, 94)' : 'rgb(239, 68, 68)';
+
   // Generate guidance message based on crop simulation results
   // This ensures the guidance matches what the crop algorithm needs
   let guidanceMessage = 'Position your face in the oval';
   let guidanceSubtext = '';
-  
+
   if (!position.faceDetected) {
     guidanceMessage = 'Position your face in the oval';
   } else if (simulation && !simulation.isValid) {
@@ -399,16 +448,16 @@ export function CameraGuides({
   } else {
     guidanceMessage = 'Perfect! Hold still...';
   }
-  
+
   return (
-    <div 
+    <div
       ref={overlayRef}
       className="absolute inset-0 pointer-events-none"
       aria-label="Face positioning guide"
     >
       {/* Hidden canvas for video frame analysis */}
       <canvas ref={canvasRef} className="hidden" />
-      
+
       {/* Face positioning oval - positioned to match actual video render area */}
       <svg
         className="absolute"
@@ -435,7 +484,7 @@ export function CameraGuides({
             />
           </mask>
         </defs>
-        
+
         {/* Dark overlay */}
         <rect
           width="100%"
@@ -443,7 +492,7 @@ export function CameraGuides({
           fill="rgba(0, 0, 0, 0.5)"
           mask="url(#oval-mask)"
         />
-        
+
         {/* Oval border */}
         <ellipse
           data-testid="face-oval"
@@ -458,7 +507,7 @@ export function CameraGuides({
           strokeWidth="3"
           strokeDasharray={ovalStatus === 'good' ? 'none' : '10 5'}
         />
-        
+
         {/* Min/Max height guides (subtle) */}
         <ellipse
           cx={oval.centerX}
@@ -481,14 +530,14 @@ export function CameraGuides({
           strokeDasharray="5 10"
         />
       </svg>
-      
+
       {/* Status indicators - positioned ABOVE guidance message at bottom */}
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 flex flex-wrap justify-center gap-1.5 text-xs max-w-[95%]">
         {/* Only show problem indicators */}
-        
+
         {/* Waiting for face */}
         {!position.faceDetected && (
-          <div 
+          <div
             data-testid="distance-indicator"
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-white/20 text-white/80"
           >
@@ -496,32 +545,36 @@ export function CameraGuides({
             <span>Looking for face...</span>
           </div>
         )}
-        
+
         {/* Distance issue */}
         {position.faceDetected && !distance.isGood && (
-          <div 
+          <div
             data-testid="distance-indicator"
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-amber-500/30 text-amber-200"
           >
             <span>↕</span>
-            <span>{distance.status === 'too-close' ? 'Move back' : 'Move closer'}</span>
+            <span>
+              {distance.status === 'too-close' ? 'Move back' : 'Move closer'}
+            </span>
           </div>
         )}
-        
+
         {/* Lighting issue */}
         {!brightness.isGood && (
-          <div 
+          <div
             data-testid="lighting-indicator"
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-amber-500/30 text-amber-200"
           >
             <span>{brightness.icon}</span>
-            <span>{brightness.status === 'too-dark' ? 'Too dark' : 'Too bright'}</span>
+            <span>
+              {brightness.status === 'too-dark' ? 'Too dark' : 'Too bright'}
+            </span>
           </div>
         )}
-        
+
         {/* Tilt issue */}
         {tilt.eyesDetected && !tilt.isLevel && (
-          <div 
+          <div
             data-testid="tilt-indicator"
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-amber-500/30 text-amber-200"
           >
@@ -529,10 +582,10 @@ export function CameraGuides({
             <span>Straighten head</span>
           </div>
         )}
-        
+
         {/* All good */}
         {conditions.allGood && (
-          <div 
+          <div
             data-testid="all-good-indicator"
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full backdrop-blur-sm bg-green-500/40 text-green-200"
           >
@@ -541,33 +594,31 @@ export function CameraGuides({
           </div>
         )}
       </div>
-      
+
       {/* Guidance message */}
-      <div 
+      <div
         className="absolute bottom-8 left-1/2 -translate-x-1/2 text-center"
         role="status"
         aria-live="polite"
       >
-        <div 
+        <div
           data-testid="guidance-message"
           className={`px-4 py-2 rounded-full backdrop-blur-sm text-lg font-medium ${
-            conditions.allGood 
-              ? 'bg-green-500/30 text-green-200' 
+            conditions.allGood
+              ? 'bg-green-500/30 text-green-200'
               : 'bg-white/20 text-white'
           }`}
         >
           {guidanceMessage}
         </div>
         {guidanceSubtext && (
-          <div className="text-xs text-white/60 mt-1">
-            {guidanceSubtext}
-          </div>
+          <div className="text-xs text-white/60 mt-1">{guidanceSubtext}</div>
         )}
       </div>
-      
+
       {/* Countdown overlay */}
       {countdown !== null && (
-        <div 
+        <div
           data-testid="capture-countdown"
           className="absolute inset-0 flex items-center justify-center"
         >

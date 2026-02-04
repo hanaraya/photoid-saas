@@ -4,7 +4,7 @@
 
 describe('MediaPipe Types', () => {
   it('should have MediaPipe mocks available in global', () => {
-    // Test that global MediaPipe mocks are available
+    // Test that global MediaPipe mocks are available (defined in jest.setup.js)
     expect(global.__MEDIAPIPE_MOCKS__).toBeDefined();
   });
 
@@ -104,6 +104,9 @@ describe('MediaPipe Types', () => {
     expect(options.minSuppressionThreshold).toBeLessThanOrEqual(1);
   });
 });
+
+// Export to make this file a module (required for declare global)
+export {};
 
 // Extend global namespace for TypeScript
 declare global {

@@ -193,7 +193,9 @@ describe('Background Removal', () => {
       // Reset and set up failing mock
       jest.resetModules();
       jest.doMock('@imgly/background-removal', () => ({
-        removeBackground: () => { throw new Error('Module load failed'); },
+        removeBackground: () => {
+          throw new Error('Module load failed');
+        },
       }));
 
       const failingBgRemoval = await import('@/lib/bg-removal');
@@ -222,7 +224,9 @@ describe('Background Removal', () => {
       await bgRemoval.initBgRemoval();
 
       const inputBlob = new Blob(['test-image'], { type: 'image/jpeg' });
-      await expect(bgRemoval.removeImageBackground(inputBlob)).rejects.toThrow();
+      await expect(
+        bgRemoval.removeImageBackground(inputBlob)
+      ).rejects.toThrow();
 
       consoleSpy.mockRestore();
       consoleErrorSpy.mockRestore();
@@ -230,7 +234,7 @@ describe('Background Removal', () => {
 
     it('should throw when not initialized', async () => {
       jest.resetModules();
-      
+
       // Mock module that returns null removeBackground
       jest.doMock('@imgly/background-removal', () => ({
         removeBackground: null,
@@ -244,7 +248,9 @@ describe('Background Removal', () => {
       const inputBlob = new Blob(['test-image'], { type: 'image/jpeg' });
 
       // This should fail because removeBackground is not a function
-      await expect(uninitBgRemoval.removeImageBackground(inputBlob)).rejects.toThrow();
+      await expect(
+        uninitBgRemoval.removeImageBackground(inputBlob)
+      ).rejects.toThrow();
 
       consoleSpy.mockRestore();
       consoleErrorSpy.mockRestore();

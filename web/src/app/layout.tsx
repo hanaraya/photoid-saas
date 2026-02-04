@@ -130,7 +130,8 @@ const jsonLd = {
       '@id': 'https://safepassportpic.com/#website',
       name: 'SafePassportPic',
       url: 'https://safepassportpic.com',
-      description: 'Create compliant passport photos in 60 seconds. 100% private — processed in your browser.',
+      description:
+        'Create compliant passport photos in 60 seconds. 100% private — processed in your browser.',
       publisher: {
         '@id': 'https://safepassportpic.com/#organization',
       },

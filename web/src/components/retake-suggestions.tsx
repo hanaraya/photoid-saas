@@ -15,11 +15,14 @@ interface RetakeSuggestionsProps {
   onRetake?: () => void;
 }
 
-export function RetakeSuggestions({ checks, onRetake }: RetakeSuggestionsProps) {
+export function RetakeSuggestions({
+  checks,
+  onRetake,
+}: RetakeSuggestionsProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  
+
   const suggestions = getRetakeSuggestions(checks);
-  
+
   if (suggestions.length === 0) return null;
 
   const requiresRetake = needsRetake(suggestions);
@@ -55,7 +58,11 @@ export function RetakeSuggestions({ checks, onRetake }: RetakeSuggestionsProps) 
               key={suggestion.id}
               suggestion={suggestion}
               isExpanded={expandedId === suggestion.id}
-              onToggle={() => setExpandedId(expandedId === suggestion.id ? null : suggestion.id)}
+              onToggle={() =>
+                setExpandedId(
+                  expandedId === suggestion.id ? null : suggestion.id
+                )
+              }
               variant="error"
             />
           ))}
@@ -73,7 +80,11 @@ export function RetakeSuggestions({ checks, onRetake }: RetakeSuggestionsProps) 
               key={suggestion.id}
               suggestion={suggestion}
               isExpanded={expandedId === suggestion.id}
-              onToggle={() => setExpandedId(expandedId === suggestion.id ? null : suggestion.id)}
+              onToggle={() =>
+                setExpandedId(
+                  expandedId === suggestion.id ? null : suggestion.id
+                )
+              }
               variant="warning"
             />
           ))}
@@ -100,12 +111,25 @@ interface SuggestionCardProps {
   variant: 'error' | 'warning';
 }
 
-function SuggestionCard({ suggestion, isExpanded, onToggle, variant }: SuggestionCardProps) {
-  const borderColor = variant === 'error' ? 'border-red-200 dark:border-red-900' : 'border-yellow-200 dark:border-yellow-900';
-  const bgColor = variant === 'error' ? 'bg-red-50 dark:bg-red-950/30' : 'bg-yellow-50 dark:bg-yellow-950/30';
-  
+function SuggestionCard({
+  suggestion,
+  isExpanded,
+  onToggle,
+  variant,
+}: SuggestionCardProps) {
+  const borderColor =
+    variant === 'error'
+      ? 'border-red-200 dark:border-red-900'
+      : 'border-yellow-200 dark:border-yellow-900';
+  const bgColor =
+    variant === 'error'
+      ? 'bg-red-50 dark:bg-red-950/30'
+      : 'bg-yellow-50 dark:bg-yellow-950/30';
+
   return (
-    <div className={`rounded-md border ${borderColor} ${bgColor} overflow-hidden`}>
+    <div
+      className={`rounded-md border ${borderColor} ${bgColor} overflow-hidden`}
+    >
       <button
         onClick={onToggle}
         className="w-full flex items-center gap-3 p-3 text-left hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
@@ -122,7 +146,7 @@ function SuggestionCard({ suggestion, isExpanded, onToggle, variant }: Suggestio
           {isExpanded ? '▲' : '▼'}
         </span>
       </button>
-      
+
       {isExpanded && (
         <div className="px-3 pb-3 pt-0 border-t border-inherit">
           <div className="mt-3 space-y-3">
@@ -132,7 +156,7 @@ function SuggestionCard({ suggestion, isExpanded, onToggle, variant }: Suggestio
               </div>
               <p className="text-sm">{suggestion.solution}</p>
             </div>
-            
+
             {suggestion.tips.length > 0 && (
               <div>
                 <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
@@ -156,15 +180,21 @@ function SuggestionCard({ suggestion, isExpanded, onToggle, variant }: Suggestio
 }
 
 // Compact version for inline display
-export function RetakeSuggestionsInline({ checks }: { checks: ComplianceCheck[] }) {
+export function RetakeSuggestionsInline({
+  checks,
+}: {
+  checks: ComplianceCheck[];
+}) {
   const suggestions = getRetakeSuggestions(checks);
-  
+
   if (suggestions.length === 0) return null;
 
   const requiresRetake = needsRetake(suggestions);
-  
+
   return (
-    <div className={`flex items-center gap-2 text-sm ${requiresRetake ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'}`}>
+    <div
+      className={`flex items-center gap-2 text-sm ${requiresRetake ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'}`}
+    >
       <span>{requiresRetake ? '❌' : '⚠️'}</span>
       <span>
         {suggestions.length} issue{suggestions.length !== 1 ? 's' : ''} found

@@ -132,6 +132,7 @@ describe('PhotoUpload Branch Coverage Tests', () => {
         callback(new Blob(['captured'], { type: 'image/jpeg' }));
       });
 
+      // @ts-expect-error - Partial mock of canvas context for testing
       HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
         translate: jest.fn(),
         scale: jest.fn(),

@@ -1,7 +1,10 @@
 'use client';
 
 import { AlertTriangle, XCircle, AlertCircle } from 'lucide-react';
-import { type ModerationResult, type ModerationViolation } from '@/lib/content-moderation';
+import {
+  type ModerationResult,
+  type ModerationViolation,
+} from '@/lib/content-moderation';
 
 interface ModerationBlockerProps {
   result: ModerationResult;
@@ -13,8 +16,10 @@ interface ModerationBlockerProps {
  * Prevents user from proceeding with blocked content
  */
 export function ModerationBlocker({ result, onRetry }: ModerationBlockerProps) {
-  const blockingViolations = result.violations.filter(v => v.severity === 'block');
-  
+  const blockingViolations = result.violations.filter(
+    (v) => v.severity === 'block'
+  );
+
   if (blockingViolations.length === 0) {
     return null;
   }
@@ -26,17 +31,17 @@ export function ModerationBlocker({ result, onRetry }: ModerationBlockerProps) {
           <XCircle className="h-8 w-8 flex-shrink-0" />
           <h2 className="text-xl font-semibold">Photo Cannot Be Used</h2>
         </div>
-        
+
         <div className="mb-6 space-y-3">
           {blockingViolations.map((violation) => (
             <ViolationCard key={violation.code} violation={violation} />
           ))}
         </div>
-        
+
         <p className="mb-6 text-sm text-gray-600">
           Please take a new selfie that meets passport photo requirements.
         </p>
-        
+
         <button
           onClick={onRetry}
           className="w-full rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition hover:bg-blue-700"
@@ -69,8 +74,8 @@ function ViolationCard({ violation }: { violation: ModerationViolation }) {
  * Inline warning banner for non-blocking issues
  */
 export function ModerationWarning({ result }: { result: ModerationResult }) {
-  const warnings = result.violations.filter(v => v.severity === 'warn');
-  
+  const warnings = result.violations.filter((v) => v.severity === 'warn');
+
   if (warnings.length === 0) {
     return null;
   }
@@ -87,7 +92,8 @@ export function ModerationWarning({ result }: { result: ModerationResult }) {
             ))}
           </ul>
           <p className="mt-2 text-xs text-amber-600">
-            You can proceed, but these may cause issues with official submission.
+            You can proceed, but these may cause issues with official
+            submission.
           </p>
         </div>
       </div>

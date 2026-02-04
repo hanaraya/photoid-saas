@@ -145,9 +145,12 @@ export async function detectFaces(
           leftEye = { x: px, y: py };
         if (kp.label === 'rightEye' || kp.index === 1)
           rightEye = { x: px, y: py };
-        if (kp.label === 'noseTip' || kp.index === 2)
-          nose = { x: px, y: py };
-        if (kp.label === 'mouth' || kp.label === 'mouthCenter' || kp.index === 3)
+        if (kp.label === 'noseTip' || kp.index === 2) nose = { x: px, y: py };
+        if (
+          kp.label === 'mouth' ||
+          kp.label === 'mouthCenter' ||
+          kp.index === 3
+        )
           mouth = { x: px, y: py };
       }
     }

@@ -8,7 +8,7 @@ import { AdvancedControls } from '@/components/photo-editor/AdvancedControls';
 describe('AdvancedControls', () => {
   const mockOnZoomChange = jest.fn();
   const mockOnBrightnessChange = jest.fn();
-  
+
   const defaultProps = {
     zoom: 100,
     brightness: 100,
@@ -90,7 +90,7 @@ describe('AdvancedControls', () => {
     render(<AdvancedControls {...defaultProps} />);
 
     const summary = screen.getByText('Advanced adjustments');
-    
+
     // Open
     fireEvent.click(summary);
     expect(screen.getByText('Zoom')).toBeInTheDocument();
@@ -117,37 +117,45 @@ describe('AdvancedControls', () => {
 
   it('should trigger onToggle handler when details is toggled', () => {
     const { container } = render(<AdvancedControls {...defaultProps} />);
-    
+
     const details = container.querySelector('details');
     expect(details).toBeInTheDocument();
 
     // Open
     fireEvent(details!, new CustomEvent('toggle', { bubbles: true }));
-    
+
     // Close
     fireEvent(details!, new CustomEvent('toggle', { bubbles: true }));
   });
 
   it('should update isOpen state from details open attribute', () => {
     const { container } = render(<AdvancedControls {...defaultProps} />);
-    
+
     const details = container.querySelector('details')!;
-    
+
     // Trigger toggle event with open = true
-    Object.defineProperty(details, 'open', { value: true, writable: true, configurable: true });
+    Object.defineProperty(details, 'open', {
+      value: true,
+      writable: true,
+      configurable: true,
+    });
     fireEvent(details, new Event('toggle', { bubbles: true }));
-    
+
     // Trigger toggle event with open = false
-    Object.defineProperty(details, 'open', { value: false, writable: true, configurable: true });
+    Object.defineProperty(details, 'open', {
+      value: false,
+      writable: true,
+      configurable: true,
+    });
     fireEvent(details, new Event('toggle', { bubbles: true }));
   });
 
   it('should render sliders with proper initial values', () => {
     render(<AdvancedControls {...defaultProps} zoom={120} brightness={110} />);
-    
+
     // Open the details
     fireEvent.click(screen.getByText('Advanced adjustments'));
-    
+
     const sliders = screen.getAllByRole('slider');
     expect(sliders).toHaveLength(2);
     expect(sliders[0]).toHaveAttribute('aria-valuenow', '120');
@@ -156,10 +164,10 @@ describe('AdvancedControls', () => {
 
   it('should render chevron rotated when open', () => {
     const { container } = render(<AdvancedControls {...defaultProps} />);
-    
+
     // Open the details
     fireEvent.click(screen.getByText('Advanced adjustments'));
-    
+
     // The chevron SVG should have rotate-180 class when open
     const chevron = container.querySelector('summary svg:last-child');
     expect(chevron).toBeInTheDocument();

@@ -122,6 +122,7 @@ describe('AppPage Branch Coverage Tests', () => {
       const originalLocation = window.location;
       // @ts-expect-error - Need to delete location to mock it
       delete window.location;
+      // @ts-expect-error - Test mock for window.location
       window.location = { ...originalLocation, href: '' };
 
       render(<AppPage />);
@@ -148,6 +149,7 @@ describe('AppPage Branch Coverage Tests', () => {
       });
 
       // Restore location
+      // @ts-expect-error - Restoring original window.location
       window.location = originalLocation;
     });
 

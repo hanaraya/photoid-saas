@@ -9,7 +9,8 @@ export const metadata: Metadata = {
     'Terms of service for SafePassportPic. Simple terms for a simple service — create passport photos privately in your browser.',
   openGraph: {
     title: 'Terms of Service | SafePassportPic',
-    description: 'Simple terms for a simple service — create passport photos privately.',
+    description:
+      'Simple terms for a simple service — create passport photos privately.',
     type: 'website',
     url: 'https://safepassportpic.com/terms',
   },
@@ -36,10 +37,10 @@ export default function TermsPage() {
               1. Service Description
             </h2>
             <p>
-              SafePassportPic provides a browser-based tool for creating passport and
-              visa photos that meet official government specifications. Our
-              service processes your photos entirely on your device — no images
-              are uploaded to our servers.
+              SafePassportPic provides a browser-based tool for creating
+              passport and visa photos that meet official government
+              specifications. Our service processes your photos entirely on your
+              device — no images are uploaded to our servers.
             </p>
           </section>
 
@@ -48,9 +49,9 @@ export default function TermsPage() {
               2. Acceptance of Terms
             </h2>
             <p>
-              By accessing or using SafePassportPic, you agree to be bound by these
-              Terms of Service. If you do not agree to these terms, please do
-              not use our service.
+              By accessing or using SafePassportPic, you agree to be bound by
+              these Terms of Service. If you do not agree to these terms, please
+              do not use our service.
             </p>
           </section>
 
@@ -93,10 +94,11 @@ export default function TermsPage() {
               5. Disclaimer
             </h2>
             <p>
-              While we strive to meet official photo specifications, SafePassportPic
-              does not guarantee that photos will be accepted by any government
-              agency. Photo requirements may change, and acceptance is
-              ultimately at the discretion of the reviewing authority.
+              While we strive to meet official photo specifications,
+              SafePassportPic does not guarantee that photos will be accepted by
+              any government agency. Photo requirements may change, and
+              acceptance is ultimately at the discretion of the reviewing
+              authority.
             </p>
           </section>
 
@@ -105,9 +107,9 @@ export default function TermsPage() {
               6. Limitation of Liability
             </h2>
             <p>
-              SafePassportPic is provided &quot;as is&quot; without warranties of any
-              kind. We are not liable for any damages arising from the use of
-              our service, including but not limited to rejected photo
+              SafePassportPic is provided &quot;as is&quot; without warranties
+              of any kind. We are not liable for any damages arising from the
+              use of our service, including but not limited to rejected photo
               applications or delays in document processing.
             </p>
           </section>

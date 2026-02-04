@@ -23,7 +23,10 @@ export async function initBgRemoval(): Promise<void> {
     try {
       console.log('[BG-REMOVAL] Loading @imgly/background-removal module...');
       const bgModule = await import('@imgly/background-removal');
-      console.log('[BG-REMOVAL] Module loaded. Exports:', Object.keys(bgModule));
+      console.log(
+        '[BG-REMOVAL] Module loaded. Exports:',
+        Object.keys(bgModule)
+      );
       // Store reference — the default export or named export
       const removeBg = bgModule.removeBackground || bgModule.default;
       if (typeof removeBg !== 'function') {

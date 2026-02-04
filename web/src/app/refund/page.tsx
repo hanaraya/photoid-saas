@@ -82,7 +82,9 @@ export default function RefundPage() {
             <ol className="list-decimal pl-6 space-y-2">
               <li>
                 Email us at{' '}
-                <strong className="text-foreground">refunds@safepassportpic.com</strong>
+                <strong className="text-foreground">
+                  refunds@safepassportpic.com
+                </strong>
               </li>
               <li>Include your payment confirmation or transaction ID</li>
               <li>
@@ -100,8 +102,8 @@ export default function RefundPage() {
             <p>
               Before requesting a refund, please note that you can create
               unlimited new photos with your purchase. If your first attempt
-              doesn&apos;t work out, try taking a different photo or
-              adjusting the crop — it&apos;s included at no extra charge.
+              doesn&apos;t work out, try taking a different photo or adjusting
+              the crop — it&apos;s included at no extra charge.
             </p>
           </section>
 

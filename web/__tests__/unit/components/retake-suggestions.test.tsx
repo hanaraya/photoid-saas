@@ -1,6 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { RetakeSuggestions, RetakeSuggestionsInline } from '@/components/retake-suggestions';
+import {
+  RetakeSuggestions,
+  RetakeSuggestionsInline,
+} from '@/components/retake-suggestions';
 import { type ComplianceCheck } from '@/lib/compliance';
 
 describe('RetakeSuggestions', () => {
@@ -18,7 +21,12 @@ describe('RetakeSuggestions', () => {
 
     it('renders suggestions when checks fail', () => {
       const checks: ComplianceCheck[] = [
-        { id: 'face', label: 'Face', status: 'fail', message: 'No face detected' },
+        {
+          id: 'face',
+          label: 'Face',
+          status: 'fail',
+          message: 'No face detected',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} />);
@@ -29,7 +37,12 @@ describe('RetakeSuggestions', () => {
 
     it('shows warning style for adjustable issues only', () => {
       const checks: ComplianceCheck[] = [
-        { id: 'head_size', label: 'Head Size', status: 'warn', message: 'Head appears too small' },
+        {
+          id: 'head_size',
+          label: 'Head Size',
+          status: 'warn',
+          message: 'Head appears too small',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} />);
@@ -40,8 +53,18 @@ describe('RetakeSuggestions', () => {
 
     it('separates retake-required from adjustable suggestions', () => {
       const checks: ComplianceCheck[] = [
-        { id: 'sharpness', label: 'Sharpness', status: 'fail', message: 'Blurry' },
-        { id: 'head_size', label: 'Head Size', status: 'warn', message: 'Too small' },
+        {
+          id: 'sharpness',
+          label: 'Sharpness',
+          status: 'fail',
+          message: 'Blurry',
+        },
+        {
+          id: 'head_size',
+          label: 'Head Size',
+          status: 'warn',
+          message: 'Too small',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} />);
@@ -54,7 +77,12 @@ describe('RetakeSuggestions', () => {
   describe('interaction', () => {
     it('expands suggestion on click', () => {
       const checks: ComplianceCheck[] = [
-        { id: 'sharpness', label: 'Sharpness', status: 'fail', message: 'Photo appears blurry' },
+        {
+          id: 'sharpness',
+          label: 'Sharpness',
+          status: 'fail',
+          message: 'Photo appears blurry',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} />);
@@ -72,7 +100,12 @@ describe('RetakeSuggestions', () => {
 
     it('collapses suggestion on second click', () => {
       const checks: ComplianceCheck[] = [
-        { id: 'sharpness', label: 'Sharpness', status: 'fail', message: 'Photo appears blurry' },
+        {
+          id: 'sharpness',
+          label: 'Sharpness',
+          status: 'fail',
+          message: 'Photo appears blurry',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} />);
@@ -88,26 +121,47 @@ describe('RetakeSuggestions', () => {
 
     it('only expands one suggestion at a time', () => {
       const checks: ComplianceCheck[] = [
-        { id: 'sharpness', label: 'Sharpness', status: 'fail', message: 'Blurry' },
-        { id: 'lighting', label: 'Lighting', status: 'warn', message: 'Uneven' },
+        {
+          id: 'sharpness',
+          label: 'Sharpness',
+          status: 'fail',
+          message: 'Blurry',
+        },
+        {
+          id: 'lighting',
+          label: 'Lighting',
+          status: 'warn',
+          message: 'Uneven',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} />);
 
       // Expand first
       fireEvent.click(screen.getByText('Blurry Photo'));
-      expect(screen.getByText('Hold your phone with both hands')).toBeInTheDocument();
+      expect(
+        screen.getByText('Hold your phone with both hands')
+      ).toBeInTheDocument();
 
       // Expand second - first should collapse
       fireEvent.click(screen.getByText('Uneven Lighting'));
-      expect(screen.queryByText('Hold your phone with both hands')).not.toBeInTheDocument();
-      expect(screen.getByText('Face a window for natural light')).toBeInTheDocument();
+      expect(
+        screen.queryByText('Hold your phone with both hands')
+      ).not.toBeInTheDocument();
+      expect(
+        screen.getByText('Face a window for natural light')
+      ).toBeInTheDocument();
     });
 
     it('calls onRetake when button clicked', () => {
       const mockRetake = jest.fn();
       const checks: ComplianceCheck[] = [
-        { id: 'sharpness', label: 'Sharpness', status: 'fail', message: 'Blurry' },
+        {
+          id: 'sharpness',
+          label: 'Sharpness',
+          status: 'fail',
+          message: 'Blurry',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} onRetake={mockRetake} />);
@@ -120,7 +174,12 @@ describe('RetakeSuggestions', () => {
     it('hides retake button when not required', () => {
       const mockRetake = jest.fn();
       const checks: ComplianceCheck[] = [
-        { id: 'head_size', label: 'Head Size', status: 'warn', message: 'Too small' },
+        {
+          id: 'head_size',
+          label: 'Head Size',
+          status: 'warn',
+          message: 'Too small',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} onRetake={mockRetake} />);
@@ -130,7 +189,12 @@ describe('RetakeSuggestions', () => {
 
     it('hides retake button when no onRetake provided', () => {
       const checks: ComplianceCheck[] = [
-        { id: 'sharpness', label: 'Sharpness', status: 'fail', message: 'Blurry' },
+        {
+          id: 'sharpness',
+          label: 'Sharpness',
+          status: 'fail',
+          message: 'Blurry',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} />);
@@ -142,7 +206,12 @@ describe('RetakeSuggestions', () => {
   describe('accessibility', () => {
     it('has proper aria-expanded attribute', () => {
       const checks: ComplianceCheck[] = [
-        { id: 'sharpness', label: 'Sharpness', status: 'fail', message: 'Blurry' },
+        {
+          id: 'sharpness',
+          label: 'Sharpness',
+          status: 'fail',
+          message: 'Blurry',
+        },
       ];
 
       render(<RetakeSuggestions checks={checks} />);
@@ -190,7 +259,12 @@ describe('RetakeSuggestionsInline', () => {
 
   it('shows retake recommendation when required', () => {
     const checks: ComplianceCheck[] = [
-      { id: 'sharpness', label: 'Sharpness', status: 'fail', message: 'Blurry' },
+      {
+        id: 'sharpness',
+        label: 'Sharpness',
+        status: 'fail',
+        message: 'Blurry',
+      },
     ];
 
     render(<RetakeSuggestionsInline checks={checks} />);

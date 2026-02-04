@@ -29,32 +29,45 @@ export function BreadcrumbSchema({ items }: BreadcrumbSchemaProps) {
 
 // Pre-built breadcrumb configs for common pages
 export const BREADCRUMBS = {
-  home: [
-    { name: 'Home', url: 'https://safepassportpic.com' },
-  ],
+  home: [{ name: 'Home', url: 'https://safepassportpic.com' }],
   app: [
     { name: 'Home', url: 'https://safepassportpic.com' },
     { name: 'Create Photo', url: 'https://safepassportpic.com/app' },
   ],
   usPassport: [
     { name: 'Home', url: 'https://safepassportpic.com' },
-    { name: 'US Passport Photo', url: 'https://safepassportpic.com/us-passport-photo' },
+    {
+      name: 'US Passport Photo',
+      url: 'https://safepassportpic.com/us-passport-photo',
+    },
   ],
   ukPassport: [
     { name: 'Home', url: 'https://safepassportpic.com' },
-    { name: 'UK Passport Photo', url: 'https://safepassportpic.com/uk-passport-photo' },
+    {
+      name: 'UK Passport Photo',
+      url: 'https://safepassportpic.com/uk-passport-photo',
+    },
   ],
   canadianPassport: [
     { name: 'Home', url: 'https://safepassportpic.com' },
-    { name: 'Canadian Passport Photo', url: 'https://safepassportpic.com/canadian-passport-photo' },
+    {
+      name: 'Canadian Passport Photo',
+      url: 'https://safepassportpic.com/canadian-passport-photo',
+    },
   ],
   indianPassport: [
     { name: 'Home', url: 'https://safepassportpic.com' },
-    { name: 'Indian Passport Photo', url: 'https://safepassportpic.com/indian-passport-photo' },
+    {
+      name: 'Indian Passport Photo',
+      url: 'https://safepassportpic.com/indian-passport-photo',
+    },
   ],
   greenCard: [
     { name: 'Home', url: 'https://safepassportpic.com' },
-    { name: 'Green Card Photo', url: 'https://safepassportpic.com/green-card-photo' },
+    {
+      name: 'Green Card Photo',
+      url: 'https://safepassportpic.com/green-card-photo',
+    },
   ],
   blog: [
     { name: 'Home', url: 'https://safepassportpic.com' },

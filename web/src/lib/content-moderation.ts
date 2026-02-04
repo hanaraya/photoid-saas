@@ -1,6 +1,6 @@
 /**
  * Content Moderation for Passport Photos
- * 
+ *
  * Client-side checks for photo compliance issues.
  * All processing happens in the browser - photos never leave the device.
  */
@@ -40,7 +40,7 @@ export function moderateContent(
   faceCount: number
 ): ModerationResult {
   const violations: ModerationViolation[] = [];
-  
+
   // Multiple faces detected
   if (faceCount > 1) {
     violations.push({
@@ -51,7 +51,7 @@ export function moderateContent(
       details: `${faceCount} faces detected. Please upload a photo of yourself only.`,
     });
   }
-  
+
   // No face detected
   if (!faceData && faceCount === 0) {
     violations.push({
@@ -62,21 +62,23 @@ export function moderateContent(
       details: 'Please upload a clear, front-facing photo of yourself.',
     });
   }
-  
-  // Note: Removed "face obstructed" check - MediaPipe's landmark detection 
-  // is unreliable and causes false positives. If a face bounding box is 
+
+  // Note: Removed "face obstructed" check - MediaPipe's landmark detection
+  // is unreliable and causes false positives. If a face bounding box is
   // detected, we trust it.
-  
+
   // Determine overall result
-  const blockingViolations = violations.filter(v => v.severity === 'block');
-  
+  const blockingViolations = violations.filter((v) => v.severity === 'block');
+
   const allowed = blockingViolations.length === 0;
-  const severity: ModerationSeverity = blockingViolations.length > 0 ? 'block' : 'pass';
-  
-  const summary = blockingViolations.length > 0
-    ? `Upload blocked: ${blockingViolations.map(v => v.label).join(', ')}`
-    : 'Content check passed';
-  
+  const severity: ModerationSeverity =
+    blockingViolations.length > 0 ? 'block' : 'pass';
+
+  const summary =
+    blockingViolations.length > 0
+      ? `Upload blocked: ${blockingViolations.map((v) => v.label).join(', ')}`
+      : 'Content check passed';
+
   return {
     allowed,
     severity,
@@ -96,17 +98,19 @@ export function hasBlockingViolation(result: ModerationResult): boolean {
  * Get user-friendly error message for blocked content
  */
 export function getBlockedMessage(result: ModerationResult): string {
-  const blockingViolations = result.violations.filter(v => v.severity === 'block');
-  
+  const blockingViolations = result.violations.filter(
+    (v) => v.severity === 'block'
+  );
+
   if (blockingViolations.length === 0) {
     return '';
   }
-  
+
   if (blockingViolations.length === 1) {
     return `${blockingViolations[0].message}. ${blockingViolations[0].details || ''}`;
   }
-  
-  return `This photo cannot be used:\n${blockingViolations.map(v => `• ${v.message}`).join('\n')}`;
+
+  return `This photo cannot be used:\n${blockingViolations.map((v) => `• ${v.message}`).join('\n')}`;
 }
 
 /**
@@ -131,7 +135,7 @@ export function checkFinalCompliance(
   complianceChecks: Array<{ id: string; status: string; message: string }>
 ): FinalComplianceResult {
   const issues: FinalComplianceIssue[] = [];
-  
+
   // Check for any failed compliance checks
   for (const check of complianceChecks) {
     if (check.status === 'fail') {
@@ -148,10 +152,10 @@ export function checkFinalCompliance(
       });
     }
   }
-  
+
   // Can proceed only if no errors (warnings are okay)
-  const hasErrors = issues.some(i => i.severity === 'error');
-  
+  const hasErrors = issues.some((i) => i.severity === 'error');
+
   return {
     canProceed: !hasErrors,
     issues,

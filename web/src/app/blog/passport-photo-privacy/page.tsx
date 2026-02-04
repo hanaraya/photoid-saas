@@ -38,7 +38,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Why Your Passport Photo App Might Be a Privacy Nightmare',
-    description: 'Most passport photo apps upload your biometric data to servers. Learn the risks.',
+    description:
+      'Most passport photo apps upload your biometric data to servers. Learn the risks.',
     images: ['https://safepassportpic.com/og-image.png'],
   },
   alternates: {
@@ -107,14 +108,14 @@ export default function PassportPhotoPrivacyPage() {
                 <span>5 min read</span>
               </div>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-                Why Your Passport Photo App Might Be a Privacy Nightmare (And How
-                to Stay Safe)
+                Why Your Passport Photo App Might Be a Privacy Nightmare (And
+                How to Stay Safe)
               </h1>
               <p className="mt-6 text-xl text-muted-foreground">
-                You need a passport photo. You Google &ldquo;passport photo app,&rdquo; 
-                download something, and snap a selfie. Done in 60 seconds, right? But 
-                here&apos;s what you probably didn&apos;t think about: <strong>where did your 
-                face data just go?</strong>
+                You need a passport photo. You Google &ldquo;passport photo
+                app,&rdquo; download something, and snap a selfie. Done in 60
+                seconds, right? But here&apos;s what you probably didn&apos;t
+                think about: <strong>where did your face data just go?</strong>
               </p>
             </header>
 
@@ -125,20 +126,23 @@ export default function PassportPhotoPrivacyPage() {
                   The Hidden Cost of &ldquo;Free&rdquo; Passport Photo Apps
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  Most passport photo apps and websites work the same way: you upload 
-                  your photo, their servers process it, and you download the result. 
-                  Simple and fast.
+                  Most passport photo apps and websites work the same way: you
+                  upload your photo, their servers process it, and you download
+                  the result. Simple and fast.
                 </p>
                 <p className="text-muted-foreground mb-4">
-                  But here&apos;s what&apos;s happening behind the scenes: <strong>your 
-                  high-resolution face photo is now sitting on someone else&apos;s 
-                  server</strong>. Along with potentially millions of other faces from 
-                  users worldwide.
+                  But here&apos;s what&apos;s happening behind the scenes:{' '}
+                  <strong>
+                    your high-resolution face photo is now sitting on someone
+                    else&apos;s server
+                  </strong>
+                  . Along with potentially millions of other faces from users
+                  worldwide.
                 </p>
                 <p className="text-muted-foreground">
-                  This isn&apos;t just a photo — it&apos;s <em>biometric data</em>. The 
-                  same type of data used for facial recognition, identity verification, 
-                  and AI training datasets.
+                  This isn&apos;t just a photo — it&apos;s{' '}
+                  <em>biometric data</em>. The same type of data used for facial
+                  recognition, identity verification, and AI training datasets.
                 </p>
               </section>
 
@@ -152,44 +156,48 @@ export default function PassportPhotoPrivacyPage() {
                       <span className="text-2xl">🔓</span> Data Breaches
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Even reputable companies get hacked. In 2019, a facial recognition 
-                      company leaked 3 million biometric records. Unlike passwords, 
-                      <strong> you can&apos;t change your face</strong>. Once your face 
-                      data is stolen, it&apos;s compromised forever.
+                      Even reputable companies get hacked. In 2019, a facial
+                      recognition company leaked 3 million biometric records.
+                      Unlike passwords,
+                      <strong> you can&apos;t change your face</strong>. Once
+                      your face data is stolen, it&apos;s compromised forever.
                     </p>
                   </div>
-                  
+
                   <div className="rounded-lg bg-card border border-border p-6">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                      <span className="text-2xl">🎭</span> Identity Theft & Deepfakes
+                      <span className="text-2xl">🎭</span> Identity Theft &
+                      Deepfakes
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      High-quality face photos can be used to create synthetic identities 
-                      or deepfakes. Passport photos are particularly valuable because 
-                      they follow strict guidelines — perfect for fraudulent documents.
+                      High-quality face photos can be used to create synthetic
+                      identities or deepfakes. Passport photos are particularly
+                      valuable because they follow strict guidelines — perfect
+                      for fraudulent documents.
                     </p>
                   </div>
-                  
+
                   <div className="rounded-lg bg-card border border-border p-6">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                      <span className="text-2xl">🤖</span> AI Training Without Consent
+                      <span className="text-2xl">🤖</span> AI Training Without
+                      Consent
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Many &ldquo;free&rdquo; services monetize by selling or licensing 
-                      user data. Your face could end up training facial recognition 
-                      systems used for surveillance, advertising, or purposes you never 
-                      agreed to.
+                      Many &ldquo;free&rdquo; services monetize by selling or
+                      licensing user data. Your face could end up training
+                      facial recognition systems used for surveillance,
+                      advertising, or purposes you never agreed to.
                     </p>
                   </div>
-                  
+
                   <div className="rounded-lg bg-card border border-border p-6">
                     <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
                       <span className="text-2xl">📍</span> Metadata Exposure
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Photos often contain EXIF data including GPS coordinates, device 
-                      info, and timestamps. When combined with your face, this creates 
-                      a detailed profile about you.
+                      Photos often contain EXIF data including GPS coordinates,
+                      device info, and timestamps. When combined with your face,
+                      this creates a detailed profile about you.
                     </p>
                   </div>
                 </div>
@@ -200,14 +208,15 @@ export default function PassportPhotoPrivacyPage() {
                   How SafePassportPic Is Different: 100% Client-Side Processing
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  When we built SafePassportPic, we made a fundamental architectural 
-                  decision: <strong>your photos never leave your device</strong>. Not 
+                  When we built SafePassportPic, we made a fundamental
+                  architectural decision:{' '}
+                  <strong>your photos never leave your device</strong>. Not
                   temporarily. Not encrypted. Not at all.
                 </p>
                 <p className="text-muted-foreground mb-6">
                   Here&apos;s how it works:
                 </p>
-                
+
                 <div className="space-y-4">
                   <div className="flex gap-4 items-start">
                     <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
@@ -216,27 +225,30 @@ export default function PassportPhotoPrivacyPage() {
                     <div>
                       <h4 className="font-semibold">WebAssembly AI Models</h4>
                       <p className="text-sm text-muted-foreground">
-                        We use MediaPipe (Google&apos;s open-source AI framework) compiled 
-                        to WebAssembly. This runs <em>entirely in your browser</em> — no 
-                        server calls needed.
+                        We use MediaPipe (Google&apos;s open-source AI
+                        framework) compiled to WebAssembly. This runs{' '}
+                        <em>entirely in your browser</em> — no server calls
+                        needed.
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-4 items-start">
                     <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
                       2
                     </div>
                     <div>
-                      <h4 className="font-semibold">Browser-Based Background Removal</h4>
+                      <h4 className="font-semibold">
+                        Browser-Based Background Removal
+                      </h4>
                       <p className="text-sm text-muted-foreground">
-                        Background removal, face detection, and cropping all happen using 
-                        your device&apos;s CPU/GPU. Your original photo stays in browser 
-                        memory only.
+                        Background removal, face detection, and cropping all
+                        happen using your device&apos;s CPU/GPU. Your original
+                        photo stays in browser memory only.
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-4 items-start">
                     <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
                       3
@@ -244,13 +256,13 @@ export default function PassportPhotoPrivacyPage() {
                     <div>
                       <h4 className="font-semibold">Zero Server Uploads</h4>
                       <p className="text-sm text-muted-foreground">
-                        The only network request is when you pay (via Stripe&apos;s secure 
-                        checkout). Your photos? Never transmitted. We physically cannot 
-                        see them.
+                        The only network request is when you pay (via
+                        Stripe&apos;s secure checkout). Your photos? Never
+                        transmitted. We physically cannot see them.
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-4 items-start">
                     <div className="flex-shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
                       4
@@ -258,8 +270,8 @@ export default function PassportPhotoPrivacyPage() {
                     <div>
                       <h4 className="font-semibold">No Accounts Required</h4>
                       <p className="text-sm text-muted-foreground">
-                        No sign-up, no email collection, no profile. This reduces your 
-                        data footprint to effectively zero.
+                        No sign-up, no email collection, no profile. This
+                        reduces your data footprint to effectively zero.
                       </p>
                     </div>
                   </div>
@@ -271,31 +283,35 @@ export default function PassportPhotoPrivacyPage() {
                   🔍 How to Verify Any Passport Photo App Is Actually Private
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  Don&apos;t take our word for it — or anyone&apos;s. Here&apos;s how to 
-                  check for yourself:
+                  Don&apos;t take our word for it — or anyone&apos;s.
+                  Here&apos;s how to check for yourself:
                 </p>
                 <ol className="list-decimal list-inside space-y-3 text-muted-foreground">
                   <li>
-                    <strong>Open Developer Tools</strong> — In Chrome/Safari/Firefox, 
-                    press <code className="bg-card px-1.5 py-0.5 rounded text-sm">F12</code> or 
-                    right-click → &ldquo;Inspect&rdquo;
+                    <strong>Open Developer Tools</strong> — In
+                    Chrome/Safari/Firefox, press{' '}
+                    <code className="bg-card px-1.5 py-0.5 rounded text-sm">
+                      F12
+                    </code>{' '}
+                    or right-click → &ldquo;Inspect&rdquo;
                   </li>
                   <li>
-                    <strong>Go to the Network tab</strong> — This shows all data 
+                    <strong>Go to the Network tab</strong> — This shows all data
                     sent/received
                   </li>
                   <li>
-                    <strong>Upload a photo</strong> — Watch for any requests containing 
-                    image data
+                    <strong>Upload a photo</strong> — Watch for any requests
+                    containing image data
                   </li>
                   <li>
-                    <strong>Check request payloads</strong> — If you see your photo 
-                    being sent to a server, that&apos;s your face leaving your device
+                    <strong>Check request payloads</strong> — If you see your
+                    photo being sent to a server, that&apos;s your face leaving
+                    your device
                   </li>
                 </ol>
                 <p className="text-muted-foreground mt-4">
-                  With SafePassportPic, you&apos;ll see zero image uploads. Just local 
-                  processing.
+                  With SafePassportPic, you&apos;ll see zero image uploads. Just
+                  local processing.
                 </p>
               </section>
 
@@ -325,13 +341,15 @@ export default function PassportPhotoPrivacyPage() {
                   Why This Matters More Than Ever
                 </h2>
                 <p className="text-muted-foreground mb-4">
-                  Facial recognition technology is advancing rapidly. What might seem 
-                  like a harmless passport photo today could be:
+                  Facial recognition technology is advancing rapidly. What might
+                  seem like a harmless passport photo today could be:
                 </p>
                 <ul className="space-y-2 text-muted-foreground mb-4">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">→</span>
-                    <span>Matched against surveillance databases years from now</span>
+                    <span>
+                      Matched against surveillance databases years from now
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">→</span>
@@ -339,13 +357,17 @@ export default function PassportPhotoPrivacyPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-1">→</span>
-                    <span>Sold to data brokers who aggregate identity information</span>
+                    <span>
+                      Sold to data brokers who aggregate identity information
+                    </span>
                   </li>
                 </ul>
                 <p className="text-muted-foreground">
-                  Regulations like GDPR and CCPA are catching up, but enforcement is 
-                  slow. The safest approach? <strong>Don&apos;t send your biometric data 
-                  in the first place.</strong>
+                  Regulations like GDPR and CCPA are catching up, but
+                  enforcement is slow. The safest approach?{' '}
+                  <strong>
+                    Don&apos;t send your biometric data in the first place.
+                  </strong>
                 </p>
               </section>
 
@@ -355,8 +377,8 @@ export default function PassportPhotoPrivacyPage() {
                   Try SafePassportPic — Privacy Built In
                 </h2>
                 <p className="text-muted-foreground mb-6">
-                  Create compliant passport photos without compromising your privacy. 
-                  100% browser-based, $4.99 one-time, 30-day guarantee.
+                  Create compliant passport photos without compromising your
+                  privacy. 100% browser-based, $4.99 one-time, 30-day guarantee.
                 </p>
                 <Link
                   href="/app"
@@ -365,8 +387,8 @@ export default function PassportPhotoPrivacyPage() {
                   Create Private Passport Photo
                 </Link>
                 <p className="mt-4 text-xs text-muted-foreground">
-                  Verify it yourself: open DevTools → Network tab while using the app. 
-                  Zero photo uploads.
+                  Verify it yourself: open DevTools → Network tab while using
+                  the app. Zero photo uploads.
                 </p>
               </section>
             </div>

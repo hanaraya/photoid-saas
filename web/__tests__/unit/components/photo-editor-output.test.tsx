@@ -63,7 +63,8 @@ const mockCheckFinalCompliance = jest.fn();
 
 jest.mock('@/lib/content-moderation', () => ({
   moderateContent: (...args: unknown[]) => mockModerateContent(...args),
-  checkFinalCompliance: (...args: unknown[]) => mockCheckFinalCompliance(...args),
+  checkFinalCompliance: (...args: unknown[]) =>
+    mockCheckFinalCompliance(...args),
 }));
 
 // Mock URL.createObjectURL
@@ -192,9 +193,7 @@ describe('PhotoEditor Output and Download Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -225,9 +224,7 @@ describe('PhotoEditor Output and Download Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -256,9 +253,7 @@ describe('PhotoEditor Output and Download Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -290,9 +285,7 @@ describe('PhotoEditor Output and Download Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -334,15 +327,15 @@ describe('PhotoEditor Output and Download Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
 
       // Should show compliance summary - displays "Ready to print" or "X/Y checks passed"
-      const complianceElements = screen.getAllByText(/Ready to print|checks passed/i);
+      const complianceElements = screen.getAllByText(
+        /Ready to print|checks passed/i
+      );
       expect(complianceElements.length).toBeGreaterThan(0);
     });
 
@@ -371,9 +364,7 @@ describe('PhotoEditor Output and Download Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -397,9 +388,7 @@ describe('PhotoEditor Output and Download Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );

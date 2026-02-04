@@ -3,7 +3,7 @@
 import React from 'react';
 import type { FaceData } from '@/lib/face-detection';
 import type { CropParams } from '@/lib/crop';
-import { 
+import {
   type PhotoStandard,
   specToPx,
   HEAD_TO_FACE_RATIO,
@@ -37,7 +37,7 @@ export interface ComplianceOverlayProps {
 
 /**
  * Calculate measurement state from face data, crop params, and photo standard
- * 
+ *
  * Uses ACTUAL crop params to determine where the head appears in the output,
  * ensuring the overlay matches the rendered preview exactly.
  */
@@ -50,52 +50,68 @@ export function calculateMeasurementState(
   cropParams?: CropParams
 ): MeasurementState {
   const spec = specToPx(standard);
-  
+
   // If we have actual crop params, calculate EXACTLY where the head appears
   if (cropParams) {
     // Scale factor from source to output
     const scale = spec.w / cropParams.cropW;
-    
+
     // Calculate crown and chin positions in output
     const crownYSource = faceData.y - faceData.h * CROWN_CLEARANCE_RATIO;
     const chinYSource = faceData.y + faceData.h;
-    
+
     // Apply user zoom adjustment (zoom > 100 = head appears larger)
     const zoomFactor = userZoom / 100;
-    const zoomOffset = (spec.h * (1 - 1/zoomFactor)) / 2; // How much we've zoomed in
-    
+    const zoomOffset = (spec.h * (1 - 1 / zoomFactor)) / 2; // How much we've zoomed in
+
     // Position in output (accounting for crop and zoom)
-    const crownYOutput = (crownYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
-    const chinYOutput = (chinYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
-    
+    const crownYOutput =
+      (crownYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
+    const chinYOutput =
+      (chinYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
+
     // Head height in output
     const headHeightOutput = chinYOutput - crownYOutput;
     const headHeightPercent = (headHeightOutput / spec.h) * 100;
-    
+
     // Eye position (actual, from face data)
-    const eyeYSource = faceData.leftEye && faceData.rightEye
-      ? (faceData.leftEye.y + faceData.rightEye.y) / 2
-      : faceData.y + faceData.h * 0.35;
-    const eyeYOutput = (eyeYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
+    const eyeYSource =
+      faceData.leftEye && faceData.rightEye
+        ? (faceData.leftEye.y + faceData.rightEye.y) / 2
+        : faceData.y + faceData.h * 0.35;
+    const eyeYOutput =
+      (eyeYSource - cropParams.cropY) * scale * zoomFactor + zoomOffset;
     const eyePositionPercent = ((spec.h - eyeYOutput) / spec.h) * 100; // From bottom
-    
+
     // Convert to margins (as percentages from top/bottom)
-    const topMarginPercent = Math.max(0, Math.min(100, (crownYOutput / spec.h) * 100));
-    const bottomMarginPercent = Math.max(0, Math.min(100, ((spec.h - chinYOutput) / spec.h) * 100));
-    
+    const topMarginPercent = Math.max(
+      0,
+      Math.min(100, (crownYOutput / spec.h) * 100)
+    );
+    const bottomMarginPercent = Math.max(
+      0,
+      Math.min(100, ((spec.h - chinYOutput) / spec.h) * 100)
+    );
+
     // Compliance status
     const minHeadPercent = (spec.headMin / spec.h) * 100;
     const maxHeadPercent = (spec.headMax / spec.h) * 100;
-    
+
     let complianceStatus: ComplianceStatus;
-    if (headHeightPercent >= minHeadPercent && headHeightPercent <= maxHeadPercent) {
+    if (
+      headHeightPercent >= minHeadPercent &&
+      headHeightPercent <= maxHeadPercent
+    ) {
       complianceStatus = 'pass';
-    } else if (headHeightPercent >= minHeadPercent * 0.9 && headHeightPercent <= maxHeadPercent * 1.1) {
+    } else if (
+      headHeightPercent >= minHeadPercent * 0.9 &&
+      headHeightPercent <= maxHeadPercent * 1.1
+    ) {
       complianceStatus = 'warn';
     } else {
       complianceStatus = 'fail';
     }
-    
+
     return {
       headHeightPercent: Math.round(headHeightPercent * 10) / 10,
       eyePositionPercent: Math.round(eyePositionPercent * 10) / 10,
@@ -104,7 +120,7 @@ export function calculateMeasurementState(
       complianceStatus,
     };
   }
-  
+
   // Fallback: estimate from face data without crop params (less accurate)
   const estimatedHeadHeight = faceData.h * HEAD_TO_FACE_RATIO;
   const targetHeadHeight = spec.headTarget;
@@ -114,34 +130,38 @@ export function calculateMeasurementState(
   const headInOutputPx = estimatedHeadHeight * effectiveScale;
   const headHeightPercent = (headInOutputPx / spec.h) * 100;
   const eyePositionPercent = (spec.eyeFromBottom / spec.h) * 100;
-  
+
   // Use anthropometric ratios for bracket position
-  const EYE_FROM_CROWN_RATIO = 0.40;
+  const EYE_FROM_CROWN_RATIO = 0.4;
   const eyePositionFromTop = 100 - eyePositionPercent;
   const crownToEyePercent = headHeightPercent * EYE_FROM_CROWN_RATIO;
   const crownFromTopPercent = eyePositionFromTop - crownToEyePercent;
   const eyeToChinPercent = headHeightPercent * (1 - EYE_FROM_CROWN_RATIO);
   const chinFromTopPercent = eyePositionFromTop + eyeToChinPercent;
-  
+
   const topMarginPercent = Math.max(0, crownFromTopPercent);
   const bottomMarginPercent = Math.max(0, 100 - chinFromTopPercent);
-  
+
   // Determine compliance status based on head height range
   const minHeadPercent = (spec.headMin / spec.h) * 100;
   const maxHeadPercent = (spec.headMax / spec.h) * 100;
-  
+
   let complianceStatus: ComplianceStatus;
-  
-  if (headHeightPercent >= minHeadPercent && headHeightPercent <= maxHeadPercent) {
+
+  if (
+    headHeightPercent >= minHeadPercent &&
+    headHeightPercent <= maxHeadPercent
+  ) {
     complianceStatus = 'pass';
   } else if (
-    headHeightPercent >= minHeadPercent * 0.9 && headHeightPercent <= maxHeadPercent * 1.1
+    headHeightPercent >= minHeadPercent * 0.9 &&
+    headHeightPercent <= maxHeadPercent * 1.1
   ) {
     complianceStatus = 'warn';
   } else {
     complianceStatus = 'fail';
   }
-  
+
   return {
     headHeightPercent: Math.round(headHeightPercent * 10) / 10,
     eyePositionPercent: Math.round(eyePositionPercent * 10) / 10,
@@ -175,7 +195,7 @@ export function ComplianceOverlay({
   }
 
   const statusClass = `compliance-${complianceStatus}`;
-  
+
   // Color mapping for status
   const statusColors = {
     pass: {
@@ -194,7 +214,7 @@ export function ComplianceOverlay({
       text: 'rgb(239, 68, 68)',
     },
   };
-  
+
   const colors = statusColors[complianceStatus];
 
   return (
@@ -208,8 +228,11 @@ export function ComplianceOverlay({
       }}
     >
       {/* Semi-transparent overlay background */}
-      <div className="absolute inset-0" style={{ backgroundColor: colors.fill }} />
-      
+      <div
+        className="absolute inset-0"
+        style={{ backgroundColor: colors.fill }}
+      />
+
       {/* Eye Line Indicator - subtle side markers only */}
       <div
         data-testid="eye-line-indicator"
@@ -222,17 +245,17 @@ export function ComplianceOverlay({
         }}
       >
         {/* Left marker */}
-        <div 
+        <div
           className="absolute left-0 h-full"
           style={{ width: '12px', backgroundColor: colors.line }}
         />
         {/* Right marker */}
-        <div 
+        <div
           className="absolute right-0 h-full"
           style={{ width: '12px', backgroundColor: colors.line }}
         />
       </div>
-      
+
       {/* Head Height Bracket */}
       <div
         data-testid="head-height-bracket"
@@ -253,7 +276,7 @@ export function ComplianceOverlay({
             backgroundColor: colors.line,
           }}
         />
-        
+
         {/* Bracket vertical line */}
         <div
           className="absolute left-1/2 top-0 bottom-0 -translate-x-1/2"
@@ -262,7 +285,7 @@ export function ComplianceOverlay({
             backgroundColor: colors.line,
           }}
         />
-        
+
         {/* Bracket bottom (chin) */}
         <div
           data-testid="chin-marker"
@@ -272,7 +295,7 @@ export function ComplianceOverlay({
             backgroundColor: colors.line,
           }}
         />
-        
+
         {/* Head height percentage label */}
         <span
           className="absolute left-6 top-1/2 -translate-y-1/2 text-xs font-bold px-1 rounded whitespace-nowrap"
@@ -281,7 +304,7 @@ export function ComplianceOverlay({
           {headHeightPercent}%
         </span>
       </div>
-      
+
       {/* Top Margin Indicator */}
       <div
         data-testid="top-margin-indicator"
@@ -292,7 +315,7 @@ export function ComplianceOverlay({
           backgroundColor: 'rgba(255, 255, 255, 0.5)',
         }}
       />
-      
+
       {/* Bottom Margin Indicator */}
       <div
         data-testid="bottom-margin-indicator"
@@ -303,7 +326,7 @@ export function ComplianceOverlay({
           backgroundColor: 'rgba(255, 255, 255, 0.5)',
         }}
       />
-      
+
       {/* Toggle Button (if enabled) */}
       {showToggle && (
         <button

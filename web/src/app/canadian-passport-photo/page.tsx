@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/accordion';
 
 export const metadata: Metadata = {
-  title: 'Canadian Passport Photo Online — 50x70mm Compliant in 60 Seconds | SafePassportPic',
+  title:
+    'Canadian Passport Photo Online — 50x70mm Compliant in 60 Seconds | SafePassportPic',
   description:
     'Create a compliant Canadian passport photo online in 60 seconds. Meet all 50×70mm IRCC requirements: white background, 31-36mm head height. 100% private — $4.99 one-time.',
   keywords: [
@@ -42,7 +43,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Canadian Passport Photo Online — 50x70mm Compliant in 60 Seconds',
-    description: 'Create a compliant Canadian passport photo instantly. AI-powered, 100% private.',
+    description:
+      'Create a compliant Canadian passport photo instantly. AI-powered, 100% private.',
     images: ['https://safepassportpic.com/og-image.png'],
   },
   alternates: {
@@ -54,27 +56,32 @@ const requirements = [
   {
     icon: '📐',
     title: '50×70mm Size',
-    description: 'Standard Canadian passport photo dimensions (approximately 2×2.75 inches)',
+    description:
+      'Standard Canadian passport photo dimensions (approximately 2×2.75 inches)',
   },
   {
     icon: '⬜',
     title: 'White Background',
-    description: 'Plain white or light-coloured background with no patterns or shadows',
+    description:
+      'Plain white or light-coloured background with no patterns or shadows',
   },
   {
     icon: '👤',
     title: '31-36mm Head Height',
-    description: 'Your head (chin to crown) must be between 31mm and 36mm in the photo',
+    description:
+      'Your head (chin to crown) must be between 31mm and 36mm in the photo',
   },
   {
     icon: '👁️',
     title: 'Neutral Expression',
-    description: 'Look directly at camera with neutral expression, mouth closed',
+    description:
+      'Look directly at camera with neutral expression, mouth closed',
   },
   {
     icon: '🚫',
     title: 'No Glasses',
-    description: 'Remove all glasses — this is required for Canadian passports since 2021',
+    description:
+      'Remove all glasses — this is required for Canadian passports since 2021',
   },
   {
     icon: '💡',
@@ -100,7 +107,8 @@ const faqs = [
       'Yes! You can take a Canadian passport photo with any smartphone camera. SafePassportPic works directly in your browser — snap a selfie or upload an existing photo, and our AI will automatically crop, resize to 50×70mm, and add the correct background.',
   },
   {
-    question: 'What background colour is accepted for Canadian passport photos?',
+    question:
+      'What background colour is accepted for Canadian passport photos?',
     answer:
       'Canadian passport photos require a plain white or light-coloured background. SafePassportPic automatically creates a clean white background that meets IRCC requirements.',
   },
@@ -117,12 +125,12 @@ const faqs = [
   {
     question: 'Where can I print my Canadian passport photo?',
     answer:
-      'You\'ll receive a printable sheet with multiple passport photos. You can print this at Shoppers Drug Mart, Walmart, Costco, London Drugs, or any photo printing service. Most cost less than $1 CAD.',
+      "You'll receive a printable sheet with multiple passport photos. You can print this at Shoppers Drug Mart, Walmart, Costco, London Drugs, or any photo printing service. Most cost less than $1 CAD.",
   },
   {
     question: 'Do I need a guarantor signature on my Canadian passport photo?',
     answer:
-      'For adult passport renewals, you typically don\'t need a guarantor signature on the photo. For first-time applicants or children, one photo may need to be signed by your guarantor on the back. Check the specific IRCC requirements for your application type.',
+      "For adult passport renewals, you typically don't need a guarantor signature on the photo. For first-time applicants or children, one photo may need to be signed by your guarantor on the back. Check the specific IRCC requirements for your application type.",
   },
 ];
 
@@ -189,7 +197,8 @@ const jsonLd = {
       '@type': 'Product',
       '@id': 'https://safepassportpic.com/canadian-passport-photo#product',
       name: 'Canadian Passport Photo Service',
-      description: 'Create a compliant 50×70mm Canadian passport photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
+      description:
+        'Create a compliant 50×70mm Canadian passport photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
       brand: {
         '@type': 'Brand',
         name: 'SafePassportPic',
@@ -235,8 +244,8 @@ export default function CanadianPassportPhotoPage() {
                 Canadian Passport Photo — Online in 60 Seconds
               </h1>
               <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Create a compliant 50×70mm Canadian passport photo from your phone. AI-powered,
-                100% private, meets all IRCC requirements.
+                Create a compliant 50×70mm Canadian passport photo from your
+                phone. AI-powered, 100% private, meets all IRCC requirements.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
@@ -253,7 +262,8 @@ export default function CanadianPassportPhotoPage() {
                 </a>
               </div>
               <p className="mt-4 text-sm text-muted-foreground">
-                ✅ 30-day money-back guarantee • 🔒 Photos never leave your device
+                ✅ 30-day money-back guarantee • 🔒 Photos never leave your
+                device
               </p>
             </div>
           </div>
@@ -278,7 +288,9 @@ export default function CanadianPassportPhotoPage() {
                 >
                   <div className="text-3xl mb-3">{req.icon}</div>
                   <h3 className="font-semibold text-lg">{req.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{req.description}</p>
+                  <p className="mt-2 text-muted-foreground">
+                    {req.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -303,7 +315,8 @@ export default function CanadianPassportPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">Snap a Selfie</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Use your phone camera or upload an existing photo. Good lighting helps!
+                  Use your phone camera or upload an existing photo. Good
+                  lighting helps!
                 </p>
               </div>
               <div className="text-center">
@@ -312,7 +325,8 @@ export default function CanadianPassportPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">AI Does the Work</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Our AI removes the background, crops to 50×70mm, and validates compliance.
+                  Our AI removes the background, crops to 50×70mm, and validates
+                  compliance.
                 </p>
               </div>
               <div className="text-center">
@@ -321,7 +335,8 @@ export default function CanadianPassportPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">Download & Print</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Download your print-ready sheet and print at any photo shop for under $1 CAD.
+                  Download your print-ready sheet and print at any photo shop
+                  for under $1 CAD.
                 </p>
               </div>
             </div>
@@ -351,16 +366,22 @@ export default function CanadianPassportPhotoPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-4 px-4 font-semibold">Service</th>
+                    <th className="text-left py-4 px-4 font-semibold">
+                      Service
+                    </th>
                     <th className="text-left py-4 px-4 font-semibold">Price</th>
                     <th className="text-left py-4 px-4 font-semibold">Time</th>
-                    <th className="text-left py-4 px-4 font-semibold">Privacy</th>
+                    <th className="text-left py-4 px-4 font-semibold">
+                      Privacy
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="border-b bg-primary/5">
                     <td className="py-4 px-4 font-semibold">SafePassportPic</td>
-                    <td className="py-4 px-4 text-green-600 font-semibold">$4.99 USD (~$7 CAD)</td>
+                    <td className="py-4 px-4 text-green-600 font-semibold">
+                      $4.99 USD (~$7 CAD)
+                    </td>
                     <td className="py-4 px-4">60 seconds</td>
                     <td className="py-4 px-4">✅ 100% private</td>
                   </tr>
@@ -427,7 +448,8 @@ export default function CanadianPassportPhotoPage() {
               Ready to Create Your Canadian Passport Photo?
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Join thousands who&apos;ve saved time and money with SafePassportPic
+              Join thousands who&apos;ve saved time and money with
+              SafePassportPic
             </p>
             <div className="mt-10">
               <Link
@@ -438,7 +460,8 @@ export default function CanadianPassportPhotoPage() {
               </Link>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              ✅ 30-day money-back guarantee • 🔒 Photos never leave your device • 🇨🇦 IRCC compliant
+              ✅ 30-day money-back guarantee • 🔒 Photos never leave your device
+              • 🇨🇦 IRCC compliant
             </p>
           </div>
         </section>

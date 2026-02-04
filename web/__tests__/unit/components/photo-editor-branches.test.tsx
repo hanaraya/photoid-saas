@@ -62,7 +62,8 @@ const mockCheckFinalCompliance = jest.fn();
 
 jest.mock('@/lib/content-moderation', () => ({
   moderateContent: (...args: unknown[]) => mockModerateContent(...args),
-  checkFinalCompliance: (...args: unknown[]) => mockCheckFinalCompliance(...args),
+  checkFinalCompliance: (...args: unknown[]) =>
+    mockCheckFinalCompliance(...args),
 }));
 
 // Mock URL.createObjectURL
@@ -185,9 +186,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -213,9 +212,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -249,9 +246,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -279,9 +274,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -303,9 +296,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -332,9 +323,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -367,9 +356,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -392,9 +379,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -417,9 +402,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -442,9 +425,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -487,9 +468,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -512,9 +491,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
@@ -552,15 +529,15 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );
 
       // Should show compliance info - compliance summary shows "Ready to print" when all checks pass
-      expect(screen.getByText(/Ready to print|item.*to review/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Ready to print|item.*to review/i)
+      ).toBeInTheDocument();
     });
   });
 
@@ -577,9 +554,7 @@ describe('PhotoEditor Branch Coverage Tests', () => {
 
       await waitFor(
         () => {
-          expect(
-            screen.queryByText(/Detecting face/i)
-          ).not.toBeInTheDocument();
+          expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
         },
         { timeout: 3000 }
       );

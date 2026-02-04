@@ -8,7 +8,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans, 'Inter', system-ui, sans-serif);
   --font-mono: var(--font-mono, 'JetBrains Mono', monospace);
-  
+
   /* CTA / Conversion color */
   --color-cta: #f97316;
   --color-cta-hover: #ea580c;

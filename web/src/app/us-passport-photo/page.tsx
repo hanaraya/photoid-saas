@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/accordion';
 
 export const metadata: Metadata = {
-  title: 'US Passport Photo Online — 2x2 Compliant in 60 Seconds | SafePassportPic',
+  title:
+    'US Passport Photo Online — 2x2 Compliant in 60 Seconds | SafePassportPic',
   description:
     'Create a compliant US passport photo online in 60 seconds. Meet all 2x2 inch requirements: white background, 50-69% head height. 100% private — $4.99 one-time.',
   keywords: [
@@ -42,7 +43,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'US Passport Photo Online — 2x2 Compliant in 60 Seconds',
-    description: 'Create a compliant US passport photo instantly. AI-powered, 100% private.',
+    description:
+      'Create a compliant US passport photo instantly. AI-powered, 100% private.',
     images: ['https://safepassportpic.com/og-image.png'],
   },
   alternates: {
@@ -54,27 +56,32 @@ const requirements = [
   {
     icon: '📐',
     title: '2×2 Inches (51×51mm)',
-    description: 'Exact square dimensions required by the US Department of State',
+    description:
+      'Exact square dimensions required by the US Department of State',
   },
   {
     icon: '⬜',
     title: 'White Background',
-    description: 'Plain white or off-white background with no patterns or shadows',
+    description:
+      'Plain white or off-white background with no patterns or shadows',
   },
   {
     icon: '👤',
     title: '50-69% Head Height',
-    description: 'Your head (chin to crown) must occupy 1 to 1⅜ inches of the photo',
+    description:
+      'Your head (chin to crown) must occupy 1 to 1⅜ inches of the photo',
   },
   {
     icon: '👁️',
     title: 'Eyes Open & Visible',
-    description: 'Look directly at camera with neutral expression, mouth closed',
+    description:
+      'Look directly at camera with neutral expression, mouth closed',
   },
   {
     icon: '🚫',
     title: 'No Glasses',
-    description: 'Eyeglasses are not permitted in US passport photos since 2016',
+    description:
+      'Eyeglasses are not permitted in US passport photos since 2016',
   },
   {
     icon: '💡',
@@ -100,9 +107,9 @@ const faqs = [
       'Yes! You can take a US passport photo with any smartphone camera. SafePassportPic works directly in your browser — just snap a selfie or select an existing photo, and our AI will automatically crop, resize, and add a white background to meet all requirements.',
   },
   {
-    question: 'Why can\'t I wear glasses in my US passport photo?',
+    question: "Why can't I wear glasses in my US passport photo?",
     answer:
-      'Since November 2016, the US Department of State no longer accepts passport photos with eyeglasses. This applies to all types of glasses, including prescription glasses, sunglasses, and tinted lenses. The only exception is for medical necessity with a signed doctor\'s statement.',
+      "Since November 2016, the US Department of State no longer accepts passport photos with eyeglasses. This applies to all types of glasses, including prescription glasses, sunglasses, and tinted lenses. The only exception is for medical necessity with a signed doctor's statement.",
   },
   {
     question: 'What if my US passport photo gets rejected?',
@@ -117,7 +124,7 @@ const faqs = [
   {
     question: 'Where can I print my US passport photo?',
     answer:
-      'You\'ll receive a 4×6 inch printable sheet with multiple passport photos arranged. You can print this at any pharmacy (CVS, Walgreens), Costco, Walmart, or online photo printing service. Most cost less than $0.50.',
+      "You'll receive a 4×6 inch printable sheet with multiple passport photos arranged. You can print this at any pharmacy (CVS, Walgreens), Costco, Walmart, or online photo printing service. Most cost less than $0.50.",
   },
   {
     question: 'Is my photo data private with SafePassportPic?',
@@ -196,7 +203,8 @@ const jsonLd = {
       '@type': 'Product',
       '@id': 'https://safepassportpic.com/us-passport-photo#product',
       name: 'US Passport Photo Service',
-      description: 'Create a compliant 2x2 inch US passport photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
+      description:
+        'Create a compliant 2x2 inch US passport photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
       image: 'https://safepassportpic.com/og-image.png',
       brand: {
         '@type': 'Brand',
@@ -243,9 +251,10 @@ export default function USPassportPhotoPage() {
                 US Passport Photo — Online in 60 Seconds
               </h1>
               <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Create a <strong>compliant 2×2 inch US passport photo</strong> instantly. 
-                AI-powered background removal, automatic face positioning, and real-time 
-                compliance checking — all processed privately in your browser.
+                Create a <strong>compliant 2×2 inch US passport photo</strong>{' '}
+                instantly. AI-powered background removal, automatic face
+                positioning, and real-time compliance checking — all processed
+                privately in your browser.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
@@ -262,7 +271,8 @@ export default function USPassportPhotoPage() {
                 </a>
               </div>
               <p className="mt-4 text-sm text-muted-foreground">
-                ✓ 30-day money-back guarantee &nbsp;•&nbsp; ✓ 100% private &nbsp;•&nbsp; ✓ Instant download
+                ✓ 30-day money-back guarantee &nbsp;•&nbsp; ✓ 100% private
+                &nbsp;•&nbsp; ✓ Instant download
               </p>
             </div>
           </div>
@@ -276,7 +286,8 @@ export default function USPassportPhotoPage() {
                 Official US Passport Photo Requirements
               </h2>
               <p className="mt-4 text-lg text-muted-foreground">
-                Per the US Department of State — SafePassportPic checks all of these automatically
+                Per the US Department of State — SafePassportPic checks all of
+                these automatically
               </p>
             </div>
 
@@ -316,7 +327,7 @@ export default function USPassportPhotoPage() {
                   icon: '📸',
                   title: 'Snap a Selfie',
                   description:
-                    'Use your phone camera or select an existing photo. Any well-lit photo works — we\'ll fix the background.',
+                    "Use your phone camera or select an existing photo. Any well-lit photo works — we'll fix the background.",
                 },
                 {
                   step: '2',
@@ -392,11 +403,13 @@ export default function USPassportPhotoPage() {
               <div className="flex justify-center">
                 <div className="rounded-2xl bg-card border border-border p-8 text-center max-w-sm">
                   <div className="text-6xl mb-4">🔒</div>
-                  <h3 className="text-xl font-bold">100% Client-Side Processing</h3>
+                  <h3 className="text-xl font-bold">
+                    100% Client-Side Processing
+                  </h3>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    Your US passport photo is processed entirely in your browser. 
-                    Unlike CVS or Walgreens, we never see, store, or upload your 
-                    biometric data to any server.
+                    Your US passport photo is processed entirely in your
+                    browser. Unlike CVS or Walgreens, we never see, store, or
+                    upload your biometric data to any server.
                   </p>
                   <Link
                     href="/blog/passport-photo-privacy"
@@ -486,7 +499,8 @@ export default function USPassportPhotoPage() {
               Ready to create your compliant US passport photo?
             </h2>
             <p className="mt-4 text-muted-foreground">
-              Join thousands who&apos;ve created passport photos with SafePassportPic
+              Join thousands who&apos;ve created passport photos with
+              SafePassportPic
             </p>
             <Link
               href="/app"

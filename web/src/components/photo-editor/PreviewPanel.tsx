@@ -1,11 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
-import {
-  ComplianceOverlay,
-} from '../compliance-overlay';
+import { ComplianceOverlay } from '../compliance-overlay';
 import { renderPassportPhoto } from '@/lib/crop';
-import { type FaceData, type CropParams, type MeasurementState, type PhotoStandard } from './types';
+import {
+  type FaceData,
+  type CropParams,
+  type MeasurementState,
+  type PhotoStandard,
+} from './types';
 
 interface PreviewPanelProps {
   sourceImg: HTMLImageElement | null;
@@ -58,7 +61,7 @@ export function PreviewPanel({
   useEffect(() => {
     userHRef.current = userH;
   }, [userH]);
-  
+
   useEffect(() => {
     userVRef.current = userV;
   }, [userV]);
@@ -66,8 +69,14 @@ export function PreviewPanel({
   // Calculate canvas dimensions based on standard aspect ratio
   // Increased base size for better mobile experience
   const baseSize = 300;
-  const canvasWidth = standard.w >= standard.h ? baseSize : Math.round(baseSize * (standard.w / standard.h));
-  const canvasHeight = standard.h >= standard.w ? baseSize : Math.round(baseSize * (standard.h / standard.w));
+  const canvasWidth =
+    standard.w >= standard.h
+      ? baseSize
+      : Math.round(baseSize * (standard.w / standard.h));
+  const canvasHeight =
+    standard.h >= standard.w
+      ? baseSize
+      : Math.round(baseSize * (standard.h / standard.w));
 
   // Render preview whenever dependencies change
   useEffect(() => {
@@ -86,25 +95,40 @@ export function PreviewPanel({
       showWatermark,
       cropParams
     );
-  }, [canvasRef, sourceImg, faceData, standard, userZoom, userH, userV, userBrightness, showWatermark, cropParams]);
+  }, [
+    canvasRef,
+    sourceImg,
+    faceData,
+    standard,
+    userZoom,
+    userH,
+    userV,
+    userBrightness,
+    showWatermark,
+    cropParams,
+  ]);
 
   // Drag start handler
-  const onDragStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    isDraggingRef.current = true;
-    onHideDragHint();
+  const onDragStart = useCallback(
+    (e: React.MouseEvent | React.TouchEvent) => {
+      e.preventDefault();
+      isDraggingRef.current = true;
+      onHideDragHint();
 
-    const pos = 'touches' in e
-      ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
-      : { x: e.clientX, y: e.clientY };
+      const pos =
+        'touches' in e
+          ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+          : { x: e.clientX, y: e.clientY };
 
-    dragStartRef.current = {
-      x: pos.x,
-      y: pos.y,
-      h: userHRef.current,
-      v: userVRef.current,
-    };
-  }, [onHideDragHint]);
+      dragStartRef.current = {
+        x: pos.x,
+        y: pos.y,
+        h: userHRef.current,
+        v: userVRef.current,
+      };
+    },
+    [onHideDragHint]
+  );
 
   // Global drag move/end handlers
   useEffect(() => {
@@ -112,9 +136,10 @@ export function PreviewPanel({
       if (!isDraggingRef.current) return;
       e.preventDefault();
 
-      const pos = 'touches' in e
-        ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
-        : { x: e.clientX, y: e.clientY };
+      const pos =
+        'touches' in e
+          ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+          : { x: e.clientX, y: e.clientY };
 
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -122,8 +147,20 @@ export function PreviewPanel({
       const scaleX = 400 / rect.width;
       const scaleY = 400 / rect.height;
 
-      const newH = Math.max(-300, Math.min(300, dragStartRef.current.h + (pos.x - dragStartRef.current.x) * scaleX));
-      const newV = Math.max(-300, Math.min(300, dragStartRef.current.v + (pos.y - dragStartRef.current.y) * scaleY));
+      const newH = Math.max(
+        -300,
+        Math.min(
+          300,
+          dragStartRef.current.h + (pos.x - dragStartRef.current.x) * scaleX
+        )
+      );
+      const newV = Math.max(
+        -300,
+        Math.min(
+          300,
+          dragStartRef.current.v + (pos.y - dragStartRef.current.y) * scaleY
+        )
+      );
 
       onPositionChange(newH, newV);
     };
@@ -146,12 +183,15 @@ export function PreviewPanel({
   }, [canvasRef, onPositionChange]);
 
   // Wheel zoom handler
-  const onWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -3 : 3;
-    const newZoom = Math.max(50, Math.min(200, userZoom + delta));
-    onZoomChange(newZoom);
-  }, [userZoom, onZoomChange]);
+  const onWheel = useCallback(
+    (e: React.WheelEvent) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -3 : 3;
+      const newZoom = Math.max(50, Math.min(200, userZoom + delta));
+      onZoomChange(newZoom);
+    },
+    [userZoom, onZoomChange]
+  );
 
   return (
     <div className="relative">
@@ -179,7 +219,7 @@ export function PreviewPanel({
               onTouchStart={onDragStart}
               onWheel={onWheel}
             />
-            
+
             {/* Compliance overlay */}
             {measurementState && (
               <ComplianceOverlay
@@ -200,11 +240,13 @@ export function PreviewPanel({
 
             {/* Face status indicator */}
             {faceStatus !== 'found' && (
-              <div className={`absolute top-3 right-3 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-                faceStatus === 'not-found'
-                  ? 'bg-red-500/90 text-white'
-                  : 'bg-amber-500/90 text-white'
-              }`}>
+              <div
+                className={`absolute top-3 right-3 flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                  faceStatus === 'not-found'
+                    ? 'bg-red-500/90 text-white'
+                    : 'bg-amber-500/90 text-white'
+                }`}
+              >
                 {faceStatus === 'not-found' ? '✗ No face' : 'Detecting...'}
               </div>
             )}

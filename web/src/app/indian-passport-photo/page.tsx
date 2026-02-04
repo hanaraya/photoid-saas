@@ -11,7 +11,8 @@ import {
 } from '@/components/ui/accordion';
 
 export const metadata: Metadata = {
-  title: 'Indian Passport Photo Online — 2x2 Inch (51x51mm) Compliant in 60 Seconds | SafePassportPic',
+  title:
+    'Indian Passport Photo Online — 2x2 Inch (51x51mm) Compliant in 60 Seconds | SafePassportPic',
   description:
     'Create a compliant Indian passport photo online in 60 seconds. Meet all 2×2 inch (51×51mm) requirements: white background, 70-80% face coverage. 100% private — $4.99 one-time.',
   keywords: [
@@ -43,7 +44,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Indian Passport Photo Online — 2x2 Inch Compliant in 60 Seconds',
-    description: 'Create a compliant Indian passport photo instantly. AI-powered, 100% private.',
+    description:
+      'Create a compliant Indian passport photo instantly. AI-powered, 100% private.',
     images: ['https://safepassportpic.com/og-image.png'],
   },
   alternates: {
@@ -55,7 +57,8 @@ const requirements = [
   {
     icon: '📐',
     title: '2×2 Inch (51×51mm) Size',
-    description: 'Standard Indian passport photo dimensions — same as US passport size',
+    description:
+      'Standard Indian passport photo dimensions — same as US passport size',
   },
   {
     icon: '⬜',
@@ -65,17 +68,20 @@ const requirements = [
   {
     icon: '👤',
     title: '70-80% Face Coverage',
-    description: 'Your face should take up 70-80% of the photo frame, chin to crown visible',
+    description:
+      'Your face should take up 70-80% of the photo frame, chin to crown visible',
   },
   {
     icon: '👁️',
     title: 'Both Ears Visible',
-    description: 'Full front-face view with both ears clearly visible, neutral expression',
+    description:
+      'Full front-face view with both ears clearly visible, neutral expression',
   },
   {
     icon: '🚫',
     title: 'No Glasses',
-    description: 'Remove glasses completely — not allowed in Indian passport photos',
+    description:
+      'Remove glasses completely — not allowed in Indian passport photos',
   },
   {
     icon: '💡',
@@ -123,7 +129,7 @@ const faqs = [
   {
     question: 'Where can I print my Indian passport photo?',
     answer:
-      'You\'ll receive a printable sheet with multiple passport photos. You can print this at any photo shop, Costco, Walgreens, CVS, or office supply store. Most cost less than $0.50 in the US or ₹10-20 in India.',
+      "You'll receive a printable sheet with multiple passport photos. You can print this at any photo shop, Costco, Walgreens, CVS, or office supply store. Most cost less than $0.50 in the US or ₹10-20 in India.",
   },
   {
     question: 'Do I need to show both ears in my Indian passport photo?',
@@ -195,7 +201,8 @@ const jsonLd = {
       '@type': 'Product',
       '@id': 'https://safepassportpic.com/indian-passport-photo#product',
       name: 'Indian Passport Photo Service',
-      description: 'Create a compliant 2×2 inch Indian passport photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
+      description:
+        'Create a compliant 2×2 inch Indian passport photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
       brand: {
         '@type': 'Brand',
         name: 'SafePassportPic',
@@ -241,8 +248,9 @@ export default function IndianPassportPhotoPage() {
                 Indian Passport Photo — Online in 60 Seconds
               </h1>
               <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Create a compliant 2×2 inch (51×51mm) Indian passport photo from your phone. AI-powered,
-                100% private, meets all government requirements.
+                Create a compliant 2×2 inch (51×51mm) Indian passport photo from
+                your phone. AI-powered, 100% private, meets all government
+                requirements.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
@@ -259,7 +267,8 @@ export default function IndianPassportPhotoPage() {
                 </a>
               </div>
               <p className="mt-4 text-sm text-muted-foreground">
-                ✅ 30-day money-back guarantee • 🔒 Photos never leave your device • Works for OCI too
+                ✅ 30-day money-back guarantee • 🔒 Photos never leave your
+                device • Works for OCI too
               </p>
             </div>
           </div>
@@ -284,7 +293,9 @@ export default function IndianPassportPhotoPage() {
                 >
                   <div className="text-3xl mb-3">{req.icon}</div>
                   <h3 className="font-semibold text-lg">{req.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{req.description}</p>
+                  <p className="mt-2 text-muted-foreground">
+                    {req.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -309,7 +320,8 @@ export default function IndianPassportPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">Snap a Selfie</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Use your phone camera or upload an existing photo. Make sure both ears are visible!
+                  Use your phone camera or upload an existing photo. Make sure
+                  both ears are visible!
                 </p>
               </div>
               <div className="text-center">
@@ -318,7 +330,8 @@ export default function IndianPassportPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">AI Does the Work</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Our AI removes the background, crops to 2×2 inches, and validates compliance.
+                  Our AI removes the background, crops to 2×2 inches, and
+                  validates compliance.
                 </p>
               </div>
               <div className="text-center">
@@ -327,7 +340,8 @@ export default function IndianPassportPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">Download & Print</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Download your print-ready sheet and print anywhere for under ₹20.
+                  Download your print-ready sheet and print anywhere for under
+                  ₹20.
                 </p>
               </div>
             </div>
@@ -352,8 +366,9 @@ export default function IndianPassportPhotoPage() {
                     Also Works for OCI Card Applications
                   </h2>
                   <p className="mt-4 text-lg text-muted-foreground">
-                    Overseas Citizen of India (OCI) cards require the same 2×2 inch photo specifications 
-                    as Indian passports. One photo from SafePassportPic works for both applications.
+                    Overseas Citizen of India (OCI) cards require the same 2×2
+                    inch photo specifications as Indian passports. One photo
+                    from SafePassportPic works for both applications.
                   </p>
                   <ul className="mt-6 space-y-3">
                     <li className="flex items-center gap-3">
@@ -402,16 +417,22 @@ export default function IndianPassportPhotoPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-4 px-4 font-semibold">Service</th>
+                    <th className="text-left py-4 px-4 font-semibold">
+                      Service
+                    </th>
                     <th className="text-left py-4 px-4 font-semibold">Price</th>
                     <th className="text-left py-4 px-4 font-semibold">Time</th>
-                    <th className="text-left py-4 px-4 font-semibold">Privacy</th>
+                    <th className="text-left py-4 px-4 font-semibold">
+                      Privacy
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="border-b bg-primary/5">
                     <td className="py-4 px-4 font-semibold">SafePassportPic</td>
-                    <td className="py-4 px-4 text-green-600 font-semibold">$4.99 (~₹415)</td>
+                    <td className="py-4 px-4 text-green-600 font-semibold">
+                      $4.99 (~₹415)
+                    </td>
                     <td className="py-4 px-4">60 seconds</td>
                     <td className="py-4 px-4">✅ 100% private</td>
                   </tr>
@@ -478,7 +499,8 @@ export default function IndianPassportPhotoPage() {
               Ready to Create Your Indian Passport Photo?
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Join thousands who&apos;ve saved time and money with SafePassportPic
+              Join thousands who&apos;ve saved time and money with
+              SafePassportPic
             </p>
             <div className="mt-10">
               <Link
@@ -489,7 +511,8 @@ export default function IndianPassportPhotoPage() {
               </Link>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              ✅ 30-day money-back guarantee • 🔒 Photos never leave your device • 🇮🇳 Works for Passport & OCI
+              ✅ 30-day money-back guarantee • 🔒 Photos never leave your device
+              • 🇮🇳 Works for Passport & OCI
             </p>
           </div>
         </section>

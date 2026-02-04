@@ -13,14 +13,22 @@ import {
 } from '@/components/ui/dialog';
 import { calculateMeasurementState } from '../compliance-overlay';
 import { initFaceDetector, detectFaces } from '@/lib/face-detection';
-import { moderateContent, checkFinalCompliance } from '@/lib/content-moderation';
+import {
+  moderateContent,
+  checkFinalCompliance,
+} from '@/lib/content-moderation';
 import { ModerationBlocker, ModerationWarning } from '../moderation-blocker';
-import { removeImageBackground, isBgRemovalReady, resetBgRemoval, getBgRemovalError } from '@/lib/bg-removal';
+import {
+  removeImageBackground,
+  isBgRemovalReady,
+  resetBgRemoval,
+  getBgRemovalError,
+} from '@/lib/bg-removal';
 import { renderPassportPhoto, renderSheet, calculateCrop } from '@/lib/crop';
 import { checkCompliance } from '@/lib/compliance';
 import { analyzeImage } from '@/lib/image-analysis';
-import { 
-  verifyPassportPhoto, 
+import {
+  verifyPassportPhoto,
   analyzeImage as complianceAnalyzeImage,
   type ComplianceResult,
 } from '@/lib/compliance/index';
@@ -74,20 +82,32 @@ export function PhotoEditor({
   const [loadingText, setLoadingText] = useState('Analyzing your photo...');
 
   // Face detection state
-  const [faceData, setFaceData] = useState<FaceData | null>(initialEditState?.faceData ?? null);
-  const [cropParams, setCropParams] = useState<CropParams | undefined>(initialCropParams ?? initialEditState?.cropParams);
+  const [faceData, setFaceData] = useState<FaceData | null>(
+    initialEditState?.faceData ?? null
+  );
+  const [cropParams, setCropParams] = useState<CropParams | undefined>(
+    initialCropParams ?? initialEditState?.cropParams
+  );
   const [faceStatus, setFaceStatus] = useState<FaceStatus>(
-    initialEditState?.faceData ? 'found' : initialCropParams || initialEditState?.cropParams ? 'found' : 'detecting'
+    initialEditState?.faceData
+      ? 'found'
+      : initialCropParams || initialEditState?.cropParams
+        ? 'found'
+        : 'detecting'
   );
 
   // User adjustments
   const [userZoom, setUserZoom] = useState(initialEditState?.zoom ?? 100);
   const [userH, setUserH] = useState(initialEditState?.h ?? 0);
   const [userV, setUserV] = useState(initialEditState?.v ?? 0);
-  const [userBrightness, setUserBrightness] = useState(initialEditState?.brightness ?? 100);
+  const [userBrightness, setUserBrightness] = useState(
+    initialEditState?.brightness ?? 100
+  );
 
   // Background removal state
-  const [bgRemoved, setBgRemoved] = useState(initialEditState?.bgRemoved ?? false);
+  const [bgRemoved, setBgRemoved] = useState(
+    initialEditState?.bgRemoved ?? false
+  );
   const [bgRemoving, setBgRemoving] = useState(false);
   const [bgAnalysis, setBgAnalysis] = useState<BgAnalysis | null>(null);
   const [bgModelPreloading, setBgModelPreloading] = useState(false);
@@ -100,11 +120,18 @@ export function PhotoEditor({
   }, [bgModelPreloading]);
 
   // Analysis & compliance state
-  const [complianceChecks, setComplianceChecks] = useState<ComplianceCheck[]>([]);
-  const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(null);
-  const [moderationResult, setModerationResult] = useState<ModerationResult | null>(null);
-  const [measurementState, setMeasurementState] = useState<MeasurementState | null>(null);
-  const [runtimeComplianceResult, setRuntimeComplianceResult] = useState<ComplianceResult | null>(null);
+  const [complianceChecks, setComplianceChecks] = useState<ComplianceCheck[]>(
+    []
+  );
+  const [imageAnalysis, setImageAnalysis] = useState<ImageAnalysis | null>(
+    null
+  );
+  const [moderationResult, setModerationResult] =
+    useState<ModerationResult | null>(null);
+  const [measurementState, setMeasurementState] =
+    useState<MeasurementState | null>(null);
+  const [runtimeComplianceResult, setRuntimeComplianceResult] =
+    useState<ComplianceResult | null>(null);
 
   // UI state
   const [showDragHint, setShowDragHint] = useState(true);
@@ -113,7 +140,8 @@ export function PhotoEditor({
 
   // Output state
   const [sheetDataUrl, setSheetDataUrl] = useState<string | null>(null);
-  const [finalComplianceResult, setFinalComplianceResult] = useState<FinalComplianceResult | null>(null);
+  const [finalComplianceResult, setFinalComplianceResult] =
+    useState<FinalComplianceResult | null>(null);
   const [showComplianceWarning, setShowComplianceWarning] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [hasDownloaded, setHasDownloaded] = useState(false);
@@ -149,13 +177,23 @@ export function PhotoEditor({
       cropParams,
       faceData,
     });
-  }, [userZoom, userH, userV, userBrightness, standardId, bgRemoved, cropParams, faceData, onEditStateChange]);
+  }, [
+    userZoom,
+    userH,
+    userV,
+    userBrightness,
+    standardId,
+    bgRemoved,
+    cropParams,
+    faceData,
+    onEditStateChange,
+  ]);
 
   // Load image and detect face
   useEffect(() => {
     let cancelled = false;
     const img = new Image();
-    
+
     img.onload = async () => {
       if (cancelled) return;
       sourceImgRef.current = img;
@@ -182,7 +220,12 @@ export function PhotoEditor({
           setFaceData(face);
           setFaceStatus('found');
 
-          const calculatedCrop = calculateCrop(img.naturalWidth, img.naturalHeight, face, standard);
+          const calculatedCrop = calculateCrop(
+            img.naturalWidth,
+            img.naturalHeight,
+            face,
+            standard
+          );
           setCropParams(calculatedCrop);
 
           const analysis = analyzeBackground(img, face);
@@ -193,14 +236,16 @@ export function PhotoEditor({
             setBgModelPreloading(true);
             import('@/lib/bg-removal')
               .then((m) => m.initBgRemoval())
-              .then(() => { 
+              .then(() => {
                 // Always clear loading state - model loading is global singleton
-                setBgModelPreloading(false); 
+                setBgModelPreloading(false);
               })
-              .catch((err) => { 
+              .catch((err) => {
                 console.error('[BG-REMOVAL] Preload failed:', err);
                 setBgModelPreloading(false);
-                toast.error('Could not process photo. Try using a lighter background.');
+                toast.error(
+                  'Could not process photo. Try using a lighter background.'
+                );
               });
           }
 
@@ -219,29 +264,49 @@ export function PhotoEditor({
                 width: face.w,
                 height: face.h,
               },
-              landmarks: face.leftEye && face.rightEye ? {
-                leftEye: face.leftEye,
-                rightEye: face.rightEye,
-                nose: { x: face.x + face.w / 2, y: face.y + face.h * 0.6 },
-                mouth: { x: face.x + face.w / 2, y: face.y + face.h * 0.8 },
-                chin: { x: face.x + face.w / 2, y: face.y + face.h },
-              } : undefined,
+              landmarks:
+                face.leftEye && face.rightEye
+                  ? {
+                      leftEye: face.leftEye,
+                      rightEye: face.rightEye,
+                      nose: {
+                        x: face.x + face.w / 2,
+                        y: face.y + face.h * 0.6,
+                      },
+                      mouth: {
+                        x: face.x + face.w / 2,
+                        y: face.y + face.h * 0.8,
+                      },
+                      chin: { x: face.x + face.w / 2, y: face.y + face.h },
+                    }
+                  : undefined,
             });
-            
+
             // Map standard ID to country code (US, UK, CA, etc.)
-            const countryMap: Record<string, 'US' | 'UK' | 'CA' | 'IN' | 'EU' | 'AU'> = {
-              us: 'US', us_visa: 'US', us_drivers: 'US', green_card: 'US',
-              uk: 'UK', uk_visa: 'UK',
+            const countryMap: Record<
+              string,
+              'US' | 'UK' | 'CA' | 'IN' | 'EU' | 'AU'
+            > = {
+              us: 'US',
+              us_visa: 'US',
+              us_drivers: 'US',
+              green_card: 'US',
+              uk: 'UK',
+              uk_visa: 'UK',
               canada: 'CA',
-              india: 'IN', india_visa: 'IN',
-              eu: 'EU', schengen_visa: 'EU', germany: 'EU', france: 'EU',
+              india: 'IN',
+              india_visa: 'IN',
+              eu: 'EU',
+              schengen_visa: 'EU',
+              germany: 'EU',
+              france: 'EU',
               australia: 'AU',
             };
             const countryCode = countryMap[standardId] || 'US';
-            
+
             const result = verifyPassportPhoto(complianceAnalysis, countryCode);
             setRuntimeComplianceResult(result);
-            
+
             // Log analytics for country selection
             console.log('[ANALYTICS] Country selected:', {
               country: countryCode,
@@ -249,21 +314,32 @@ export function PhotoEditor({
               timestamp: new Date().toISOString(),
               complianceScore: result.overallScore,
             });
-            
+
             // Show toast for critical issues
             if (result.criticalFailures.length > 0) {
-              toast.warning(`Photo may need adjustments: ${result.criticalFailures[0]}`, {
-                duration: 5000,
-              });
+              toast.warning(
+                `Photo may need adjustments: ${result.criticalFailures[0]}`,
+                {
+                  duration: 5000,
+                }
+              );
             }
           } catch (complianceErr) {
-            console.error('[COMPLIANCE] Runtime validation error:', complianceErr);
+            console.error(
+              '[COMPLIANCE] Runtime validation error:',
+              complianceErr
+            );
           }
         } else {
           setFaceData(null);
           setFaceStatus('not-found');
 
-          const calculatedCrop = calculateCrop(img.naturalWidth, img.naturalHeight, null, standard);
+          const calculatedCrop = calculateCrop(
+            img.naturalWidth,
+            img.naturalHeight,
+            null,
+            standard
+          );
           setCropParams(calculatedCrop);
 
           const analysis = analyzeBackground(img, null);
@@ -271,29 +347,43 @@ export function PhotoEditor({
 
           const imgAnalysis = analyzeImage(img, null);
           setImageAnalysis(imgAnalysis);
-          
+
           // Run compliance check even without face (will report face not detected)
           try {
             const complianceAnalysis = await complianceAnalyzeImage(img);
-            const countryMap: Record<string, 'US' | 'UK' | 'CA' | 'IN' | 'EU' | 'AU'> = {
-              us: 'US', us_visa: 'US', us_drivers: 'US', green_card: 'US',
-              uk: 'UK', uk_visa: 'UK',
+            const countryMap: Record<
+              string,
+              'US' | 'UK' | 'CA' | 'IN' | 'EU' | 'AU'
+            > = {
+              us: 'US',
+              us_visa: 'US',
+              us_drivers: 'US',
+              green_card: 'US',
+              uk: 'UK',
+              uk_visa: 'UK',
               canada: 'CA',
-              india: 'IN', india_visa: 'IN',
-              eu: 'EU', schengen_visa: 'EU', germany: 'EU', france: 'EU',
+              india: 'IN',
+              india_visa: 'IN',
+              eu: 'EU',
+              schengen_visa: 'EU',
+              germany: 'EU',
+              france: 'EU',
               australia: 'AU',
             };
             const countryCode = countryMap[standardId] || 'US';
             const result = verifyPassportPhoto(complianceAnalysis, countryCode);
             setRuntimeComplianceResult(result);
-            
+
             console.log('[ANALYTICS] Country selected (no face):', {
               country: countryCode,
               standardId,
               timestamp: new Date().toISOString(),
             });
           } catch (complianceErr) {
-            console.error('[COMPLIANCE] Runtime validation error:', complianceErr);
+            console.error(
+              '[COMPLIANCE] Runtime validation error:',
+              complianceErr
+            );
           }
         }
       } catch {
@@ -320,7 +410,15 @@ export function PhotoEditor({
     if (!img) return;
 
     const bgOk = bgRemoved || (bgAnalysis !== null && !bgAnalysis.needsRemoval);
-    const checks = checkCompliance(img.naturalWidth, img.naturalHeight, faceData, standard, bgOk, userZoom, imageAnalysis ?? undefined);
+    const checks = checkCompliance(
+      img.naturalWidth,
+      img.naturalHeight,
+      faceData,
+      standard,
+      bgOk,
+      userZoom,
+      imageAnalysis ?? undefined
+    );
     setComplianceChecks(checks);
   }, [faceData, standard, bgRemoved, bgAnalysis, userZoom, imageAnalysis]);
 
@@ -331,22 +429,52 @@ export function PhotoEditor({
       return;
     }
 
-    const canvasWidth = standard.w >= standard.h ? 280 : Math.round(280 * (standard.w / standard.h));
-    const canvasHeight = standard.h >= standard.w ? 280 : Math.round(280 * (standard.h / standard.w));
+    const canvasWidth =
+      standard.w >= standard.h
+        ? 280
+        : Math.round(280 * (standard.w / standard.h));
+    const canvasHeight =
+      standard.h >= standard.w
+        ? 280
+        : Math.round(280 * (standard.h / standard.w));
 
-    const state = calculateMeasurementState(faceData, standard, canvasWidth, canvasHeight, userZoom, cropParams);
+    const state = calculateMeasurementState(
+      faceData,
+      standard,
+      canvasWidth,
+      canvasHeight,
+      userZoom,
+      cropParams
+    );
     setMeasurementState(state);
   }, [faceData, standard, userZoom, cropParams]);
 
   // Auto-generate sheet when returning from payment
   useEffect(() => {
-    if (initialStep === 'output' && step === 'output' && cropParams && !sheetDataUrl && imageReady) {
+    if (
+      initialStep === 'output' &&
+      step === 'output' &&
+      cropParams &&
+      !sheetDataUrl &&
+      imageReady
+    ) {
       const timer = setTimeout(() => {
         const passportCanvas = passportCanvasRef.current;
         const img = sourceImgRef.current;
 
         if (passportCanvas && img) {
-          renderPassportPhoto(passportCanvas, img, faceData, standard, userZoom, userH, userV, userBrightness, !isPaid, cropParams);
+          renderPassportPhoto(
+            passportCanvas,
+            img,
+            faceData,
+            standard,
+            userZoom,
+            userH,
+            userV,
+            userBrightness,
+            !isPaid,
+            cropParams
+          );
 
           if (passportCanvas.width > 0) {
             const tempSheet = document.createElement('canvas');
@@ -357,7 +485,20 @@ export function PhotoEditor({
       }, 200);
       return () => clearTimeout(timer);
     }
-  }, [initialStep, step, cropParams, sheetDataUrl, standard, isPaid, imageReady, faceData, userZoom, userH, userV, userBrightness]);
+  }, [
+    initialStep,
+    step,
+    cropParams,
+    sheetDataUrl,
+    standard,
+    isPaid,
+    imageReady,
+    faceData,
+    userZoom,
+    userH,
+    userV,
+    userBrightness,
+  ]);
 
   // Background removal handler
   const handleBgRemoval = useCallback(async () => {
@@ -395,38 +536,64 @@ export function PhotoEditor({
     } catch (err) {
       console.error('BG removal failed:', err);
       setBgRemoving(false);
-      toast.error('Could not remove background. Try a plain, light background.');
+      toast.error(
+        'Could not remove background. Try a plain, light background.'
+      );
     }
   }, [imageBlob]);
 
   // Generate handler
-  const handleGenerate = useCallback((bypassWarnings = false) => {
-    const finalCheck = checkFinalCompliance(complianceChecks);
-    setFinalComplianceResult(finalCheck);
+  const handleGenerate = useCallback(
+    (bypassWarnings = false) => {
+      const finalCheck = checkFinalCompliance(complianceChecks);
+      setFinalComplianceResult(finalCheck);
 
-    if (!finalCheck.canProceed) {
-      setShowComplianceWarning(true);
-      return;
-    }
+      if (!finalCheck.canProceed) {
+        setShowComplianceWarning(true);
+        return;
+      }
 
-    if (finalCheck.issues.length > 0 && !bypassWarnings) {
-      setShowComplianceWarning(true);
-      return;
-    }
+      if (finalCheck.issues.length > 0 && !bypassWarnings) {
+        setShowComplianceWarning(true);
+        return;
+      }
 
-    // Generate sheet
-    const passportCanvas = passportCanvasRef.current;
-    const img = sourceImgRef.current;
-    if (passportCanvas && img) {
-      renderPassportPhoto(passportCanvas, img, faceData, standard, userZoom, userH, userV, userBrightness, !isPaid, cropParams);
-      const tempSheet = document.createElement('canvas');
-      renderSheet(tempSheet, passportCanvas, standard, !isPaid);
-      setSheetDataUrl(tempSheet.toDataURL('image/jpeg', 0.95));
-    }
+      // Generate sheet
+      const passportCanvas = passportCanvasRef.current;
+      const img = sourceImgRef.current;
+      if (passportCanvas && img) {
+        renderPassportPhoto(
+          passportCanvas,
+          img,
+          faceData,
+          standard,
+          userZoom,
+          userH,
+          userV,
+          userBrightness,
+          !isPaid,
+          cropParams
+        );
+        const tempSheet = document.createElement('canvas');
+        renderSheet(tempSheet, passportCanvas, standard, !isPaid);
+        setSheetDataUrl(tempSheet.toDataURL('image/jpeg', 0.95));
+      }
 
-    setShowComplianceWarning(false);
-    setStep('output');
-  }, [complianceChecks, faceData, standard, userZoom, userH, userV, userBrightness, isPaid, cropParams]);
+      setShowComplianceWarning(false);
+      setStep('output');
+    },
+    [
+      complianceChecks,
+      faceData,
+      standard,
+      userZoom,
+      userH,
+      userV,
+      userBrightness,
+      isPaid,
+      cropParams,
+    ]
+  );
 
   // Download handlers
   const downloadSheet = useCallback(() => {
@@ -447,7 +614,18 @@ export function PhotoEditor({
     const img = sourceImgRef.current;
     if (!canvas || !img) return;
 
-    renderPassportPhoto(canvas, img, faceData, standard, userZoom, userH, userV, userBrightness, !isPaid, cropParams);
+    renderPassportPhoto(
+      canvas,
+      img,
+      faceData,
+      standard,
+      userZoom,
+      userH,
+      userV,
+      userBrightness,
+      !isPaid,
+      cropParams
+    );
 
     const link = document.createElement('a');
     link.download = 'passport-photo.jpg';
@@ -458,7 +636,17 @@ export function PhotoEditor({
       setHasDownloaded(true);
       setTimeout(() => setShowFeedbackModal(true), 1000);
     }
-  }, [faceData, standard, userZoom, userH, userV, userBrightness, isPaid, cropParams, hasDownloaded]);
+  }, [
+    faceData,
+    standard,
+    userZoom,
+    userH,
+    userV,
+    userBrightness,
+    isPaid,
+    cropParams,
+    hasDownloaded,
+  ]);
 
   // Position change handler
   const handlePositionChange = useCallback((h: number, v: number) => {
@@ -477,7 +665,7 @@ export function PhotoEditor({
       <>
         {/* Hidden canvas for rendering */}
         <canvas ref={passportCanvasRef} className="hidden" aria-hidden="true" />
-        
+
         <OutputView
           sheetDataUrl={sheetDataUrl}
           isPaid={isPaid}
@@ -511,16 +699,28 @@ export function PhotoEditor({
         onClick={onBack}
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
+          />
         </svg>
         Start over
       </button>
 
       {/* Moderation warnings */}
-      {moderationResult && moderationResult.allowed && moderationResult.severity === 'warn' && (
-        <ModerationWarning result={moderationResult} />
-      )}
+      {moderationResult &&
+        moderationResult.allowed &&
+        moderationResult.severity === 'warn' && (
+          <ModerationWarning result={moderationResult} />
+        )}
 
       {/* Hero preview panel */}
       <div className="relative">
@@ -562,8 +762,12 @@ export function PhotoEditor({
             <div className="flex items-center gap-3">
               <span className="text-2xl">🎨</span>
               <div>
-                <div className="font-medium text-amber-600 dark:text-amber-400">Background needs to be white</div>
-                <div className="text-sm text-muted-foreground">{bgAnalysis.reason}</div>
+                <div className="font-medium text-amber-600 dark:text-amber-400">
+                  Background needs to be white
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {bgAnalysis.reason}
+                </div>
               </div>
             </div>
             <Button
@@ -571,7 +775,11 @@ export function PhotoEditor({
               disabled={bgRemoving || bgModelPreloading}
               className="shrink-0"
             >
-              {bgRemoving ? 'Removing...' : bgModelPreloading ? 'Loading...' : 'Remove Background'}
+              {bgRemoving
+                ? 'Removing...'
+                : bgModelPreloading
+                  ? 'Loading...'
+                  : 'Remove Background'}
             </Button>
           </div>
         </div>
@@ -582,7 +790,9 @@ export function PhotoEditor({
         <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4">
           <div className="flex items-center gap-3">
             <span className="text-2xl">✅</span>
-            <div className="font-medium text-emerald-600 dark:text-emerald-400">Background removed successfully</div>
+            <div className="font-medium text-emerald-600 dark:text-emerald-400">
+              Background removed successfully
+            </div>
           </div>
         </div>
       )}
@@ -613,11 +823,16 @@ export function PhotoEditor({
       />
 
       {/* Compliance warning dialog */}
-      <Dialog open={showComplianceWarning} onOpenChange={setShowComplianceWarning}>
+      <Dialog
+        open={showComplianceWarning}
+        onOpenChange={setShowComplianceWarning}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {finalComplianceResult?.canProceed ? 'Some issues found' : 'Please fix these issues'}
+              {finalComplianceResult?.canProceed
+                ? 'Some issues found'
+                : 'Please fix these issues'}
             </DialogTitle>
             <DialogDescription>
               {finalComplianceResult?.canProceed
@@ -636,7 +851,13 @@ export function PhotoEditor({
                     : 'bg-amber-500/10 border border-amber-500/20'
                 }`}
               >
-                <span className={issue.severity === 'error' ? 'text-red-500' : 'text-amber-500'}>
+                <span
+                  className={
+                    issue.severity === 'error'
+                      ? 'text-red-500'
+                      : 'text-amber-500'
+                  }
+                >
                   {issue.severity === 'error' ? '✗' : '!'}
                 </span>
                 <span>{issue.message}</span>
@@ -645,7 +866,10 @@ export function PhotoEditor({
           </div>
 
           <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={() => setShowComplianceWarning(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowComplianceWarning(false)}
+            >
               Go back
             </Button>
             {finalComplianceResult?.canProceed && (

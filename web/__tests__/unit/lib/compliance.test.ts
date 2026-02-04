@@ -113,7 +113,7 @@ describe('Compliance Checking', () => {
         mockFaceData,
         mockStandard,
         true,
-        70  // Low zoom factor pushes head below min threshold
+        70 // Low zoom factor pushes head below min threshold
       );
 
       const headCheck = result.find((check) => check.id === 'head_size');
@@ -131,7 +131,7 @@ describe('Compliance Checking', () => {
         mockFaceData,
         mockStandard,
         true,
-        150  // High zoom factor pushes head above max threshold
+        150 // High zoom factor pushes head above max threshold
       );
 
       const headCheck = result.find((check) => check.id === 'head_size');
@@ -884,7 +884,7 @@ describe('Compliance Checking', () => {
       // Face positioned such that crown would be above image (y - h*0.3 < 0)
       const faceTooHigh: FaceData = {
         x: 150,
-        y: 20,  // Very close to top
+        y: 20, // Very close to top
         w: 200,
         h: 250, // crown would be at 20 - 250*0.3 = 20 - 75 = -55 (above image)
         leftEye: { x: 200, y: 150 },
@@ -909,7 +909,7 @@ describe('Compliance Checking', () => {
       // Face properly positioned with room above and below
       const properlyFramed: FaceData = {
         x: 150,
-        y: 200,  // Good distance from top
+        y: 200, // Good distance from top
         w: 200,
         h: 250,
         leftEye: { x: 200, y: 250 },

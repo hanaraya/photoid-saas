@@ -168,9 +168,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -193,9 +191,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -218,9 +214,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -254,9 +248,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -278,9 +270,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -302,9 +292,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -326,15 +314,15 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
 
     // Should show compliance summary - displays "Ready to print" when all checks pass
-    expect(screen.getByText(/Ready to print|item.*to review/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Ready to print|item.*to review/i)
+    ).toBeInTheDocument();
   });
 
   it('should handle face not found', async () => {
@@ -353,9 +341,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -376,9 +362,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -407,9 +391,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );
@@ -434,9 +416,7 @@ describe('PhotoEditor Component', () => {
 
     await waitFor(
       () => {
-        expect(
-          screen.queryByText(/Detecting face/i)
-        ).not.toBeInTheDocument();
+        expect(screen.queryByText(/Detecting face/i)).not.toBeInTheDocument();
       },
       { timeout: 3000 }
     );

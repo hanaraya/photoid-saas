@@ -8,13 +8,15 @@
 ## Phase 1: Quick Wins (Blur + Exposure)
 
 ### Task 1.1: Blur Detection
+
 - [ ] Add Laplacian variance calculation to `lib/image-analysis.ts`
 - [ ] Threshold: blurScore < 100 = blurry (adjust based on testing)
 - [ ] Add "Photo Sharpness" check to compliance checker
 - [ ] Fail/warn blurry photos with message "Photo is too blurry - please retake with steady hands"
 - [ ] Test with `bad-blurry.jpg` fixture
 
-### Task 1.2: Exposure Detection  
+### Task 1.2: Exposure Detection
+
 - [ ] Add brightness histogram analysis to `lib/image-analysis.ts`
 - [ ] Calculate mean brightness (0-255 scale)
 - [ ] Thresholds: < 60 = underexposed, > 200 = overexposed
@@ -28,6 +30,7 @@
 ## Phase 2: Background Quality
 
 ### Task 2.1: Halo/Edge Artifact Detection
+
 - [ ] After background removal, analyze edge pixels around face
 - [ ] Detect white halos or rough edges (color variance at boundary)
 - [ ] Add "Background Quality" check
@@ -35,6 +38,7 @@
 - [ ] Test with `bad-halo-artifact.jpg` fixture
 
 ### Task 2.2: Background Purity Check
+
 - [ ] Ensure removed background is pure white (#FFFFFF), not gray
 - [ ] Sample background regions (corners + edges avoiding face)
 - [ ] Threshold: all RGB channels > 250 = white
@@ -45,6 +49,7 @@
 ## Phase 3: Advanced Detection
 
 ### Task 3.1: Shadow Detection
+
 - [ ] Analyze face region for uneven lighting
 - [ ] Detect shadows on one side of face (asymmetric brightness)
 - [ ] Calculate left/right face brightness ratio
@@ -54,6 +59,7 @@
 - [ ] Test with `bad-shadows.jpg` fixture
 
 ### Task 3.2: Color Balance / Skin Tone Check
+
 - [ ] Analyze skin tone regions for unnatural colors
 - [ ] Check if skin tones fall within natural human range (HSV analysis)
 - [ ] Flag extreme color casts (too yellow, too pink, etc.)
@@ -65,6 +71,7 @@
 ## Phase 4: Manipulation Detection (Stretch Goal)
 
 ### Task 4.1: Basic Manipulation Indicators
+
 - [ ] Check for JPEG compression artifacts inconsistencies
 - [ ] Detect unnaturally smooth skin (over-processed)
 - [ ] Look for edge discontinuities (copy-paste artifacts)
@@ -77,10 +84,12 @@
 After implementation, ALL of these must pass:
 
 ### Unit Tests
+
 - [ ] `npm test` - all 1,130+ tests pass
 - [ ] Coverage stays above 80%
 
 ### E2E Visual Tests
+
 - [ ] `npx playwright test __tests__/e2e/visual-quality/` - all pass
 - [ ] Blur detection catches `bad-blurry.jpg`
 - [ ] Exposure detection catches `bad-overexposed.jpg` and `bad-underexposed.jpg`
@@ -88,6 +97,7 @@ After implementation, ALL of these must pass:
 - [ ] Shadow detection catches `bad-shadows.jpg`
 
 ### Manual Visual Verification
+
 - [ ] Upload a blurry photo → gets rejected
 - [ ] Upload overexposed photo → gets rejected
 - [ ] Upload photo with shadows → gets warning
@@ -95,6 +105,7 @@ After implementation, ALL of these must pass:
 - [ ] Take screenshots of each test case
 
 ### Gap Report
+
 - [ ] Run comprehensive report test
 - [ ] Total detection gaps should be < 5 (down from 15)
 - [ ] No critical gaps remaining (blur, exposure, halo)

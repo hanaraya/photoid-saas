@@ -9,7 +9,11 @@ interface FeedbackModalProps {
   photoStandard?: string;
 }
 
-export function FeedbackModal({ isOpen, onClose, photoStandard }: FeedbackModalProps) {
+export function FeedbackModal({
+  isOpen,
+  onClose,
+  photoStandard,
+}: FeedbackModalProps) {
   const [rating, setRating] = useState<number>(0);
   const [hoveredRating, setHoveredRating] = useState<number>(0);
   const [comment, setComment] = useState('');
@@ -21,10 +25,10 @@ export function FeedbackModal({ isOpen, onClose, photoStandard }: FeedbackModalP
 
   const handleSubmit = async () => {
     if (rating === 0) return;
-    
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       const response = await fetch('/api/feedback', {
         method: 'POST',
@@ -37,11 +41,11 @@ export function FeedbackModal({ isOpen, onClose, photoStandard }: FeedbackModalP
           userAgent: navigator.userAgent,
         }),
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to submit feedback');
       }
-      
+
       setSubmitted(true);
       setTimeout(() => {
         onClose();
@@ -69,9 +73,7 @@ export function FeedbackModal({ isOpen, onClose, photoStandard }: FeedbackModalP
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
               Thank you!
             </h3>
-            <p className="text-gray-600">
-              Your feedback helps us improve.
-            </p>
+            <p className="text-gray-600">Your feedback helps us improve.</p>
           </div>
         ) : (
           <>

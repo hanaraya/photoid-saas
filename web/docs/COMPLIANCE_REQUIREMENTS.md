@@ -10,31 +10,31 @@ This document captures the official photo requirements for each supported countr
 
 **Source:** [U.S. Department of State](https://travel.state.gov/content/travel/en/passports/how-apply/photos.html)
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 2 × 2 inches (51 × 51 mm) | ✅ Yes |
-| **Head Height** | 1" to 1⅜" (25-35mm) from chin to top of head | ✅ Yes |
-| **Eye Position** | Eyes between 1⅛" to 1⅜" (28-35mm) from bottom | ✅ Yes |
-| **Background** | Plain white or off-white | ✅ Yes |
-| **Color** | Must be in color | ✅ Assumed |
-| **Recency** | Taken within last 6 months | ❌ Cannot verify |
-| **Face View** | Full face, front view | ⚠️ Partial (angle check) |
-| **Expression** | Neutral, mouth closed | ❌ Not yet |
-| **Eyes** | Open and visible | ❌ Not yet |
-| **Glasses** | NOT allowed (since Nov 2016) | ✅ Warning shown |
-| **Head Coverings** | Not allowed (religious exceptions) | ❌ Cannot verify |
-| **Lighting** | No shadows on face or background | ❌ Not yet |
-| **Focus** | Sharp and in focus | ✅ Yes (blur detection) |
-| **Head Tilt** | Face straight, not tilted | ✅ Yes (angle check) |
-| **Print Quality** | 300 DPI minimum | ✅ Yes |
+| Requirement        | Specification                                 | We Check                 |
+| ------------------ | --------------------------------------------- | ------------------------ |
+| **Size**           | 2 × 2 inches (51 × 51 mm)                     | ✅ Yes                   |
+| **Head Height**    | 1" to 1⅜" (25-35mm) from chin to top of head  | ✅ Yes                   |
+| **Eye Position**   | Eyes between 1⅛" to 1⅜" (28-35mm) from bottom | ✅ Yes                   |
+| **Background**     | Plain white or off-white                      | ✅ Yes                   |
+| **Color**          | Must be in color                              | ✅ Assumed               |
+| **Recency**        | Taken within last 6 months                    | ❌ Cannot verify         |
+| **Face View**      | Full face, front view                         | ⚠️ Partial (angle check) |
+| **Expression**     | Neutral, mouth closed                         | ❌ Not yet               |
+| **Eyes**           | Open and visible                              | ❌ Not yet               |
+| **Glasses**        | NOT allowed (since Nov 2016)                  | ✅ Warning shown         |
+| **Head Coverings** | Not allowed (religious exceptions)            | ❌ Cannot verify         |
+| **Lighting**       | No shadows on face or background              | ❌ Not yet               |
+| **Focus**          | Sharp and in focus                            | ✅ Yes (blur detection)  |
+| **Head Tilt**      | Face straight, not tilted                     | ✅ Yes (angle check)     |
+| **Print Quality**  | 300 DPI minimum                               | ✅ Yes                   |
 
 ### US Driver's License
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 2 × 2 inches | ✅ Yes |
-| **Background** | White or light | ✅ Yes |
-| **Other** | Similar to passport | ✅ Yes |
+| Requirement    | Specification       | We Check |
+| -------------- | ------------------- | -------- |
+| **Size**       | 2 × 2 inches        | ✅ Yes   |
+| **Background** | White or light      | ✅ Yes   |
+| **Other**      | Similar to passport | ✅ Yes   |
 
 ---
 
@@ -44,15 +44,15 @@ This document captures the official photo requirements for each supported countr
 
 **Source:** [GOV.UK](https://www.gov.uk/photos-for-passports)
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 35 × 45 mm | ✅ Yes |
-| **Head Height** | 29-34mm from chin to crown | ✅ Yes |
-| **Background** | Plain cream or light grey | ✅ Yes (white) |
-| **Expression** | Neutral, mouth closed | ❌ Not yet |
-| **Eyes** | Open, visible, looking at camera | ❌ Not yet |
-| **Glasses** | Allowed (no glare/tinted) | ℹ️ N/A |
-| **Focus** | Sharp | ✅ Yes |
+| Requirement     | Specification                    | We Check       |
+| --------------- | -------------------------------- | -------------- |
+| **Size**        | 35 × 45 mm                       | ✅ Yes         |
+| **Head Height** | 29-34mm from chin to crown       | ✅ Yes         |
+| **Background**  | Plain cream or light grey        | ✅ Yes (white) |
+| **Expression**  | Neutral, mouth closed            | ❌ Not yet     |
+| **Eyes**        | Open, visible, looking at camera | ❌ Not yet     |
+| **Glasses**     | Allowed (no glare/tinted)        | ℹ️ N/A         |
+| **Focus**       | Sharp                            | ✅ Yes         |
 
 ---
 
@@ -62,12 +62,12 @@ This document captures the official photo requirements for each supported countr
 
 **Source:** [ICAO Doc 9303](https://www.icao.int/publications/pages/publication.aspx?docnum=9303)
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 35 × 45 mm | ✅ Yes |
-| **Head Height** | 32-36mm | ✅ Yes |
-| **Background** | Light, uniform (white/grey/blue) | ✅ Yes |
-| **Focus** | Sharp, no blur | ✅ Yes |
+| Requirement     | Specification                    | We Check |
+| --------------- | -------------------------------- | -------- |
+| **Size**        | 35 × 45 mm                       | ✅ Yes   |
+| **Head Height** | 32-36mm                          | ✅ Yes   |
+| **Background**  | Light, uniform (white/grey/blue) | ✅ Yes   |
+| **Focus**       | Sharp, no blur                   | ✅ Yes   |
 
 ---
 
@@ -77,14 +77,14 @@ This document captures the official photo requirements for each supported countr
 
 **Source:** [Government of Canada](https://www.canada.ca/en/immigration-refugees-citizenship/services/canadian-passports/photos.html)
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 50 × 70 mm | ✅ Yes |
-| **Head Height** | 31-36mm | ✅ Yes |
-| **Eye Position** | 42mm from bottom | ✅ Yes |
-| **Background** | Plain white | ✅ Yes |
-| **Expression** | Neutral | ❌ Not yet |
-| **Glasses** | Allowed if no glare | ℹ️ N/A |
+| Requirement      | Specification       | We Check   |
+| ---------------- | ------------------- | ---------- |
+| **Size**         | 50 × 70 mm          | ✅ Yes     |
+| **Head Height**  | 31-36mm             | ✅ Yes     |
+| **Eye Position** | 42mm from bottom    | ✅ Yes     |
+| **Background**   | Plain white         | ✅ Yes     |
+| **Expression**   | Neutral             | ❌ Not yet |
+| **Glasses**      | Allowed if no glare | ℹ️ N/A     |
 
 ---
 
@@ -94,12 +94,12 @@ This document captures the official photo requirements for each supported countr
 
 **Source:** [Passport Seva](https://www.passportindia.gov.in/)
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 2 × 2 inches (51 × 51 mm) | ✅ Yes |
-| **Head Height** | 25-35mm | ✅ Yes |
-| **Background** | Plain white | ✅ Yes |
-| **Expression** | Neutral | ❌ Not yet |
+| Requirement     | Specification             | We Check   |
+| --------------- | ------------------------- | ---------- |
+| **Size**        | 2 × 2 inches (51 × 51 mm) | ✅ Yes     |
+| **Head Height** | 25-35mm                   | ✅ Yes     |
+| **Background**  | Plain white               | ✅ Yes     |
+| **Expression**  | Neutral                   | ❌ Not yet |
 
 ---
 
@@ -107,11 +107,11 @@ This document captures the official photo requirements for each supported countr
 
 ### China Passport / Visa
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 33 × 48 mm | ✅ Yes |
-| **Head Height** | 28-33mm | ✅ Yes |
-| **Background** | White | ✅ Yes |
+| Requirement     | Specification | We Check |
+| --------------- | ------------- | -------- |
+| **Size**        | 33 × 48 mm    | ✅ Yes   |
+| **Head Height** | 28-33mm       | ✅ Yes   |
+| **Background**  | White         | ✅ Yes   |
 
 ---
 
@@ -119,11 +119,11 @@ This document captures the official photo requirements for each supported countr
 
 ### Japan Passport
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 35 × 45 mm | ✅ Yes |
-| **Head Height** | 32-36mm | ✅ Yes |
-| **Background** | Plain (white/blue/grey) | ✅ Yes |
+| Requirement     | Specification           | We Check |
+| --------------- | ----------------------- | -------- |
+| **Size**        | 35 × 45 mm              | ✅ Yes   |
+| **Head Height** | 32-36mm                 | ✅ Yes   |
+| **Background**  | Plain (white/blue/grey) | ✅ Yes   |
 
 ---
 
@@ -133,11 +133,11 @@ This document captures the official photo requirements for each supported countr
 
 **Source:** [Australian Passport Office](https://www.passports.gov.au/getting-passport-how-it-works/photo-guidelines)
 
-| Requirement | Specification | We Check |
-|-------------|---------------|----------|
-| **Size** | 35 × 45 mm | ✅ Yes |
-| **Head Height** | 32-36mm | ✅ Yes |
-| **Background** | Plain light | ✅ Yes |
+| Requirement     | Specification | We Check |
+| --------------- | ------------- | -------- |
+| **Size**        | 35 × 45 mm    | ✅ Yes   |
+| **Head Height** | 32-36mm       | ✅ Yes   |
+| **Background**  | Plain light   | ✅ Yes   |
 
 ---
 
@@ -174,4 +174,4 @@ This document captures the official photo requirements for each supported countr
 
 ---
 
-*Last updated: January 2026*
+_Last updated: January 2026_

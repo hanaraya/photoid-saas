@@ -25,12 +25,12 @@ const createMockCanvas = () => {
     height: 400,
     colorSpace: 'srgb',
   };
-  
+
   const ctxMock = {
     drawImage: jest.fn(),
     getImageData: jest.fn(() => imageDataMock),
   };
-  
+
   return { ctxMock, imageDataMock };
 };
 
@@ -51,7 +51,7 @@ const originalCreateElement = document.createElement.bind(document);
 describe('Image Analysis - Blur Detection', () => {
   beforeEach(() => {
     const { ctxMock, imageDataMock } = createMockCanvas();
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -76,17 +76,19 @@ describe('Image Analysis - Blur Detection', () => {
     });
 
     it('should return 999 when context is unavailable', () => {
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width: 0,
-            height: 0,
-            getContext: jest.fn(() => null),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width: 0,
+              height: 0,
+              getContext: jest.fn(() => null),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(800, 600);
       const score = detectBlur(img);
       expect(score).toBe(999);
@@ -111,7 +113,7 @@ describe('Image Analysis - Blur Detection', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Create a pattern with edges (sharp)
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
@@ -123,10 +125,10 @@ describe('Image Analysis - Blur Detection', () => {
           data[idx + 3] = 255;
         }
       }
-      
+
       const imageData: ImageData = { data, width, height, colorSpace: 'srgb' };
       const score = calculateBlurScore(imageData);
-      
+
       expect(score).toBeGreaterThan(0);
     });
 
@@ -134,7 +136,7 @@ describe('Image Analysis - Blur Detection', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Uniform gray (no edges = blurry)
       for (let i = 0; i < data.length; i += 4) {
         data[i] = 128;
@@ -142,17 +144,22 @@ describe('Image Analysis - Blur Detection', () => {
         data[i + 2] = 128;
         data[i + 3] = 255;
       }
-      
+
       const imageData: ImageData = { data, width, height, colorSpace: 'srgb' };
       const score = calculateBlurScore(imageData);
-      
+
       // Uniform image should have very low variance
       expect(score).toBeLessThan(10);
     });
 
     it('should return 0 for tiny images', () => {
       const data = new Uint8ClampedArray(2 * 2 * 4);
-      const imageData: ImageData = { data, width: 2, height: 2, colorSpace: 'srgb' };
+      const imageData: ImageData = {
+        data,
+        width: 2,
+        height: 2,
+        colorSpace: 'srgb',
+      };
       const score = calculateBlurScore(imageData);
       expect(score).toBe(0);
     });
@@ -161,7 +168,7 @@ describe('Image Analysis - Blur Detection', () => {
       const width = 50;
       const height = 50;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Vertical black/white stripes (high frequency)
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
@@ -173,10 +180,10 @@ describe('Image Analysis - Blur Detection', () => {
           data[idx + 3] = 255;
         }
       }
-      
+
       const imageData: ImageData = { data, width, height, colorSpace: 'srgb' };
       const score = calculateBlurScore(imageData);
-      
+
       // High contrast edges should produce high score
       expect(score).toBeGreaterThan(1000);
     });
@@ -186,7 +193,7 @@ describe('Image Analysis - Blur Detection', () => {
 describe('Image Analysis - Exposure Detection', () => {
   beforeEach(() => {
     const { ctxMock, imageDataMock } = createMockCanvas();
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -207,7 +214,7 @@ describe('Image Analysis - Exposure Detection', () => {
     it('should return ExposureAnalysis object', () => {
       const img = createMockImage(800, 600);
       const result = analyzeExposure(img);
-      
+
       expect(result).toHaveProperty('brightness');
       expect(result).toHaveProperty('isOverexposed');
       expect(result).toHaveProperty('isUnderexposed');
@@ -218,7 +225,7 @@ describe('Image Analysis - Exposure Detection', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Fill with medium gray (properly exposed)
       for (let i = 0; i < data.length; i += 4) {
         data[i] = 128;
@@ -226,7 +233,7 @@ describe('Image Analysis - Exposure Detection', () => {
         data[i + 2] = 128;
         data[i + 3] = 255;
       }
-      
+
       const ctxMockProperExposure = {
         drawImage: jest.fn(),
         getImageData: jest.fn(() => ({
@@ -236,21 +243,23 @@ describe('Image Analysis - Exposure Detection', () => {
           colorSpace: 'srgb',
         })),
       };
-      
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width: 0,
-            height: 0,
-            getContext: jest.fn(() => ctxMockProperExposure),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width: 0,
+              height: 0,
+              getContext: jest.fn(() => ctxMockProperExposure),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(width, height);
       const result = analyzeExposure(img);
-      
+
       expect(result.isProperlyExposed).toBe(true);
       expect(result.isOverexposed).toBe(false);
       expect(result.isUnderexposed).toBe(false);
@@ -260,7 +269,7 @@ describe('Image Analysis - Exposure Detection', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Fill with very bright values (overexposed)
       for (let i = 0; i < data.length; i += 4) {
         data[i] = 250;
@@ -268,7 +277,7 @@ describe('Image Analysis - Exposure Detection', () => {
         data[i + 2] = 250;
         data[i + 3] = 255;
       }
-      
+
       const ctxMockBright = {
         drawImage: jest.fn(),
         getImageData: jest.fn(() => ({
@@ -278,21 +287,23 @@ describe('Image Analysis - Exposure Detection', () => {
           colorSpace: 'srgb',
         })),
       };
-      
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width: 0,
-            height: 0,
-            getContext: jest.fn(() => ctxMockBright),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width: 0,
+              height: 0,
+              getContext: jest.fn(() => ctxMockBright),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(width, height);
       const result = analyzeExposure(img);
-      
+
       expect(result.isOverexposed).toBe(true);
       expect(result.isProperlyExposed).toBe(false);
       expect(result.brightness).toBeGreaterThan(200);
@@ -303,7 +314,7 @@ describe('Image Analysis - Exposure Detection', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Fill with very dark values (underexposed)
       for (let i = 0; i < data.length; i += 4) {
         data[i] = 30;
@@ -311,37 +322,39 @@ describe('Image Analysis - Exposure Detection', () => {
         data[i + 2] = 30;
         data[i + 3] = 255;
       }
-      
+
       ctxMock.getImageData = jest.fn(() => ({
         data,
         width,
         height,
         colorSpace: 'srgb',
       }));
-      
+
       const img = createMockImage(width, height);
       const result = analyzeExposure(img);
-      
+
       expect(result.isUnderexposed).toBe(true);
       expect(result.isProperlyExposed).toBe(false);
       expect(result.brightness).toBeLessThan(60);
     });
 
     it('should return safe defaults when context unavailable', () => {
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width: 0,
-            height: 0,
-            getContext: jest.fn(() => null),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width: 0,
+              height: 0,
+              getContext: jest.fn(() => null),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(800, 600);
       const result = analyzeExposure(img);
-      
+
       expect(result.brightness).toBe(128);
       expect(result.isProperlyExposed).toBe(true);
     });
@@ -350,17 +363,17 @@ describe('Image Analysis - Exposure Detection', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // 40% of pixels at max brightness (clipped highlights)
       for (let i = 0; i < data.length; i += 4) {
-        const isHighlight = (i / 4) < (width * height * 0.4);
+        const isHighlight = i / 4 < width * height * 0.4;
         const value = isHighlight ? 255 : 100;
         data[i] = value;
         data[i + 1] = value;
         data[i + 2] = value;
         data[i + 3] = 255;
       }
-      
+
       const ctxMockHighlight = {
         drawImage: jest.fn(),
         getImageData: jest.fn(() => ({
@@ -370,21 +383,23 @@ describe('Image Analysis - Exposure Detection', () => {
           colorSpace: 'srgb',
         })),
       };
-      
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width: 0,
-            height: 0,
-            getContext: jest.fn(() => ctxMockHighlight),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width: 0,
+              height: 0,
+              getContext: jest.fn(() => ctxMockHighlight),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(width, height);
       const result = analyzeExposure(img);
-      
+
       // Should detect clipped highlights - 40% of pixels at 255 triggers overexposed
       expect(result.isOverexposed).toBe(true);
     });
@@ -394,7 +409,7 @@ describe('Image Analysis - Exposure Detection', () => {
 describe('Image Analysis - Halo Detection', () => {
   beforeEach(() => {
     const { ctxMock, imageDataMock } = createMockCanvas();
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -415,7 +430,7 @@ describe('Image Analysis - Halo Detection', () => {
     it('should return HaloAnalysis object', () => {
       const img = createMockImage(600, 600);
       const result = detectHaloArtifacts(img, null);
-      
+
       expect(result).toHaveProperty('haloScore');
       expect(result).toHaveProperty('hasHaloArtifacts');
       expect(result).toHaveProperty('edgeQuality');
@@ -425,17 +440,17 @@ describe('Image Analysis - Halo Detection', () => {
       const width = 400;
       const height = 400;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Create image with clean white background and dark center
       const centerX = width / 2;
       const centerY = height / 2;
       const radius = 100;
-      
+
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const idx = (y * width + x) * 4;
           const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-          
+
           if (dist < radius) {
             // Dark face area
             data[idx] = 150;
@@ -450,7 +465,7 @@ describe('Image Analysis - Halo Detection', () => {
           data[idx + 3] = 255;
         }
       }
-      
+
       const ctxMockClean = {
         drawImage: jest.fn(),
         getImageData: jest.fn(() => ({
@@ -460,21 +475,23 @@ describe('Image Analysis - Halo Detection', () => {
           colorSpace: 'srgb',
         })),
       };
-      
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width,
-            height,
-            getContext: jest.fn(() => ctxMockClean),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width,
+              height,
+              getContext: jest.fn(() => ctxMockClean),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(width, height);
       const result = detectHaloArtifacts(img, null);
-      
+
       expect(result.hasHaloArtifacts).toBe(false);
       expect(result.edgeQuality).toBeGreaterThanOrEqual(0);
     });
@@ -483,17 +500,17 @@ describe('Image Analysis - Halo Detection', () => {
       const width = 400;
       const height = 400;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       const centerX = width / 2;
       const centerY = height * 0.4;
       const innerRadius = 80;
       const haloRadius = 100;
-      
+
       for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
           const idx = (y * width + x) * 4;
           const dist = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-          
+
           if (dist < innerRadius) {
             // Dark face area
             data[idx] = 150;
@@ -513,7 +530,7 @@ describe('Image Analysis - Halo Detection', () => {
           data[idx + 3] = 255;
         }
       }
-      
+
       const ctxMockHalo = {
         drawImage: jest.fn(),
         getImageData: jest.fn(() => ({
@@ -523,21 +540,23 @@ describe('Image Analysis - Halo Detection', () => {
           colorSpace: 'srgb',
         })),
       };
-      
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width,
-            height,
-            getContext: jest.fn(() => ctxMockHalo),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width,
+              height,
+              getContext: jest.fn(() => ctxMockHalo),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(width, height);
       const result = detectHaloArtifacts(img, null);
-      
+
       // Should detect halo (at least some signal)
       expect(result.haloScore).toBeGreaterThanOrEqual(0);
     });
@@ -545,35 +564,37 @@ describe('Image Analysis - Halo Detection', () => {
     it('should use face data to focus scan region', () => {
       const { ctxMock } = createMockCanvas();
       const img = createMockImage(600, 800);
-      
+
       const faceData = {
         x: 200,
         y: 150,
         w: 200,
         h: 250,
       };
-      
+
       const result = detectHaloArtifacts(img, faceData);
-      
+
       expect(result).toHaveProperty('haloScore');
       expect(result).toHaveProperty('edgeQuality');
     });
 
     it('should return safe defaults when context unavailable', () => {
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width: 0,
-            height: 0,
-            getContext: jest.fn(() => null),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width: 0,
+              height: 0,
+              getContext: jest.fn(() => null),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(600, 600);
       const result = detectHaloArtifacts(img, null);
-      
+
       expect(result.haloScore).toBe(0);
       expect(result.hasHaloArtifacts).toBe(false);
       expect(result.edgeQuality).toBe(100);
@@ -586,7 +607,7 @@ describe('Image Analysis - Eye Tilt Detection', () => {
     it('should return 0 when eyes are level', () => {
       const leftEye = { x: 100, y: 100 };
       const rightEye = { x: 200, y: 100 };
-      
+
       const tilt = calculateEyeTilt(leftEye, rightEye);
       expect(tilt).toBe(0);
     });
@@ -594,7 +615,7 @@ describe('Image Analysis - Eye Tilt Detection', () => {
     it('should return positive angle when right eye is higher', () => {
       const leftEye = { x: 100, y: 110 };
       const rightEye = { x: 200, y: 100 };
-      
+
       const tilt = calculateEyeTilt(leftEye, rightEye);
       expect(tilt).toBeLessThan(0); // Right eye higher = negative angle
     });
@@ -602,7 +623,7 @@ describe('Image Analysis - Eye Tilt Detection', () => {
     it('should return negative angle when left eye is higher', () => {
       const leftEye = { x: 100, y: 100 };
       const rightEye = { x: 200, y: 110 };
-      
+
       const tilt = calculateEyeTilt(leftEye, rightEye);
       expect(tilt).toBeGreaterThan(0); // Right eye lower = positive angle
     });
@@ -625,7 +646,7 @@ describe('Image Analysis - Eye Tilt Detection', () => {
     it('should calculate correct angle for 45 degree tilt', () => {
       const leftEye = { x: 100, y: 100 };
       const rightEye = { x: 200, y: 200 };
-      
+
       const tilt = calculateEyeTilt(leftEye, rightEye);
       expect(tilt).toBeCloseTo(45, 0);
     });
@@ -635,7 +656,7 @@ describe('Image Analysis - Eye Tilt Detection', () => {
 describe('Image Analysis - Grayscale Detection', () => {
   beforeEach(() => {
     const { ctxMock } = createMockCanvas();
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -658,7 +679,7 @@ describe('Image Analysis - Grayscale Detection', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Create grayscale pattern (R=G=B)
       for (let i = 0; i < data.length; i += 4) {
         const gray = (i / 4) % 256;
@@ -667,17 +688,17 @@ describe('Image Analysis - Grayscale Detection', () => {
         data[i + 2] = gray;
         data[i + 3] = 255;
       }
-      
+
       ctxMock.getImageData = jest.fn(() => ({
         data,
         width,
         height,
         colorSpace: 'srgb',
       }));
-      
+
       const img = createMockImage(width, height);
       const result = detectGrayscale(img);
-      
+
       expect(result).toBe(true);
     });
 
@@ -685,15 +706,15 @@ describe('Image Analysis - Grayscale Detection', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Create colorful pattern with significant color difference
       for (let i = 0; i < data.length; i += 4) {
-        data[i] = 200;     // Red
+        data[i] = 200; // Red
         data[i + 1] = 100; // Green
-        data[i + 2] = 50;  // Blue
+        data[i + 2] = 50; // Blue
         data[i + 3] = 255;
       }
-      
+
       const ctxMockColor = {
         drawImage: jest.fn(),
         getImageData: jest.fn(() => ({
@@ -703,39 +724,43 @@ describe('Image Analysis - Grayscale Detection', () => {
           colorSpace: 'srgb',
         })),
       };
-      
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width: 0,
-            height: 0,
-            getContext: jest.fn(() => ctxMockColor),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width: 0,
+              height: 0,
+              getContext: jest.fn(() => ctxMockColor),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(width, height);
       const result = detectGrayscale(img);
-      
+
       expect(result).toBe(false);
     });
 
     it('should return false when context unavailable', () => {
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width: 0,
-            height: 0,
-            getContext: jest.fn(() => null),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width: 0,
+              height: 0,
+              getContext: jest.fn(() => null),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(100, 100);
       const result = detectGrayscale(img);
-      
+
       expect(result).toBe(false);
     });
   });
@@ -744,7 +769,7 @@ describe('Image Analysis - Grayscale Detection', () => {
 describe('Image Analysis - Face Lighting', () => {
   beforeEach(() => {
     const { ctxMock } = createMockCanvas();
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -773,7 +798,7 @@ describe('Image Analysis - Face Lighting', () => {
       const width = 400;
       const height = 400;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Even lighting across face
       for (let i = 0; i < data.length; i += 4) {
         data[i] = 150;
@@ -781,18 +806,18 @@ describe('Image Analysis - Face Lighting', () => {
         data[i + 2] = 120;
         data[i + 3] = 255;
       }
-      
+
       ctxMock.getImageData = jest.fn(() => ({
         data,
         width,
         height,
         colorSpace: 'srgb',
       }));
-      
+
       const img = createMockImage(width, height);
       const faceData = { x: 100, y: 100, w: 200, h: 200 };
       const score = analyzeFaceLighting(img, faceData);
-      
+
       expect(score).toBeGreaterThan(80);
     });
 
@@ -802,16 +827,22 @@ describe('Image Analysis - Face Lighting', () => {
       const width = 400;
       const height = 400;
       const faceData = { x: 50, y: 50, w: 300, h: 300 };
-      
+
       // Calculate the face region with padding (as the function does)
       const padding = faceData.w * 0.1;
       const faceX = Math.max(0, Math.round(faceData.x - padding));
       const faceY = Math.max(0, Math.round(faceData.y - padding));
-      const faceW = Math.min(width - faceX, Math.round(faceData.w + padding * 2));
-      const faceH = Math.min(height - faceY, Math.round(faceData.h + padding * 2));
-      
+      const faceW = Math.min(
+        width - faceX,
+        Math.round(faceData.w + padding * 2)
+      );
+      const faceH = Math.min(
+        height - faceY,
+        Math.round(faceData.h + padding * 2)
+      );
+
       const data = new Uint8ClampedArray(faceW * faceH * 4);
-      
+
       // Left side dark, right side bright within face region
       for (let py = 0; py < faceH; py++) {
         for (let px = 0; px < faceW; px++) {
@@ -823,31 +854,35 @@ describe('Image Analysis - Face Lighting', () => {
           data[idx + 3] = 255;
         }
       }
-      
+
       const ctxMockShadow = {
         drawImage: jest.fn(),
-        getImageData: jest.fn().mockImplementation((x: number, y: number, w: number, h: number) => ({
-          data,
-          width: w,
-          height: h,
-          colorSpace: 'srgb',
-        })),
+        getImageData: jest
+          .fn()
+          .mockImplementation((x: number, y: number, w: number, h: number) => ({
+            data,
+            width: w,
+            height: h,
+            colorSpace: 'srgb',
+          })),
       };
-      
-      jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
-        if (tag === 'canvas') {
-          return {
-            width,
-            height,
-            getContext: jest.fn(() => ctxMockShadow),
-          } as unknown as HTMLCanvasElement;
-        }
-        return originalCreateElement(tag);
-      });
-      
+
+      jest
+        .spyOn(document, 'createElement')
+        .mockImplementation((tag: string) => {
+          if (tag === 'canvas') {
+            return {
+              width,
+              height,
+              getContext: jest.fn(() => ctxMockShadow),
+            } as unknown as HTMLCanvasElement;
+          }
+          return originalCreateElement(tag);
+        });
+
       const img = createMockImage(width, height);
       const score = analyzeFaceLighting(img, faceData);
-      
+
       // With 60 vs 200 brightness, asymmetry should be detected
       expect(score).toBeLessThan(80);
     });
@@ -855,11 +890,11 @@ describe('Image Analysis - Face Lighting', () => {
     it('should handle face at image edge', () => {
       const { ctxMock } = createMockCanvas();
       const img = createMockImage(400, 400);
-      
+
       // Face at edge
       const faceData = { x: 0, y: 0, w: 100, h: 100 };
       const score = analyzeFaceLighting(img, faceData);
-      
+
       expect(typeof score).toBe('number');
       expect(score).toBeGreaterThanOrEqual(0);
       expect(score).toBeLessThanOrEqual(100);
@@ -870,7 +905,7 @@ describe('Image Analysis - Face Lighting', () => {
 describe('Image Analysis - Full analyzeImage Function', () => {
   beforeEach(() => {
     const { ctxMock } = createMockCanvas();
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -898,9 +933,9 @@ describe('Image Analysis - Full analyzeImage Function', () => {
         leftEye: { x: 250, y: 200 },
         rightEye: { x: 350, y: 200 },
       };
-      
+
       const result = analyzeImage(img, faceData);
-      
+
       expect(result).toHaveProperty('blurScore');
       expect(result).toHaveProperty('isBlurry');
       expect(result).toHaveProperty('eyeTilt');
@@ -915,7 +950,7 @@ describe('Image Analysis - Full analyzeImage Function', () => {
     it('should handle null face data', () => {
       const img = createMockImage(800, 600);
       const result = analyzeImage(img, null);
-      
+
       expect(result.eyeTilt).toBe(0);
       expect(result.isTilted).toBe(false);
       expect(result.faceLightingScore).toBe(100);
@@ -927,7 +962,7 @@ describe('Image Analysis - Full analyzeImage Function', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       // Uniform gray (blurry)
       for (let i = 0; i < data.length; i += 4) {
         data[i] = 128;
@@ -935,17 +970,17 @@ describe('Image Analysis - Full analyzeImage Function', () => {
         data[i + 2] = 128;
         data[i + 3] = 255;
       }
-      
+
       ctxMock.getImageData = jest.fn(() => ({
         data,
         width,
         height,
         colorSpace: 'srgb',
       }));
-      
+
       const img = createMockImage(width, height);
       const result = analyzeImage(img, null);
-      
+
       expect(result.blurScore).toBeLessThan(100);
       expect(result.isBlurry).toBe(true);
     });
@@ -960,9 +995,9 @@ describe('Image Analysis - Full analyzeImage Function', () => {
         leftEye: { x: 250, y: 200 },
         rightEye: { x: 350, y: 230 }, // Tilted significantly
       };
-      
+
       const result = analyzeImage(img, faceData);
-      
+
       expect(Math.abs(result.eyeTilt)).toBeGreaterThan(8);
       expect(result.isTilted).toBe(true);
     });
@@ -970,7 +1005,7 @@ describe('Image Analysis - Full analyzeImage Function', () => {
     it('should include exposure analysis', () => {
       const img = createMockImage(800, 600);
       const result = analyzeImage(img, null);
-      
+
       expect(result.exposure).toHaveProperty('brightness');
       expect(result.exposure).toHaveProperty('isOverexposed');
       expect(result.exposure).toHaveProperty('isUnderexposed');
@@ -980,7 +1015,7 @@ describe('Image Analysis - Full analyzeImage Function', () => {
     it('should include halo analysis', () => {
       const img = createMockImage(800, 600);
       const result = analyzeImage(img, null);
-      
+
       expect(result.halo).toHaveProperty('haloScore');
       expect(result.halo).toHaveProperty('hasHaloArtifacts');
       expect(result.halo).toHaveProperty('edgeQuality');
@@ -991,7 +1026,7 @@ describe('Image Analysis - Full analyzeImage Function', () => {
 describe('Image Analysis - Edge Cases', () => {
   beforeEach(() => {
     const { ctxMock } = createMockCanvas();
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -1016,10 +1051,10 @@ describe('Image Analysis - Edge Cases', () => {
       height: 1,
       colorSpace: 'srgb',
     }));
-    
+
     const img = createMockImage(1, 1);
     const result = analyzeImage(img, null);
-    
+
     expect(result).toBeDefined();
     expect(typeof result.blurScore).toBe('number');
   });
@@ -1027,7 +1062,7 @@ describe('Image Analysis - Edge Cases', () => {
   it('should handle very large images', () => {
     const img = createMockImage(10000, 10000);
     const result = analyzeImage(img, null);
-    
+
     expect(result).toBeDefined();
     expect(result.blurScore).toBeGreaterThanOrEqual(0);
   });
@@ -1036,14 +1071,14 @@ describe('Image Analysis - Edge Cases', () => {
     const width = 100;
     const height = 100;
     const data = new Uint8ClampedArray(width * height * 4);
-    
+
     for (let i = 0; i < data.length; i += 4) {
       data[i] = 255;
       data[i + 1] = 255;
       data[i + 2] = 255;
       data[i + 3] = 255;
     }
-    
+
     const ctxMockWhite = {
       drawImage: jest.fn(),
       getImageData: jest.fn(() => ({
@@ -1053,7 +1088,7 @@ describe('Image Analysis - Edge Cases', () => {
         colorSpace: 'srgb',
       })),
     };
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -1064,10 +1099,10 @@ describe('Image Analysis - Edge Cases', () => {
       }
       return originalCreateElement(tag);
     });
-    
+
     const img = createMockImage(width, height);
     const result = analyzeImage(img, null);
-    
+
     expect(result.exposure.isOverexposed).toBe(true);
     expect(result.isGrayscale).toBe(true);
   });
@@ -1076,12 +1111,12 @@ describe('Image Analysis - Edge Cases', () => {
     const width = 100;
     const height = 100;
     const data = new Uint8ClampedArray(width * height * 4);
-    
+
     // All zeros (black), alpha = 255
     for (let i = 0; i < data.length; i += 4) {
       data[i + 3] = 255;
     }
-    
+
     const ctxMockBlack = {
       drawImage: jest.fn(),
       getImageData: jest.fn(() => ({
@@ -1091,7 +1126,7 @@ describe('Image Analysis - Edge Cases', () => {
         colorSpace: 'srgb',
       })),
     };
-    
+
     jest.spyOn(document, 'createElement').mockImplementation((tag: string) => {
       if (tag === 'canvas') {
         return {
@@ -1102,10 +1137,10 @@ describe('Image Analysis - Edge Cases', () => {
       }
       return originalCreateElement(tag);
     });
-    
+
     const img = createMockImage(width, height);
     const result = analyzeImage(img, null);
-    
+
     expect(result.exposure.isUnderexposed).toBe(true);
   });
 
@@ -1119,7 +1154,7 @@ describe('Image Analysis - Edge Cases', () => {
       leftEye: { x: -50, y: 100 },
       rightEye: { x: 900, y: 100 },
     };
-    
+
     // Should not throw
     const result = analyzeImage(img, faceData);
     expect(result).toBeDefined();

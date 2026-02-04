@@ -10,7 +10,8 @@ interface FeedbackPayload {
 
 // Telegram bot config - uses same bot as notifications
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_FEEDBACK_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
+const TELEGRAM_CHAT_ID =
+  process.env.TELEGRAM_FEEDBACK_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
 
 async function sendToTelegram(feedback: FeedbackPayload): Promise<boolean> {
   if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
@@ -19,8 +20,9 @@ async function sendToTelegram(feedback: FeedbackPayload): Promise<boolean> {
   }
 
   const stars = '⭐'.repeat(feedback.rating) + '☆'.repeat(5 - feedback.rating);
-  const emoji = feedback.rating >= 4 ? '🎉' : feedback.rating >= 3 ? '👍' : '🔧';
-  
+  const emoji =
+    feedback.rating >= 4 ? '🎉' : feedback.rating >= 3 ? '👍' : '🔧';
+
   const message = `
 ${emoji} **New Feedback** - SafePassportPic
 
@@ -46,7 +48,7 @@ ${feedback.comment ? `💬 "${feedback.comment}"` : '_No comment_'}
         }),
       }
     );
-    
+
     return response.ok;
   } catch (error) {
     console.error('Failed to send feedback to Telegram:', error);
@@ -60,17 +62,11 @@ export async function POST(request: NextRequest) {
 
     // Validate
     if (!feedback.rating || feedback.rating < 1 || feedback.rating > 5) {
-      return NextResponse.json(
-        { error: 'Invalid rating' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid rating' }, { status: 400 });
     }
 
     if (feedback.comment && feedback.comment.length > 500) {
-      return NextResponse.json(
-        { error: 'Comment too long' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Comment too long' }, { status: 400 });
     }
 
     // Log feedback (always)
@@ -83,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     // Send to Telegram
     const telegramSent = await sendToTelegram(feedback);
-    
+
     // TODO: Store in database when we add one
     // await db.feedback.create({ data: feedback });
 

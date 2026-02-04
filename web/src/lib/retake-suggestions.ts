@@ -38,7 +38,8 @@ function mapCheckToSuggestion(check: ComplianceCheck): RetakeSuggestion | null {
       icon: '👤',
       title: 'Face Not Detected',
       problem: 'The camera could not find a face in your photo.',
-      solution: 'Make sure your face is clearly visible, well-lit, and facing the camera directly.',
+      solution:
+        'Make sure your face is clearly visible, well-lit, and facing the camera directly.',
       tips: [
         'Face the camera straight on',
         'Ensure good lighting on your face',
@@ -85,11 +86,13 @@ function mapCheckToSuggestion(check: ComplianceCheck): RetakeSuggestion | null {
       priority: 2,
       icon: '🖼️',
       title: 'Head Cropping',
-      problem: check.message.toLowerCase().includes('crown') || check.message.toLowerCase().includes('top')
-        ? 'The top of your head is being cut off.'
-        : check.message.toLowerCase().includes('chin')
-        ? 'Your chin is being cut off.'
-        : 'Part of your head is outside the frame.',
+      problem:
+        check.message.toLowerCase().includes('crown') ||
+        check.message.toLowerCase().includes('top')
+          ? 'The top of your head is being cut off.'
+          : check.message.toLowerCase().includes('chin')
+            ? 'Your chin is being cut off.'
+            : 'Part of your head is outside the frame.',
       solution: check.message.includes('retake')
         ? 'Retake the photo with more space above your head.'
         : 'Adjust zoom or position so your full head is visible.',
@@ -111,7 +114,8 @@ function mapCheckToSuggestion(check: ComplianceCheck): RetakeSuggestion | null {
       icon: '↔️',
       title: 'Head Not Centered',
       problem: 'Your head is not centered horizontally in the frame.',
-      solution: 'Move left or right so your face is in the middle of the photo.',
+      solution:
+        'Move left or right so your face is in the middle of the photo.',
       tips: [
         'Center yourself in the camera viewfinder',
         'Align your nose with the center of the frame',
@@ -135,11 +139,12 @@ function mapCheckToSuggestion(check: ComplianceCheck): RetakeSuggestion | null {
       icon: '📷',
       title: 'Low Resolution',
       problem: 'The photo resolution is too low for high-quality prints.',
-      solution: 'Use a higher resolution camera or take the photo in better lighting.',
+      solution:
+        'Use a higher resolution camera or take the photo in better lighting.',
       tips: [
-        'Use your phone\'s main camera (not selfie)',
+        "Use your phone's main camera (not selfie)",
         'Ensure "High Quality" is enabled in camera settings',
-        'Don\'t crop heavily before uploading',
+        "Don't crop heavily before uploading",
         'Avoid digital zoom',
       ],
     },
@@ -148,7 +153,8 @@ function mapCheckToSuggestion(check: ComplianceCheck): RetakeSuggestion | null {
       icon: '🔍',
       title: 'Blurry Photo',
       problem: 'The photo appears blurry or out of focus.',
-      solution: 'Hold the camera steady and ensure good focus before taking the photo.',
+      solution:
+        'Hold the camera steady and ensure good focus before taking the photo.',
       tips: [
         'Hold your phone with both hands',
         'Tap to focus on your face before shooting',
@@ -188,7 +194,8 @@ function mapCheckToSuggestion(check: ComplianceCheck): RetakeSuggestion | null {
       icon: '💡',
       title: 'Uneven Lighting',
       problem: 'There are shadows or uneven lighting on your face.',
-      solution: 'Position yourself so light falls evenly on both sides of your face.',
+      solution:
+        'Position yourself so light falls evenly on both sides of your face.',
       tips: [
         'Face a window for natural light',
         'Avoid overhead-only lighting',
@@ -212,17 +219,13 @@ function mapCheckToSuggestion(check: ComplianceCheck): RetakeSuggestion | null {
  * Checks if any suggestions require a retake vs. can be fixed with adjustments
  */
 export function needsRetake(suggestions: RetakeSuggestion[]): boolean {
-  const retakeRequiredIds = [
-    'face',
-    'sharpness',
-    'color_photo',
-    'resolution',
-  ];
-  
+  const retakeRequiredIds = ['face', 'sharpness', 'color_photo', 'resolution'];
+
   return suggestions.some(
     (s) =>
       retakeRequiredIds.includes(s.id) ||
-      (s.id === 'head_framing' && s.tips.includes('Cannot be fixed with current photo'))
+      (s.id === 'head_framing' &&
+        s.tips.includes('Cannot be fixed with current photo'))
   );
 }
 

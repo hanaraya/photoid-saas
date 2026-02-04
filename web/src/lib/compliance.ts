@@ -1,7 +1,7 @@
 import { type FaceData } from './face-detection';
-import { 
-  type PhotoStandard, 
-  specToPx, 
+import {
+  type PhotoStandard,
+  specToPx,
   type SpecPx,
   HEAD_TO_FACE_RATIO,
   CROWN_CLEARANCE_RATIO,
@@ -66,12 +66,15 @@ export function checkCompliance(
     const effectiveScale = baseScale * zoomFactor; // zoom in = head appears larger
     const headInOutputPx = estimatedHeadH * effectiveScale;
     const headHeightPercent = (headInOutputPx / spec.h) * 100;
-    
+
     // Compare against percentage range (derived from spec)
     const minHeadPercent = (spec.headMin / spec.h) * 100;
     const maxHeadPercent = (spec.headMax / spec.h) * 100;
 
-    if (headHeightPercent >= minHeadPercent && headHeightPercent <= maxHeadPercent) {
+    if (
+      headHeightPercent >= minHeadPercent &&
+      headHeightPercent <= maxHeadPercent
+    ) {
       checks.push({
         id: 'head_size',
         label: 'Head Size',
@@ -132,7 +135,7 @@ export function checkCompliance(
     // Check crown/chin visibility in the FINAL cropped output, not source
     const crownVisible = crownY >= adjCropY;
     const chinVisible = chinY <= adjCropY + adjCropH;
-    
+
     // Only fail if crown is actually cut off (crownY < 0 means crown above image)
     const sourceHasInsufficientHeadroom = crownY < 0;
 
@@ -141,7 +144,8 @@ export function checkCompliance(
         id: 'head_framing',
         label: 'Head Framing',
         status: 'fail',
-        message: 'Source photo has head too close to top — retake with more space above head',
+        message:
+          'Source photo has head too close to top — retake with more space above head',
       });
     } else if (crownVisible && chinVisible) {
       checks.push({

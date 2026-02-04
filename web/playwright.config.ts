@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 /**
  * Comprehensive E2E Test Configuration for SafePassportPic
- * 
+ *
  * Includes:
  * - User journey tests
  * - Country standards tests
@@ -10,7 +10,7 @@ import { defineConfig, devices } from '@playwright/test';
  * - Compliance verification tests
  * - Camera capture tests
  * - Payment flow tests
- * 
+ *
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({

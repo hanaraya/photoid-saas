@@ -18,15 +18,45 @@ describe('ComplianceSummary', () => {
   const mockOnRetake = jest.fn();
 
   const passingChecks: ComplianceCheck[] = [
-    { id: 'face', label: 'Face Detection', status: 'pass', message: 'Face detected' },
-    { id: 'head_size', label: 'Head Size', status: 'pass', message: 'Good size' },
-    { id: 'eye_position', label: 'Eye Position', status: 'pass', message: 'Eyes centered' },
+    {
+      id: 'face',
+      label: 'Face Detection',
+      status: 'pass',
+      message: 'Face detected',
+    },
+    {
+      id: 'head_size',
+      label: 'Head Size',
+      status: 'pass',
+      message: 'Good size',
+    },
+    {
+      id: 'eye_position',
+      label: 'Eye Position',
+      status: 'pass',
+      message: 'Eyes centered',
+    },
   ];
 
   const failingChecks: ComplianceCheck[] = [
-    { id: 'face', label: 'Face Detection', status: 'pass', message: 'Face detected' },
-    { id: 'head_size', label: 'Head Size', status: 'warn', message: 'Too small' },
-    { id: 'eye_position', label: 'Eye Position', status: 'fail', message: 'Eyes not visible' },
+    {
+      id: 'face',
+      label: 'Face Detection',
+      status: 'pass',
+      message: 'Face detected',
+    },
+    {
+      id: 'head_size',
+      label: 'Head Size',
+      status: 'warn',
+      message: 'Too small',
+    },
+    {
+      id: 'eye_position',
+      label: 'Eye Position',
+      status: 'fail',
+      message: 'Eyes not visible',
+    },
   ];
 
   const defaultProps = {
@@ -196,7 +226,12 @@ describe('ComplianceSummary', () => {
 
   it('should handle single item text correctly', () => {
     const singleFail: ComplianceCheck[] = [
-      { id: 'head_size', label: 'Head Size', status: 'warn', message: 'Too small' },
+      {
+        id: 'head_size',
+        label: 'Head Size',
+        status: 'warn',
+        message: 'Too small',
+      },
     ];
 
     render(<ComplianceSummary {...defaultProps} checks={singleFail} />);

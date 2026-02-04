@@ -31,7 +31,7 @@ function AppContent() {
 
   // Set country from URL parameter (e.g., /app?country=uk)
   // Syncing URL state to component state is a valid pattern
-   
+
   useEffect(() => {
     const country = searchParams.get('country');
     if (country && STANDARDS[country]) {
@@ -219,8 +219,7 @@ function AppContent() {
                 📸 Passport Photo Maker
               </h1>
               <p className="mt-2 text-muted-foreground">
-                Snap a selfie → auto-detect face → get printable passport
-                photos
+                Snap a selfie → auto-detect face → get printable passport photos
               </p>
             </div>
 
@@ -230,8 +229,12 @@ function AppContent() {
                 // Simplified view when coming from country-specific page
                 <div className="flex items-center justify-between rounded-lg border border-border bg-card p-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{STANDARDS[selectedStandardId]?.flag}</span>
-                    <span className="font-medium">{STANDARDS[selectedStandardId]?.name}</span>
+                    <span className="text-xl">
+                      {STANDARDS[selectedStandardId]?.flag}
+                    </span>
+                    <span className="font-medium">
+                      {STANDARDS[selectedStandardId]?.name}
+                    </span>
                   </div>
                   <button
                     type="button"

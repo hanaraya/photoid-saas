@@ -71,10 +71,7 @@ function createUniformImageData(
 /**
  * Create test image data with gradient (less uniform)
  */
-function createGradientImageData(
-  width: number,
-  height: number
-): ImageData {
+function createGradientImageData(width: number, height: number): ImageData {
   const data = new Uint8ClampedArray(width * height * 4);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
@@ -183,35 +180,57 @@ describe('convertFaceApiResult', () => {
   });
 
   test('should convert valid face-api result', () => {
-    const faceApiResult = [{
-      detection: {
-        box: { x: 100, y: 50, width: 200, height: 250 },
-        score: 0.92,
+    const faceApiResult = [
+      {
+        detection: {
+          box: { x: 100, y: 50, width: 200, height: 250 },
+          score: 0.92,
+        },
       },
-    }];
+    ];
 
     const result = convertFaceApiResult(faceApiResult);
 
     expect(result.detected).toBe(true);
     expect(result.count).toBe(1);
     expect(result.confidence).toBe(0.92);
-    expect(result.boundingBox).toEqual({ x: 100, y: 50, width: 200, height: 250 });
+    expect(result.boundingBox).toEqual({
+      x: 100,
+      y: 50,
+      width: 200,
+      height: 250,
+    });
   });
 
   test('should convert face-api result with landmarks', () => {
-    const faceApiResult = [{
-      detection: {
-        box: { x: 100, y: 50, width: 200, height: 250 },
-        score: 0.92,
+    const faceApiResult = [
+      {
+        detection: {
+          box: { x: 100, y: 50, width: 200, height: 250 },
+          score: 0.92,
+        },
+        landmarks: {
+          getLeftEye: () => [
+            { x: 150, y: 120 },
+            { x: 160, y: 120 },
+          ],
+          getRightEye: () => [
+            { x: 240, y: 120 },
+            { x: 250, y: 120 },
+          ],
+          getNose: () => [{ x: 200, y: 180 }],
+          getMouth: () => [
+            { x: 180, y: 230 },
+            { x: 220, y: 230 },
+          ],
+          getJawOutline: () => [
+            { x: 100, y: 250 },
+            { x: 150, y: 280 },
+            { x: 200, y: 300 },
+          ],
+        },
       },
-      landmarks: {
-        getLeftEye: () => [{ x: 150, y: 120 }, { x: 160, y: 120 }],
-        getRightEye: () => [{ x: 240, y: 120 }, { x: 250, y: 120 }],
-        getNose: () => [{ x: 200, y: 180 }],
-        getMouth: () => [{ x: 180, y: 230 }, { x: 220, y: 230 }],
-        getJawOutline: () => [{ x: 100, y: 250 }, { x: 150, y: 280 }, { x: 200, y: 300 }],
-      },
-    }];
+    ];
 
     const result = convertFaceApiResult(faceApiResult);
 
@@ -222,13 +241,15 @@ describe('convertFaceApiResult', () => {
   });
 
   test('should convert face-api result with rotation', () => {
-    const faceApiResult = [{
-      detection: {
-        box: { x: 100, y: 50, width: 200, height: 250 },
-        score: 0.92,
+    const faceApiResult = [
+      {
+        detection: {
+          box: { x: 100, y: 50, width: 200, height: 250 },
+          score: 0.92,
+        },
+        angle: { pitch: 5, yaw: -3, roll: 2 },
       },
-      angle: { pitch: 5, yaw: -3, roll: 2 },
-    }];
+    ];
 
     const result = convertFaceApiResult(faceApiResult);
 
@@ -238,10 +259,16 @@ describe('convertFaceApiResult', () => {
   test('should count multiple faces correctly', () => {
     const faceApiResult = [
       {
-        detection: { box: { x: 50, y: 50, width: 100, height: 120 }, score: 0.9 },
+        detection: {
+          box: { x: 50, y: 50, width: 100, height: 120 },
+          score: 0.9,
+        },
       },
       {
-        detection: { box: { x: 300, y: 50, width: 100, height: 120 }, score: 0.85 },
+        detection: {
+          box: { x: 300, y: 50, width: 100, height: 120 },
+          score: 0.85,
+        },
       },
     ];
 
@@ -262,7 +289,11 @@ describe('convertMediaPipeResult', () => {
   const imageHeight = 480;
 
   test('should return default detection for empty results', () => {
-    const result = convertMediaPipeResult({ detections: [] }, imageWidth, imageHeight);
+    const result = convertMediaPipeResult(
+      { detections: [] },
+      imageWidth,
+      imageHeight
+    );
 
     expect(result.detected).toBe(false);
     expect(result.count).toBe(0);
@@ -270,18 +301,24 @@ describe('convertMediaPipeResult', () => {
 
   test('should convert MediaPipe detection result', () => {
     const mediaPipeResult = {
-      detections: [{
-        boundingBox: {
-          xCenter: 0.5, // Center of image
-          yCenter: 0.5,
-          width: 0.3,
-          height: 0.4,
+      detections: [
+        {
+          boundingBox: {
+            xCenter: 0.5, // Center of image
+            yCenter: 0.5,
+            width: 0.3,
+            height: 0.4,
+          },
+          keypoints: [],
         },
-        keypoints: [],
-      }],
+      ],
     };
 
-    const result = convertMediaPipeResult(mediaPipeResult, imageWidth, imageHeight);
+    const result = convertMediaPipeResult(
+      mediaPipeResult,
+      imageWidth,
+      imageHeight
+    );
 
     expect(result.detected).toBe(true);
     expect(result.count).toBe(1);
@@ -294,18 +331,24 @@ describe('convertMediaPipeResult', () => {
 
   test('should convert MediaPipe keypoints to landmarks', () => {
     const mediaPipeResult = {
-      detections: [{
-        boundingBox: { xCenter: 0.5, yCenter: 0.5, width: 0.3, height: 0.4 },
-        keypoints: [
-          { x: 0.4, y: 0.4, name: 'leftEye' },
-          { x: 0.6, y: 0.4, name: 'rightEye' },
-          { x: 0.5, y: 0.5, name: 'noseTip' },
-          { x: 0.5, y: 0.6, name: 'mouthCenter' },
-        ],
-      }],
+      detections: [
+        {
+          boundingBox: { xCenter: 0.5, yCenter: 0.5, width: 0.3, height: 0.4 },
+          keypoints: [
+            { x: 0.4, y: 0.4, name: 'leftEye' },
+            { x: 0.6, y: 0.4, name: 'rightEye' },
+            { x: 0.5, y: 0.5, name: 'noseTip' },
+            { x: 0.5, y: 0.6, name: 'mouthCenter' },
+          ],
+        },
+      ],
     };
 
-    const result = convertMediaPipeResult(mediaPipeResult, imageWidth, imageHeight);
+    const result = convertMediaPipeResult(
+      mediaPipeResult,
+      imageWidth,
+      imageHeight
+    );
 
     expect(result.landmarks?.leftEye).toEqual({ x: 256, y: 192 }); // 0.4 * 640, 0.4 * 480
     expect(result.landmarks?.rightEye).toEqual({ x: 384, y: 192 });
@@ -316,12 +359,22 @@ describe('convertMediaPipeResult', () => {
   test('should count multiple detections', () => {
     const mediaPipeResult = {
       detections: [
-        { boundingBox: { xCenter: 0.3, yCenter: 0.5, width: 0.2, height: 0.3 }, keypoints: [] },
-        { boundingBox: { xCenter: 0.7, yCenter: 0.5, width: 0.2, height: 0.3 }, keypoints: [] },
+        {
+          boundingBox: { xCenter: 0.3, yCenter: 0.5, width: 0.2, height: 0.3 },
+          keypoints: [],
+        },
+        {
+          boundingBox: { xCenter: 0.7, yCenter: 0.5, width: 0.2, height: 0.3 },
+          keypoints: [],
+        },
       ],
     };
 
-    const result = convertMediaPipeResult(mediaPipeResult, imageWidth, imageHeight);
+    const result = convertMediaPipeResult(
+      mediaPipeResult,
+      imageWidth,
+      imageHeight
+    );
 
     expect(result.count).toBe(2);
   });

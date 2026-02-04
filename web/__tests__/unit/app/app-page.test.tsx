@@ -205,6 +205,7 @@ describe('AppPage with payment', () => {
       expect(screen.getByTestId('photo-editor')).toBeInTheDocument();
     });
 
+    // @ts-expect-error - Restoring original window.location
     window.location = originalLocation;
   });
 

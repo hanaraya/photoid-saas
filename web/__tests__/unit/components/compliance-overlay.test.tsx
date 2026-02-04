@@ -15,27 +15,27 @@ import type { FaceData } from '@/lib/face-detection';
  * SPEC DOCUMENTATION: Photo Standard Measurement Requirements
  * ============================================================
  * PRIORITY COUNTRIES ONLY (11 document types)
- * 
+ *
  * US Passport/Visa/Green Card (2×2 inches):
  *   - Head height: 1-1.375 inches (50-69% of photo height)
  *   - Eye line from bottom: 1.25 inches (62.5% from bottom)
- * 
+ *
  * US Driver's License (2×2 inches):
  *   - Head height: 1-1.375 inches
  *   - Eye line from bottom: 1.18 inches (59%)
- * 
+ *
  * UK Passport/Visa (35×45 mm):
  *   - Head height: 29-34 mm (64-75.5% of photo height)
  *   - Eye line from bottom: 30 mm (66.7%)
- * 
+ *
  * EU/Schengen (35×45 mm):
  *   - Head height: 32-36 mm (71-80% of photo height)
  *   - Eye line from bottom: 30 mm (66.7% from bottom)
- * 
+ *
  * Canada (50×70 mm):
  *   - Head height: 31-36 mm (44-51% of photo height)
  *   - Eye line from bottom: 42 mm (60%)
- * 
+ *
  * India Passport/Visa (2×2 inches):
  *   - Head height: 1-1.375 inches (50-69%)
  *   - Eye line from bottom: 1.25 inches (62.5%)
@@ -43,11 +43,17 @@ import type { FaceData } from '@/lib/face-detection';
 
 // Priority country standard IDs (11 total)
 const PRIORITY_STANDARDS = [
-  'us', 'us_visa', 'us_drivers', 'green_card',  // US (4)
-  'uk', 'uk_visa',                               // UK (2)
-  'eu', 'schengen_visa',                         // EU (2)
-  'canada',                                      // Canada (1)
-  'india', 'india_visa',                         // India (2)
+  'us',
+  'us_visa',
+  'us_drivers',
+  'green_card', // US (4)
+  'uk',
+  'uk_visa', // UK (2)
+  'eu',
+  'schengen_visa', // EU (2)
+  'canada', // Canada (1)
+  'india',
+  'india_visa', // India (2)
 ];
 
 describe('ComplianceOverlay Component', () => {
@@ -59,7 +65,6 @@ describe('ComplianceOverlay Component', () => {
     h: 250,
     leftEye: { x: 200, y: 150 },
     rightEye: { x: 300, y: 150 },
-    confidence: 0.95,
   };
 
   // Base props for most tests
@@ -123,19 +128,37 @@ describe('ComplianceOverlay Component', () => {
     });
 
     it('should show pass state when head height is 50-69%', () => {
-      render(<ComplianceOverlay {...usProps} headHeightPercent={55} complianceStatus="pass" />);
+      render(
+        <ComplianceOverlay
+          {...usProps}
+          headHeightPercent={55}
+          complianceStatus="pass"
+        />
+      );
       const bracket = screen.getByTestId('head-height-bracket');
       expect(bracket).toHaveClass('compliance-pass');
     });
 
     it('should show warn state when head height is slightly outside range', () => {
-      render(<ComplianceOverlay {...usProps} headHeightPercent={48} complianceStatus="warn" />);
+      render(
+        <ComplianceOverlay
+          {...usProps}
+          headHeightPercent={48}
+          complianceStatus="warn"
+        />
+      );
       const bracket = screen.getByTestId('head-height-bracket');
       expect(bracket).toHaveClass('compliance-warn');
     });
 
     it('should show fail state when head height is far outside range', () => {
-      render(<ComplianceOverlay {...usProps} headHeightPercent={35} complianceStatus="fail" />);
+      render(
+        <ComplianceOverlay
+          {...usProps}
+          headHeightPercent={35}
+          complianceStatus="fail"
+        />
+      );
       const bracket = screen.getByTestId('head-height-bracket');
       expect(bracket).toHaveClass('compliance-fail');
     });
@@ -162,7 +185,13 @@ describe('ComplianceOverlay Component', () => {
     });
 
     it('should show pass state for EU head height range (71-80%)', () => {
-      render(<ComplianceOverlay {...euProps} headHeightPercent={75} complianceStatus="pass" />);
+      render(
+        <ComplianceOverlay
+          {...euProps}
+          headHeightPercent={75}
+          complianceStatus="pass"
+        />
+      );
       const bracket = screen.getByTestId('head-height-bracket');
       expect(bracket).toHaveClass('compliance-pass');
     });
@@ -240,46 +269,54 @@ describe('ComplianceOverlay Component', () => {
     });
 
     it('should render correctly for India visa', () => {
-      render(<ComplianceOverlay {...indiaProps} standard={STANDARDS.india_visa} />);
+      render(
+        <ComplianceOverlay {...indiaProps} standard={STANDARDS.india_visa} />
+      );
       expect(screen.getByTestId('compliance-overlay')).toBeInTheDocument();
     });
   });
 
   describe('Priority Countries (11 document types)', () => {
-    it.each(PRIORITY_STANDARDS)('should render overlay for %s standard', (standardId) => {
-      const standard = STANDARDS[standardId];
-      render(
-        <ComplianceOverlay
-          {...baseProps}
-          standard={standard}
-          headHeightPercent={60}
-          eyePositionPercent={60}
-        />
-      );
-      expect(screen.getByTestId('compliance-overlay')).toBeInTheDocument();
-    });
+    it.each(PRIORITY_STANDARDS)(
+      'should render overlay for %s standard',
+      (standardId) => {
+        const standard = STANDARDS[standardId];
+        render(
+          <ComplianceOverlay
+            {...baseProps}
+            standard={standard}
+            headHeightPercent={60}
+            eyePositionPercent={60}
+          />
+        );
+        expect(screen.getByTestId('compliance-overlay')).toBeInTheDocument();
+      }
+    );
 
-    it.each(PRIORITY_STANDARDS)('should calculate correct head height range for %s', (standardId) => {
-      const standard = STANDARDS[standardId];
-      const spec = specToPx(standard);
-      
-      // Calculate expected head height percentage range
-      const minPercent = (spec.headMin / spec.h) * 100;
-      const maxPercent = (spec.headMax / spec.h) * 100;
-      
-      // Verify the component uses these ranges correctly
-      render(
-        <ComplianceOverlay
-          {...baseProps}
-          standard={standard}
-          headHeightPercent={(minPercent + maxPercent) / 2}
-          complianceStatus="pass"
-        />
-      );
-      
-      const bracket = screen.getByTestId('head-height-bracket');
-      expect(bracket).toHaveClass('compliance-pass');
-    });
+    it.each(PRIORITY_STANDARDS)(
+      'should calculate correct head height range for %s',
+      (standardId) => {
+        const standard = STANDARDS[standardId];
+        const spec = specToPx(standard);
+
+        // Calculate expected head height percentage range
+        const minPercent = (spec.headMin / spec.h) * 100;
+        const maxPercent = (spec.headMax / spec.h) * 100;
+
+        // Verify the component uses these ranges correctly
+        render(
+          <ComplianceOverlay
+            {...baseProps}
+            standard={standard}
+            headHeightPercent={(minPercent + maxPercent) / 2}
+            complianceStatus="pass"
+          />
+        );
+
+        const bracket = screen.getByTestId('head-height-bracket');
+        expect(bracket).toHaveClass('compliance-pass');
+      }
+    );
   });
 
   describe('Head Height Indicator', () => {
@@ -303,8 +340,12 @@ describe('ComplianceOverlay Component', () => {
       const bracket = screen.getByTestId('head-height-bracket');
       expect(bracket).toBeInTheDocument();
       // Should have top and bottom indicators
-      expect(bracket.querySelector('[data-testid="crown-marker"]')).toBeInTheDocument();
-      expect(bracket.querySelector('[data-testid="chin-marker"]')).toBeInTheDocument();
+      expect(
+        bracket.querySelector('[data-testid="crown-marker"]')
+      ).toBeInTheDocument();
+      expect(
+        bracket.querySelector('[data-testid="chin-marker"]')
+      ).toBeInTheDocument();
     });
   });
 
@@ -325,7 +366,7 @@ describe('ComplianceOverlay Component', () => {
       const { rerender } = render(
         <ComplianceOverlay {...baseProps} eyePositionPercent={62.5} />
       );
-      
+
       rerender(<ComplianceOverlay {...baseProps} eyePositionPercent={60} />);
       const eyeLine = screen.getByTestId('eye-line-indicator');
       expect(eyeLine).toHaveStyle({ bottom: '60%' });
@@ -380,11 +421,19 @@ describe('ComplianceOverlay Component', () => {
 
     it('should call onToggle when toggle button is clicked', () => {
       const onToggle = jest.fn();
-      render(<ComplianceOverlay {...baseProps} onToggle={onToggle} showToggle={true} />);
-      
-      const toggleButton = screen.getByRole('button', { name: /toggle overlay/i });
+      render(
+        <ComplianceOverlay
+          {...baseProps}
+          onToggle={onToggle}
+          showToggle={true}
+        />
+      );
+
+      const toggleButton = screen.getByRole('button', {
+        name: /toggle overlay/i,
+      });
       fireEvent.click(toggleButton);
-      
+
       expect(onToggle).toHaveBeenCalledTimes(1);
     });
   });
@@ -457,24 +506,30 @@ describe('ComplianceOverlay Component', () => {
   describe('No Face Data Handling', () => {
     it('should not render overlay when faceData is null', () => {
       render(<ComplianceOverlay {...baseProps} faceData={null} />);
-      expect(screen.queryByTestId('compliance-overlay')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('compliance-overlay')
+      ).not.toBeInTheDocument();
     });
 
     it('should not render overlay when faceData is undefined', () => {
       render(<ComplianceOverlay {...baseProps} faceData={undefined} />);
-      expect(screen.queryByTestId('compliance-overlay')).not.toBeInTheDocument();
+      expect(
+        screen.queryByTestId('compliance-overlay')
+      ).not.toBeInTheDocument();
     });
   });
 
   describe('Measurement State Calculation', () => {
     it('should export calculateMeasurementState function', async () => {
-      const { calculateMeasurementState } = await import('@/components/compliance-overlay');
+      const { calculateMeasurementState } =
+        await import('@/components/compliance-overlay');
       expect(typeof calculateMeasurementState).toBe('function');
     });
 
     it('should calculate correct measurement state for US passport', async () => {
-      const { calculateMeasurementState } = await import('@/components/compliance-overlay');
-      
+      const { calculateMeasurementState } =
+        await import('@/components/compliance-overlay');
+
       const state = calculateMeasurementState(
         mockFaceData,
         STANDARDS.us,
@@ -491,8 +546,9 @@ describe('ComplianceOverlay Component', () => {
     });
 
     it('should return pass status when measurements are within range', async () => {
-      const { calculateMeasurementState } = await import('@/components/compliance-overlay');
-      
+      const { calculateMeasurementState } =
+        await import('@/components/compliance-overlay');
+
       // US Passport: head should be 50-69% of photo height
       // Face height * 1.35 = estimated head height
       // For 400px canvas, we need head to be 200-276px
@@ -504,9 +560,8 @@ describe('ComplianceOverlay Component', () => {
         h: 170, // 170 * 1.35 = 229.5px head height = ~57% of 400px canvas
         leftEye: { x: 150, y: 130 },
         rightEye: { x: 250, y: 130 },
-        confidence: 0.95,
       };
-      
+
       const state = calculateMeasurementState(
         compliantFace,
         STANDARDS.us,
@@ -524,7 +579,7 @@ describe('ComplianceOverlay Component', () => {
   describe('Accessibility', () => {
     it('should have appropriate ARIA labels', () => {
       render(<ComplianceOverlay {...baseProps} />);
-      
+
       expect(screen.getByTestId('compliance-overlay')).toHaveAttribute(
         'aria-label',
         expect.stringContaining('compliance')
@@ -533,8 +588,10 @@ describe('ComplianceOverlay Component', () => {
 
     it('should be focusable when toggle is shown', () => {
       render(<ComplianceOverlay {...baseProps} showToggle={true} />);
-      
-      const toggleButton = screen.getByRole('button', { name: /toggle overlay/i });
+
+      const toggleButton = screen.getByRole('button', {
+        name: /toggle overlay/i,
+      });
       expect(toggleButton).toBeInTheDocument();
     });
   });

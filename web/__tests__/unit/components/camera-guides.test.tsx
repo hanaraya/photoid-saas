@@ -26,10 +26,14 @@ const mockCanvasContext = {
   clearRect: jest.fn(),
 };
 
-HTMLCanvasElement.prototype.getContext = jest.fn(() => mockCanvasContext) as any;
+HTMLCanvasElement.prototype.getContext = jest.fn(
+  () => mockCanvasContext
+) as any;
 
 // Helper to create a mock video element with all required methods
-function createMockVideoElement(overrides: Partial<HTMLVideoElement> = {}): HTMLVideoElement {
+function createMockVideoElement(
+  overrides: Partial<HTMLVideoElement> = {}
+): HTMLVideoElement {
   return {
     videoWidth: 640,
     videoHeight: 480,
@@ -71,28 +75,26 @@ describe('CameraGuides Component', () => {
       const { container } = render(
         <CameraGuides {...defaultProps} isActive={false} />
       );
-      
+
       expect(container.firstChild).toBeNull();
     });
 
     it('should render overlay when active', () => {
-      const { container } = render(
-        <CameraGuides {...defaultProps} />
-      );
-      
+      const { container } = render(<CameraGuides {...defaultProps} />);
+
       expect(container.firstChild).not.toBeNull();
     });
 
     it('should render face positioning oval', () => {
       render(<CameraGuides {...defaultProps} />);
-      
+
       const oval = document.querySelector('[data-testid="face-oval"]');
       expect(oval).toBeInTheDocument();
     });
 
     it('should render distance indicator', () => {
       render(<CameraGuides {...defaultProps} />);
-      
+
       const indicator = screen.getByTestId('distance-indicator');
       expect(indicator).toBeInTheDocument();
     });
@@ -107,15 +109,17 @@ describe('CameraGuides Component', () => {
           height: 100,
         })),
       };
-      HTMLCanvasElement.prototype.getContext = jest.fn(() => darkContext) as any;
-      
+      HTMLCanvasElement.prototype.getContext = jest.fn(
+        () => darkContext
+      ) as any;
+
       const mockVideoRef = { current: createMockVideoElement() };
       render(<CameraGuides {...defaultProps} videoRef={mockVideoRef} />);
-      
+
       act(() => {
         jest.advanceTimersByTime(200);
       });
-      
+
       const indicator = screen.queryByTestId('lighting-indicator');
       // Lighting indicator only appears when brightness analysis detects a problem
       expect(indicator === null || indicator !== null).toBe(true); // Test structure exists
@@ -125,23 +129,26 @@ describe('CameraGuides Component', () => {
       const mockVideoRef = { current: createMockVideoElement() };
       // Tilted face data (eyes at different heights)
       const tiltedFaceData = {
-        x: 220, y: 90, w: 200, h: 250,
+        x: 220,
+        y: 90,
+        w: 200,
+        h: 250,
         leftEye: { x: 270, y: 100 },
         rightEye: { x: 370, y: 150 }, // Much lower = tilted
       };
-      
+
       render(
-        <CameraGuides 
-          {...defaultProps} 
-          videoRef={mockVideoRef} 
+        <CameraGuides
+          {...defaultProps}
+          videoRef={mockVideoRef}
           faceData={tiltedFaceData}
         />
       );
-      
+
       act(() => {
         jest.advanceTimersByTime(200);
       });
-      
+
       const indicator = screen.queryByTestId('tilt-indicator');
       // Tilt indicator only appears when tilt analysis detects a problem
       expect(indicator === null || indicator !== null).toBe(true); // Test structure exists
@@ -153,7 +160,7 @@ describe('CameraGuides Component', () => {
       const { container } = render(
         <CameraGuides {...defaultProps} countryCode="us" />
       );
-      
+
       const oval = container.querySelector('[data-testid="face-oval"]');
       expect(oval).toBeInTheDocument();
       // US: 50-69%, target 59.5%
@@ -164,7 +171,7 @@ describe('CameraGuides Component', () => {
       const { container } = render(
         <CameraGuides {...defaultProps} countryCode="uk" />
       );
-      
+
       const oval = container.querySelector('[data-testid="face-oval"]');
       expect(oval).toHaveAttribute('data-country', 'uk');
     });
@@ -173,7 +180,7 @@ describe('CameraGuides Component', () => {
       const { container } = render(
         <CameraGuides {...defaultProps} countryCode="eu" />
       );
-      
+
       const oval = container.querySelector('[data-testid="face-oval"]');
       expect(oval).toHaveAttribute('data-country', 'eu');
     });
@@ -182,7 +189,7 @@ describe('CameraGuides Component', () => {
       const { container } = render(
         <CameraGuides {...defaultProps} countryCode="canada" />
       );
-      
+
       const oval = container.querySelector('[data-testid="face-oval"]');
       expect(oval).toHaveAttribute('data-country', 'canada');
     });
@@ -191,7 +198,7 @@ describe('CameraGuides Component', () => {
       const { container } = render(
         <CameraGuides {...defaultProps} countryCode="india" />
       );
-      
+
       const oval = container.querySelector('[data-testid="face-oval"]');
       expect(oval).toHaveAttribute('data-country', 'india');
     });
@@ -200,7 +207,7 @@ describe('CameraGuides Component', () => {
   describe('Face Detection Integration', () => {
     it('should show "no face" state initially', () => {
       render(<CameraGuides {...defaultProps} />);
-      
+
       // Should show guidance to position face
       expect(screen.getByText(/position/i)).toBeInTheDocument();
     });
@@ -209,11 +216,9 @@ describe('CameraGuides Component', () => {
       const mockVideoRef = {
         current: createMockVideoElement(),
       };
-      
-      render(
-        <CameraGuides {...defaultProps} videoRef={mockVideoRef} />
-      );
-      
+
+      render(<CameraGuides {...defaultProps} videoRef={mockVideoRef} />);
+
       // Trigger analysis cycle
       act(() => {
         jest.advanceTimersByTime(100);
@@ -225,7 +230,7 @@ describe('CameraGuides Component', () => {
       const mockVideoRef = {
         current: createMockVideoElement(),
       };
-      
+
       render(
         <CameraGuides
           {...defaultProps}
@@ -233,11 +238,11 @@ describe('CameraGuides Component', () => {
           onConditionsChange={onConditionsChange}
         />
       );
-      
+
       act(() => {
         jest.advanceTimersByTime(200);
       });
-      
+
       // onConditionsChange should be called with condition updates
       await waitFor(() => {
         expect(onConditionsChange).toHaveBeenCalled();
@@ -247,10 +252,8 @@ describe('CameraGuides Component', () => {
 
   describe('Visual Feedback States', () => {
     it('should show red oval when face not properly positioned', () => {
-      const { container } = render(
-        <CameraGuides {...defaultProps} />
-      );
-      
+      const { container } = render(<CameraGuides {...defaultProps} />);
+
       const oval = container.querySelector('[data-testid="face-oval"]');
       // Initially no face = should be red/warning state
       expect(oval).toHaveAttribute('data-status', 'warning');
@@ -260,7 +263,7 @@ describe('CameraGuides Component', () => {
       const { container, rerender } = render(
         <CameraGuides {...defaultProps} />
       );
-      
+
       const oval = container.querySelector('[data-testid="face-oval"]');
       expect(oval).toBeInTheDocument();
     });
@@ -269,14 +272,14 @@ describe('CameraGuides Component', () => {
   describe('Countdown Feature', () => {
     it('should not show countdown when conditions not met', () => {
       render(<CameraGuides {...defaultProps} enableCountdown={true} />);
-      
+
       const countdown = screen.queryByTestId('capture-countdown');
       expect(countdown).not.toBeInTheDocument();
     });
 
     it('should start countdown when all conditions met', async () => {
       const onCapture = jest.fn();
-      
+
       render(
         <CameraGuides
           {...defaultProps}
@@ -285,15 +288,13 @@ describe('CameraGuides Component', () => {
           // Simulating all good conditions would require more mocking
         />
       );
-      
+
       // Would need to simulate good conditions to trigger countdown
     });
 
     it('should cancel countdown when conditions fail', async () => {
-      render(
-        <CameraGuides {...defaultProps} enableCountdown={true} />
-      );
-      
+      render(<CameraGuides {...defaultProps} enableCountdown={true} />);
+
       // Countdown should not be visible when conditions are not met
       expect(screen.queryByTestId('capture-countdown')).not.toBeInTheDocument();
     });
@@ -304,36 +305,34 @@ describe('CameraGuides Component', () => {
       const mockVideoRef = {
         current: createMockVideoElement(),
       };
-      
-      render(
-        <CameraGuides {...defaultProps} videoRef={mockVideoRef} />
-      );
-      
+
+      render(<CameraGuides {...defaultProps} videoRef={mockVideoRef} />);
+
       // Run for 1 second
       act(() => {
         jest.advanceTimersByTime(1000);
       });
-      
+
       // Should not be called more than ~10-15 times per second
       // (accounting for throttling)
     });
 
     it('should cleanup on unmount', () => {
       const { unmount } = render(<CameraGuides {...defaultProps} />);
-      
+
       // Trigger an animation frame first
       act(() => {
         jest.advanceTimersByTime(50);
       });
-      
+
       unmount();
-      
+
       // The component should have cleaned up - test that no errors occur
       // and that subsequent timer advances don't cause issues
       act(() => {
         jest.advanceTimersByTime(200);
       });
-      
+
       // Test passes if no error is thrown
       expect(true).toBe(true);
     });
@@ -346,9 +345,9 @@ describe('CameraGuides Component', () => {
           readyState: 0,
         } as HTMLVideoElement,
       };
-      
+
       const onConditionsChange = jest.fn();
-      
+
       render(
         <CameraGuides
           {...defaultProps}
@@ -356,11 +355,11 @@ describe('CameraGuides Component', () => {
           onConditionsChange={onConditionsChange}
         />
       );
-      
+
       act(() => {
         jest.advanceTimersByTime(200);
       });
-      
+
       // Should not call with analysis results when video not ready
     });
   });
@@ -368,13 +367,15 @@ describe('CameraGuides Component', () => {
   describe('Accessibility', () => {
     it('should have appropriate ARIA labels', () => {
       render(<CameraGuides {...defaultProps} />);
-      
-      expect(screen.getByLabelText(/face positioning guide/i)).toBeInTheDocument();
+
+      expect(
+        screen.getByLabelText(/face positioning guide/i)
+      ).toBeInTheDocument();
     });
 
     it('should announce status changes for screen readers', () => {
       render(<CameraGuides {...defaultProps} />);
-      
+
       const statusRegion = screen.getByRole('status');
       expect(statusRegion).toBeInTheDocument();
     });
@@ -383,7 +384,7 @@ describe('CameraGuides Component', () => {
   describe('Guidance Messages', () => {
     it('should show position guidance when face off-center', () => {
       render(<CameraGuides {...defaultProps} />);
-      
+
       // Initial state or off-center should show positioning text
       expect(screen.getByTestId('guidance-message')).toBeInTheDocument();
     });
@@ -392,23 +393,26 @@ describe('CameraGuides Component', () => {
       const mockVideoRef = { current: createMockVideoElement() };
       // Small face = too far
       const faceData = {
-        x: 250, y: 200, w: 70, h: 70,
+        x: 250,
+        y: 200,
+        w: 70,
+        h: 70,
         leftEye: { x: 270, y: 220 },
         rightEye: { x: 300, y: 220 },
       };
-      
+
       render(
-        <CameraGuides 
-          {...defaultProps} 
+        <CameraGuides
+          {...defaultProps}
           videoRef={mockVideoRef}
           faceData={faceData}
         />
       );
-      
+
       act(() => {
         jest.advanceTimersByTime(200);
       });
-      
+
       // Distance indicator may or may not appear based on threshold calculations
       const guidance = screen.getByTestId('guidance-message');
       expect(guidance).toBeInTheDocument();
@@ -416,18 +420,13 @@ describe('CameraGuides Component', () => {
 
     it('should show lighting guidance when too dark/bright', () => {
       const mockVideoRef = { current: createMockVideoElement() };
-      
-      render(
-        <CameraGuides 
-          {...defaultProps}
-          videoRef={mockVideoRef}
-        />
-      );
-      
+
+      render(<CameraGuides {...defaultProps} videoRef={mockVideoRef} />);
+
       act(() => {
         jest.advanceTimersByTime(200);
       });
-      
+
       // Lighting indicator may appear based on canvas brightness analysis
       const guidance = screen.getByTestId('guidance-message');
       expect(guidance).toBeInTheDocument();
@@ -437,23 +436,26 @@ describe('CameraGuides Component', () => {
       const mockVideoRef = { current: createMockVideoElement() };
       // Tilted face
       const faceData = {
-        x: 220, y: 90, w: 200, h: 250,
+        x: 220,
+        y: 90,
+        w: 200,
+        h: 250,
         leftEye: { x: 270, y: 100 },
         rightEye: { x: 370, y: 150 },
       };
-      
+
       render(
-        <CameraGuides 
+        <CameraGuides
           {...defaultProps}
           videoRef={mockVideoRef}
           faceData={faceData}
         />
       );
-      
+
       act(() => {
         jest.advanceTimersByTime(200);
       });
-      
+
       // Tilt indicator may appear based on eye positions
       const guidance = screen.getByTestId('guidance-message');
       expect(guidance).toBeInTheDocument();
@@ -482,9 +484,9 @@ describe('CameraGuides Edge Cases', () => {
     const { rerender } = render(
       <CameraGuides {...defaultProps} countryCode="us" />
     );
-    
+
     rerender(<CameraGuides {...defaultProps} countryCode="uk" />);
-    
+
     const oval = document.querySelector('[data-testid="face-oval"]');
     expect(oval).toHaveAttribute('data-country', 'uk');
   });
@@ -493,11 +495,11 @@ describe('CameraGuides Edge Cases', () => {
     const { container, rerender } = render(
       <CameraGuides {...defaultProps} isActive={true} />
     );
-    
+
     expect(container.firstChild).not.toBeNull();
-    
+
     rerender(<CameraGuides {...defaultProps} isActive={false} />);
-    
+
     expect(container.firstChild).toBeNull();
   });
 
@@ -505,7 +507,7 @@ describe('CameraGuides Edge Cases', () => {
     const { container } = render(
       <CameraGuides {...defaultProps} videoRef={{ current: null }} />
     );
-    
+
     expect(container.firstChild).toBeInTheDocument();
   });
 
@@ -525,12 +527,12 @@ describe('CameraGuides Edge Cases', () => {
     const { rerender } = render(
       <CameraGuides {...defaultProps} countryCode="us" />
     );
-    
+
     const countries = ['uk', 'eu', 'canada', 'india', 'us'];
     countries.forEach((country) => {
       rerender(<CameraGuides {...defaultProps} countryCode={country} />);
     });
-    
+
     const oval = document.querySelector('[data-testid="face-oval"]');
     expect(oval).toHaveAttribute('data-country', 'us');
   });
@@ -550,9 +552,9 @@ describe('CameraGuides Video Processing', () => {
     const mockVideoRef = {
       current: createMockVideoElement({ videoWidth: 1280, videoHeight: 720 }),
     };
-    
+
     const onConditionsChange = jest.fn();
-    
+
     render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -561,11 +563,11 @@ describe('CameraGuides Video Processing', () => {
         onConditionsChange={onConditionsChange}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Should render with updated dimensions
     const oval = document.querySelector('[data-testid="face-oval"]');
     expect(oval).toBeInTheDocument();
@@ -575,34 +577,29 @@ describe('CameraGuides Video Processing', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     const { rerender } = render(
-      <CameraGuides
-        videoRef={mockVideoRef}
-        countryCode="us"
-        isActive={true}
-      />
+      <CameraGuides videoRef={mockVideoRef} countryCode="us" isActive={true} />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Change dimensions
-    mockVideoRef.current = createMockVideoElement({ videoWidth: 1920, videoHeight: 1080 });
-    
+    mockVideoRef.current = createMockVideoElement({
+      videoWidth: 1920,
+      videoHeight: 1080,
+    });
+
     rerender(
-      <CameraGuides
-        videoRef={mockVideoRef}
-        countryCode="us"
-        isActive={true}
-      />
+      <CameraGuides videoRef={mockVideoRef} countryCode="us" isActive={true} />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     expect(true).toBe(true); // No errors occurred
   });
 
@@ -610,7 +607,7 @@ describe('CameraGuides Video Processing', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     const faceData = {
       x: 220,
       y: 90,
@@ -619,7 +616,7 @@ describe('CameraGuides Video Processing', () => {
       leftEye: { x: 270, y: 120 },
       rightEye: { x: 370, y: 120 },
     };
-    
+
     render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -628,11 +625,11 @@ describe('CameraGuides Video Processing', () => {
         faceData={faceData}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Should process face data
     const oval = document.querySelector('[data-testid="face-oval"]');
     expect(oval).toBeInTheDocument();
@@ -642,7 +639,7 @@ describe('CameraGuides Video Processing', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     const faceData = {
       x: 220,
       y: 90,
@@ -651,7 +648,7 @@ describe('CameraGuides Video Processing', () => {
       leftEye: { x: 270, y: 120 },
       rightEye: null,
     };
-    
+
     render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -660,11 +657,11 @@ describe('CameraGuides Video Processing', () => {
         faceData={faceData}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     expect(true).toBe(true);
   });
 
@@ -672,22 +669,21 @@ describe('CameraGuides Video Processing', () => {
     const mockVideoRef = {
       current: createMockVideoElement({ videoWidth: 0, videoHeight: 0 }),
     };
-    
+
     render(
-      <CameraGuides
-        videoRef={mockVideoRef}
-        countryCode="us"
-        isActive={true}
-      />
+      <CameraGuides videoRef={mockVideoRef} countryCode="us" isActive={true} />
     );
-    
+
     // Update to valid dimensions
-    mockVideoRef.current = createMockVideoElement({ videoWidth: 1280, videoHeight: 720 });
-    
+    mockVideoRef.current = createMockVideoElement({
+      videoWidth: 1280,
+      videoHeight: 720,
+    });
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     expect(true).toBe(true);
   });
 });
@@ -707,7 +703,7 @@ describe('CameraGuides Countdown Feature', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     // Provide good face data
     const goodFaceData = {
       x: 220,
@@ -717,7 +713,7 @@ describe('CameraGuides Countdown Feature', () => {
       leftEye: { x: 270, y: 120 },
       rightEye: { x: 370, y: 120 },
     };
-    
+
     render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -728,7 +724,7 @@ describe('CameraGuides Countdown Feature', () => {
         faceData={goodFaceData}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
@@ -739,7 +735,7 @@ describe('CameraGuides Countdown Feature', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     const { rerender } = render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -757,11 +753,11 @@ describe('CameraGuides Countdown Feature', () => {
         }}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Now remove face data - conditions should fail
     rerender(
       <CameraGuides
@@ -773,11 +769,11 @@ describe('CameraGuides Countdown Feature', () => {
         faceData={null}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Countdown should not appear
     expect(screen.queryByTestId('capture-countdown')).not.toBeInTheDocument();
   });
@@ -786,7 +782,7 @@ describe('CameraGuides Countdown Feature', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     const { rerender } = render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -795,11 +791,11 @@ describe('CameraGuides Countdown Feature', () => {
         enableCountdown={true}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Disable
     rerender(
       <CameraGuides
@@ -809,7 +805,7 @@ describe('CameraGuides Countdown Feature', () => {
         enableCountdown={true}
       />
     );
-    
+
     // Should be null since isActive is false
     expect(screen.queryByTestId('face-oval')).not.toBeInTheDocument();
   });
@@ -827,23 +823,19 @@ describe('CameraGuides Canvas Context', () => {
 
   it('should handle null canvas context gracefully', () => {
     HTMLCanvasElement.prototype.getContext = jest.fn(() => null) as any;
-    
+
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     render(
-      <CameraGuides
-        videoRef={mockVideoRef}
-        countryCode="us"
-        isActive={true}
-      />
+      <CameraGuides videoRef={mockVideoRef} countryCode="us" isActive={true} />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Should not crash
     expect(true).toBe(true);
   });
@@ -852,9 +844,9 @@ describe('CameraGuides Canvas Context', () => {
     const mockVideoRef = {
       current: createMockVideoElement({ readyState: 1 }), // Not ready
     };
-    
+
     const onConditionsChange = jest.fn();
-    
+
     render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -863,11 +855,11 @@ describe('CameraGuides Canvas Context', () => {
         onConditionsChange={onConditionsChange}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Should still render but not process
     expect(screen.getByTestId('face-oval')).toBeInTheDocument();
   });
@@ -887,7 +879,7 @@ describe('CameraGuides Guidance Messages', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     // Face on left side
     const faceData = {
       x: 50, // Too far left
@@ -897,7 +889,7 @@ describe('CameraGuides Guidance Messages', () => {
       leftEye: { x: 100, y: 120 },
       rightEye: { x: 180, y: 120 },
     };
-    
+
     render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -906,11 +898,11 @@ describe('CameraGuides Guidance Messages', () => {
         faceData={faceData}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     const guidance = screen.getByTestId('guidance-message');
     expect(guidance).toBeInTheDocument();
   });
@@ -919,7 +911,7 @@ describe('CameraGuides Guidance Messages', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     // Small face (too far) - needs to be < 20% of frame (25% min - 5% buffer)
     const faceData = {
       x: 250,
@@ -929,7 +921,7 @@ describe('CameraGuides Guidance Messages', () => {
       leftEye: { x: 270, y: 220 },
       rightEye: { x: 300, y: 220 },
     };
-    
+
     render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -938,11 +930,11 @@ describe('CameraGuides Guidance Messages', () => {
         faceData={faceData}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Guidance message should be present (may show distance or lighting guidance)
     const guidance = screen.getByTestId('guidance-message');
     expect(guidance).toBeInTheDocument();
@@ -952,7 +944,7 @@ describe('CameraGuides Guidance Messages', () => {
     const mockVideoRef = {
       current: createMockVideoElement(),
     };
-    
+
     // Tilted face (right eye lower)
     const faceData = {
       x: 220,
@@ -962,7 +954,7 @@ describe('CameraGuides Guidance Messages', () => {
       leftEye: { x: 270, y: 100 },
       rightEye: { x: 370, y: 150 }, // Much lower = tilted
     };
-    
+
     render(
       <CameraGuides
         videoRef={mockVideoRef}
@@ -971,11 +963,11 @@ describe('CameraGuides Guidance Messages', () => {
         faceData={faceData}
       />
     );
-    
+
     act(() => {
       jest.advanceTimersByTime(200);
     });
-    
+
     // Guidance message should be present (may show tilt or other guidance)
     const guidance = screen.getByTestId('guidance-message');
     expect(guidance).toBeInTheDocument();

@@ -21,7 +21,7 @@ describe('Camera Analysis Utilities', () => {
   describe('getCountryHeadHeightRange', () => {
     it('should return correct range for US (50-69%)', () => {
       const range = getCountryHeadHeightRange('us');
-      expect(range).toEqual({ min: 0.50, max: 0.69 });
+      expect(range).toEqual({ min: 0.5, max: 0.69 });
     });
 
     it('should return correct range for UK (64-75.5%)', () => {
@@ -31,7 +31,7 @@ describe('Camera Analysis Utilities', () => {
 
     it('should return correct range for EU (71-80%)', () => {
       const range = getCountryHeadHeightRange('eu');
-      expect(range).toEqual({ min: 0.71, max: 0.80 });
+      expect(range).toEqual({ min: 0.71, max: 0.8 });
     });
 
     it('should return correct range for Canada (44-51%)', () => {
@@ -41,17 +41,17 @@ describe('Camera Analysis Utilities', () => {
 
     it('should return correct range for India (50-69%)', () => {
       const range = getCountryHeadHeightRange('india');
-      expect(range).toEqual({ min: 0.50, max: 0.69 });
+      expect(range).toEqual({ min: 0.5, max: 0.69 });
     });
 
     it('should return default range for unknown country', () => {
       const range = getCountryHeadHeightRange('unknown');
-      expect(range).toEqual({ min: 0.50, max: 0.69 }); // US default
+      expect(range).toEqual({ min: 0.5, max: 0.69 }); // US default
     });
 
     it('should handle US visa (same as US)', () => {
       const range = getCountryHeadHeightRange('us_visa');
-      expect(range).toEqual({ min: 0.50, max: 0.69 });
+      expect(range).toEqual({ min: 0.5, max: 0.69 });
     });
 
     it('should handle UK visa (same as UK)', () => {
@@ -61,7 +61,7 @@ describe('Camera Analysis Utilities', () => {
 
     it('should handle schengen visa (same as EU)', () => {
       const range = getCountryHeadHeightRange('schengen_visa');
-      expect(range).toEqual({ min: 0.71, max: 0.80 });
+      expect(range).toEqual({ min: 0.71, max: 0.8 });
     });
   });
 
@@ -71,16 +71,16 @@ describe('Camera Analysis Utilities', () => {
 
     it('should calculate correct oval for US standard', () => {
       const oval = calculateOvalDimensions('us', viewportWidth, viewportHeight);
-      
+
       // US: face range 35.7-49.3%, target @ 35% = ~40.5%, with 1.15 visual scale = ~46.5%
       expect(oval.centerX).toBe(320); // Center of 640
       expect(oval.centerY).toBeGreaterThan(viewportHeight * 0.35);
       expect(oval.centerY).toBeLessThanOrEqual(viewportHeight * 0.45);
-      
+
       // Oval should be ~46-47% of viewport with visual scale
       expect(oval.height).toBeGreaterThan(viewportHeight * 0.44);
-      expect(oval.height).toBeLessThan(viewportHeight * 0.50);
-      
+      expect(oval.height).toBeLessThan(viewportHeight * 0.5);
+
       // Oval width is typically ~75% of height for face proportions
       expect(oval.width).toBeGreaterThan(oval.height * 0.65);
       expect(oval.width).toBeLessThan(oval.height * 0.85);
@@ -88,7 +88,7 @@ describe('Camera Analysis Utilities', () => {
 
     it('should calculate correct oval for UK standard', () => {
       const oval = calculateOvalDimensions('uk', viewportWidth, viewportHeight);
-      
+
       // UK: face max ~53.9%, visual oval = 53.9% × 1.10 = ~59%
       expect(oval.height).toBeGreaterThan(viewportHeight * 0.55);
       expect(oval.height).toBeLessThan(viewportHeight * 0.65);
@@ -97,33 +97,41 @@ describe('Camera Analysis Utilities', () => {
 
     it('should calculate correct oval for EU standard', () => {
       const oval = calculateOvalDimensions('eu', viewportWidth, viewportHeight);
-      
+
       // EU: face max ~57%, visual oval = ~63%
       expect(oval.height).toBeGreaterThan(viewportHeight * 0.58);
       expect(oval.height).toBeLessThan(viewportHeight * 0.68);
     });
 
     it('should calculate correct oval for Canada standard', () => {
-      const oval = calculateOvalDimensions('canada', viewportWidth, viewportHeight);
-      
+      const oval = calculateOvalDimensions(
+        'canada',
+        viewportWidth,
+        viewportHeight
+      );
+
       // Canada: face max ~36%, visual oval = ~40%
       expect(oval.height).toBeGreaterThan(viewportHeight * 0.35);
       expect(oval.height).toBeLessThan(viewportHeight * 0.45);
     });
 
     it('should calculate correct oval for India standard', () => {
-      const oval = calculateOvalDimensions('india', viewportWidth, viewportHeight);
-      
+      const oval = calculateOvalDimensions(
+        'india',
+        viewportWidth,
+        viewportHeight
+      );
+
       // India same as US (~46-47% with visual scale)
       expect(oval.height).toBeGreaterThan(viewportHeight * 0.44);
-      expect(oval.height).toBeLessThan(viewportHeight * 0.50);
+      expect(oval.height).toBeLessThan(viewportHeight * 0.5);
     });
 
     it('should handle different viewport aspect ratios', () => {
       // Portrait viewport
       const portraitOval = calculateOvalDimensions('us', 480, 640);
       expect(portraitOval.centerX).toBe(240);
-      
+
       // Wide viewport
       const wideOval = calculateOvalDimensions('us', 1920, 1080);
       expect(wideOval.centerX).toBe(960);
@@ -131,7 +139,7 @@ describe('Camera Analysis Utilities', () => {
 
     it('should return min and max height values', () => {
       const oval = calculateOvalDimensions('us', viewportWidth, viewportHeight);
-      
+
       expect(oval.minHeight).toBeDefined();
       expect(oval.maxHeight).toBeDefined();
       // Oval is larger than detection range for visual comfort
@@ -152,9 +160,13 @@ describe('Camera Analysis Utilities', () => {
         w: 200,
         h: 250,
       };
-      
-      const result = analyzeFacePosition(faceBox, viewportWidth, viewportHeight);
-      
+
+      const result = analyzeFacePosition(
+        faceBox,
+        viewportWidth,
+        viewportHeight
+      );
+
       expect(result.isCentered).toBe(true);
       expect(result.horizontalOffset).toBeCloseTo(0, 0);
     });
@@ -166,9 +178,13 @@ describe('Camera Analysis Utilities', () => {
         w: 150,
         h: 200,
       };
-      
-      const result = analyzeFacePosition(faceBox, viewportWidth, viewportHeight);
-      
+
+      const result = analyzeFacePosition(
+        faceBox,
+        viewportWidth,
+        viewportHeight
+      );
+
       expect(result.isCentered).toBe(false);
       expect(result.horizontalOffset).toBeLessThan(-0.1);
       expect(result.direction).toBe('left');
@@ -181,9 +197,13 @@ describe('Camera Analysis Utilities', () => {
         w: 150,
         h: 200,
       };
-      
-      const result = analyzeFacePosition(faceBox, viewportWidth, viewportHeight);
-      
+
+      const result = analyzeFacePosition(
+        faceBox,
+        viewportWidth,
+        viewportHeight
+      );
+
       expect(result.isCentered).toBe(false);
       expect(result.horizontalOffset).toBeGreaterThan(0.1);
       expect(result.direction).toBe('right');
@@ -196,9 +216,13 @@ describe('Camera Analysis Utilities', () => {
         w: 200,
         h: 200,
       };
-      
-      const result = analyzeFacePosition(faceBox, viewportWidth, viewportHeight);
-      
+
+      const result = analyzeFacePosition(
+        faceBox,
+        viewportWidth,
+        viewportHeight
+      );
+
       expect(result.verticalOffset).toBeLessThan(-0.1);
       expect(result.verticalDirection).toBe('up');
     });
@@ -210,16 +234,20 @@ describe('Camera Analysis Utilities', () => {
         w: 200,
         h: 200,
       };
-      
-      const result = analyzeFacePosition(faceBox, viewportWidth, viewportHeight);
-      
+
+      const result = analyzeFacePosition(
+        faceBox,
+        viewportWidth,
+        viewportHeight
+      );
+
       expect(result.verticalOffset).toBeGreaterThan(0.1);
       expect(result.verticalDirection).toBe('down');
     });
 
     it('should handle null face data', () => {
       const result = analyzeFacePosition(null, viewportWidth, viewportHeight);
-      
+
       expect(result.isCentered).toBe(false);
       expect(result.faceDetected).toBe(false);
     });
@@ -231,9 +259,13 @@ describe('Camera Analysis Utilities', () => {
         w: 200,
         h: 250,
       };
-      
-      const result = analyzeFacePosition(faceBox, viewportWidth, viewportHeight);
-      
+
+      const result = analyzeFacePosition(
+        faceBox,
+        viewportWidth,
+        viewportHeight
+      );
+
       expect(result.overlapPercent).toBeDefined();
       expect(result.overlapPercent).toBeGreaterThanOrEqual(0);
       expect(result.overlapPercent).toBeLessThanOrEqual(100);
@@ -246,21 +278,21 @@ describe('Camera Analysis Utilities', () => {
 
     it('should detect perfect distance (face at target size)', () => {
       // US: head 50-69% → face 35.7-49.3%, target ~42.5%
-      const targetPercent = ((0.50 + 0.69) / 2) * FACE_TO_HEAD;
+      const targetPercent = ((0.5 + 0.69) / 2) * FACE_TO_HEAD;
       const faceHeight = viewportHeight * targetPercent;
-      
+
       const result = analyzeDistance(faceHeight, viewportHeight, 'us');
-      
+
       expect(result.status).toBe('good');
       expect(result.isGood).toBe(true);
     });
 
     it('should detect too close (face too large)', () => {
       // Face taking up 60% of viewport (too large, max is ~49.3%)
-      const faceHeight = viewportHeight * 0.60;
-      
+      const faceHeight = viewportHeight * 0.6;
+
       const result = analyzeDistance(faceHeight, viewportHeight, 'us');
-      
+
       expect(result.status).toBe('too-close');
       expect(result.isGood).toBe(false);
       expect(result.message).toContain('back');
@@ -269,9 +301,9 @@ describe('Camera Analysis Utilities', () => {
     it('should detect too far (face too small)', () => {
       // Face taking up only 25% of viewport (too small, min is ~35.7%)
       const faceHeight = viewportHeight * 0.25;
-      
+
       const result = analyzeDistance(faceHeight, viewportHeight, 'us');
-      
+
       expect(result.status).toBe('too-far');
       expect(result.isGood).toBe(false);
       expect(result.message).toContain('closer');
@@ -281,19 +313,23 @@ describe('Camera Analysis Utilities', () => {
       // Canada: head 44-51% → face ~34%
       const targetCanada = ((0.44 + 0.51) / 2) * FACE_TO_HEAD;
       const faceHeightCanada = viewportHeight * targetCanada;
-      const resultCanada = analyzeDistance(faceHeightCanada, viewportHeight, 'canada');
+      const resultCanada = analyzeDistance(
+        faceHeightCanada,
+        viewportHeight,
+        'canada'
+      );
       expect(resultCanada.status).toBe('good');
-      
+
       // Same size (~34%) would be too small for EU (min ~50.7%)
       const resultEU = analyzeDistance(faceHeightCanada, viewportHeight, 'eu');
       expect(resultEU.status).toBe('too-far');
     });
 
     it('should provide percentage difference from target', () => {
-      const faceHeight = viewportHeight * 0.40;
-      
+      const faceHeight = viewportHeight * 0.4;
+
       const result = analyzeDistance(faceHeight, viewportHeight, 'us');
-      
+
       expect(result.percentFromTarget).toBeDefined();
       expect(typeof result.percentFromTarget).toBe('number');
     });
@@ -301,10 +337,10 @@ describe('Camera Analysis Utilities', () => {
     it('should handle edge cases at boundaries', () => {
       // US: face range is 35.7-49.3%
       // Exactly at minimum boundary
-      const faceHeightMin = viewportHeight * (0.50 * FACE_TO_HEAD);
+      const faceHeightMin = viewportHeight * (0.5 * FACE_TO_HEAD);
       const resultMin = analyzeDistance(faceHeightMin, viewportHeight, 'us');
       expect(resultMin.isGood).toBe(true);
-      
+
       // Exactly at maximum boundary
       const faceHeightMax = viewportHeight * (0.69 * FACE_TO_HEAD);
       const resultMax = analyzeDistance(faceHeightMax, viewportHeight, 'us');
@@ -313,7 +349,7 @@ describe('Camera Analysis Utilities', () => {
 
     it('should handle zero face height', () => {
       const result = analyzeDistance(0, viewportHeight, 'us');
-      
+
       expect(result.status).toBe('too-far');
       expect(result.isGood).toBe(false);
     });
@@ -326,22 +362,22 @@ describe('Camera Analysis Utilities', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       for (let i = 0; i < data.length; i += 4) {
-        data[i] = brightness;     // R
+        data[i] = brightness; // R
         data[i + 1] = brightness; // G
         data[i + 2] = brightness; // B
-        data[i + 3] = 255;        // A
+        data[i + 3] = 255; // A
       }
-      
+
       return { data, width, height } as ImageData;
     }
 
     it('should detect good lighting (moderate brightness)', () => {
       const imageData = createMockImageData(128); // Middle brightness
-      
+
       const result = analyzeBrightness(imageData);
-      
+
       expect(result.status).toBe('good');
       expect(result.isGood).toBe(true);
       expect(result.icon).toBe('☀️');
@@ -349,9 +385,9 @@ describe('Camera Analysis Utilities', () => {
 
     it('should detect too dark', () => {
       const imageData = createMockImageData(40); // Dark
-      
+
       const result = analyzeBrightness(imageData);
-      
+
       expect(result.status).toBe('too-dark');
       expect(result.isGood).toBe(false);
       expect(result.icon).toBe('🌑');
@@ -360,9 +396,9 @@ describe('Camera Analysis Utilities', () => {
 
     it('should detect overexposed/too bright', () => {
       const imageData = createMockImageData(240); // Very bright
-      
+
       const result = analyzeBrightness(imageData);
-      
+
       expect(result.status).toBe('too-bright');
       expect(result.isGood).toBe(false);
       expect(result.icon).toBe('💡');
@@ -371,9 +407,9 @@ describe('Camera Analysis Utilities', () => {
 
     it('should return brightness score 0-100', () => {
       const imageData = createMockImageData(128);
-      
+
       const result = analyzeBrightness(imageData);
-      
+
       expect(result.score).toBeGreaterThanOrEqual(0);
       expect(result.score).toBeLessThanOrEqual(100);
     });
@@ -383,7 +419,7 @@ describe('Camera Analysis Utilities', () => {
       const width = 100;
       const height = 100;
       const data = new Uint8ClampedArray(width * height * 4);
-      
+
       for (let i = 0; i < data.length; i += 4) {
         const variance = Math.sin(i / 100) * 30;
         const brightness = Math.max(0, Math.min(255, 128 + variance));
@@ -392,10 +428,10 @@ describe('Camera Analysis Utilities', () => {
         data[i + 2] = brightness;
         data[i + 3] = 255;
       }
-      
+
       const imageData = { data, width, height } as ImageData;
       const result = analyzeBrightness(imageData);
-      
+
       // Should still be good with moderate variance
       expect(result.isGood).toBe(true);
     });
@@ -406,9 +442,9 @@ describe('Camera Analysis Utilities', () => {
         width: 0,
         height: 0,
       } as ImageData;
-      
+
       const result = analyzeBrightness(imageData);
-      
+
       expect(result.status).toBe('too-dark');
       expect(result.isGood).toBe(false);
     });
@@ -418,9 +454,9 @@ describe('Camera Analysis Utilities', () => {
     it('should detect level head (no tilt)', () => {
       const leftEye = { x: 200, y: 150 };
       const rightEye = { x: 300, y: 150 }; // Same Y = level
-      
+
       const result = analyzeHeadTilt(leftEye, rightEye);
-      
+
       expect(result.isLevel).toBe(true);
       expect(result.tiltAngle).toBeCloseTo(0, 0);
     });
@@ -428,9 +464,9 @@ describe('Camera Analysis Utilities', () => {
     it('should detect head tilted right (clockwise)', () => {
       const leftEye = { x: 200, y: 160 };
       const rightEye = { x: 300, y: 140 }; // Right eye higher
-      
+
       const result = analyzeHeadTilt(leftEye, rightEye);
-      
+
       expect(result.isLevel).toBe(false);
       expect(result.tiltAngle).toBeLessThan(0); // Negative = tilted right
       expect(result.direction).toBe('right');
@@ -439,9 +475,9 @@ describe('Camera Analysis Utilities', () => {
     it('should detect head tilted left (counter-clockwise)', () => {
       const leftEye = { x: 200, y: 140 };
       const rightEye = { x: 300, y: 160 }; // Left eye higher
-      
+
       const result = analyzeHeadTilt(leftEye, rightEye);
-      
+
       expect(result.isLevel).toBe(false);
       expect(result.tiltAngle).toBeGreaterThan(0); // Positive = tilted left
       expect(result.direction).toBe('left');
@@ -450,12 +486,12 @@ describe('Camera Analysis Utilities', () => {
     it('should allow small tilt within tolerance (< 5 degrees)', () => {
       // 3 degree tilt
       const leftEye = { x: 200, y: 150 };
-      const radians = 3 * Math.PI / 180;
+      const radians = (3 * Math.PI) / 180;
       const rightEyeY = 150 + Math.tan(radians) * 100;
       const rightEye = { x: 300, y: rightEyeY };
-      
+
       const result = analyzeHeadTilt(leftEye, rightEye);
-      
+
       expect(result.isLevel).toBe(true); // Within tolerance
       expect(Math.abs(result.tiltAngle)).toBeLessThan(5);
     });
@@ -463,33 +499,33 @@ describe('Camera Analysis Utilities', () => {
     it('should detect significant tilt (> 8 degrees)', () => {
       // 10 degree tilt
       const leftEye = { x: 200, y: 150 };
-      const radians = 10 * Math.PI / 180;
+      const radians = (10 * Math.PI) / 180;
       const rightEyeY = 150 + Math.tan(radians) * 100;
       const rightEye = { x: 300, y: rightEyeY };
-      
+
       const result = analyzeHeadTilt(leftEye, rightEye);
-      
+
       expect(result.isLevel).toBe(false);
       expect(Math.abs(result.tiltAngle)).toBeGreaterThan(8);
     });
 
     it('should handle null left eye', () => {
       const result = analyzeHeadTilt(null, { x: 300, y: 150 });
-      
+
       expect(result.isLevel).toBe(false);
       expect(result.eyesDetected).toBe(false);
     });
 
     it('should handle null right eye', () => {
       const result = analyzeHeadTilt({ x: 200, y: 150 }, null);
-      
+
       expect(result.isLevel).toBe(false);
       expect(result.eyesDetected).toBe(false);
     });
 
     it('should handle both eyes null', () => {
       const result = analyzeHeadTilt(null, null);
-      
+
       expect(result.isLevel).toBe(false);
       expect(result.eyesDetected).toBe(false);
     });
@@ -529,8 +565,13 @@ describe('Camera Analysis Utilities', () => {
     };
 
     it('should return all good when all conditions are met', () => {
-      const result = checkAllConditions(goodPosition, goodDistance, goodBrightness, goodTilt);
-      
+      const result = checkAllConditions(
+        goodPosition,
+        goodDistance,
+        goodBrightness,
+        goodTilt
+      );
+
       expect(result.allGood).toBe(true);
       expect(result.readyToCapture).toBe(true);
       expect(result.issues).toHaveLength(0);
@@ -542,9 +583,14 @@ describe('Camera Analysis Utilities', () => {
         isCentered: false,
         direction: 'left',
       };
-      
-      const result = checkAllConditions(badPosition, goodDistance, goodBrightness, goodTilt);
-      
+
+      const result = checkAllConditions(
+        badPosition,
+        goodDistance,
+        goodBrightness,
+        goodTilt
+      );
+
       expect(result.allGood).toBe(false);
       expect(result.issues).toContain('position');
     });
@@ -555,9 +601,14 @@ describe('Camera Analysis Utilities', () => {
         status: 'too-far',
         isGood: false,
       };
-      
-      const result = checkAllConditions(goodPosition, badDistance, goodBrightness, goodTilt);
-      
+
+      const result = checkAllConditions(
+        goodPosition,
+        badDistance,
+        goodBrightness,
+        goodTilt
+      );
+
       expect(result.allGood).toBe(false);
       expect(result.issues).toContain('distance');
     });
@@ -568,9 +619,14 @@ describe('Camera Analysis Utilities', () => {
         status: 'too-dark',
         isGood: false,
       };
-      
-      const result = checkAllConditions(goodPosition, goodDistance, badBrightness, goodTilt);
-      
+
+      const result = checkAllConditions(
+        goodPosition,
+        goodDistance,
+        badBrightness,
+        goodTilt
+      );
+
       expect(result.allGood).toBe(false);
       expect(result.issues).toContain('lighting');
     });
@@ -581,21 +637,37 @@ describe('Camera Analysis Utilities', () => {
         isLevel: false,
         direction: 'left',
       };
-      
-      const result = checkAllConditions(goodPosition, goodDistance, goodBrightness, badTilt);
-      
+
+      const result = checkAllConditions(
+        goodPosition,
+        goodDistance,
+        goodBrightness,
+        badTilt
+      );
+
       expect(result.allGood).toBe(false);
       expect(result.issues).toContain('tilt');
     });
 
     it('should report multiple issues', () => {
-      const badPosition: FacePositionResult = { ...goodPosition, isCentered: false };
+      const badPosition: FacePositionResult = {
+        ...goodPosition,
+        isCentered: false,
+      };
       const badDistance: DistanceResult = { ...goodDistance, isGood: false };
-      const badBrightness: BrightnessResult = { ...goodBrightness, isGood: false };
+      const badBrightness: BrightnessResult = {
+        ...goodBrightness,
+        isGood: false,
+      };
       const badTilt: HeadTiltResult = { ...goodTilt, isLevel: false };
-      
-      const result = checkAllConditions(badPosition, badDistance, badBrightness, badTilt);
-      
+
+      const result = checkAllConditions(
+        badPosition,
+        badDistance,
+        badBrightness,
+        badTilt
+      );
+
       expect(result.allGood).toBe(false);
       expect(result.issues.length).toBeGreaterThanOrEqual(4);
     });
@@ -606,9 +678,14 @@ describe('Camera Analysis Utilities', () => {
         faceDetected: false,
         isCentered: false,
       };
-      
-      const result = checkAllConditions(noFace, goodDistance, goodBrightness, goodTilt);
-      
+
+      const result = checkAllConditions(
+        noFace,
+        goodDistance,
+        goodBrightness,
+        goodTilt
+      );
+
       expect(result.allGood).toBe(false);
       expect(result.issues).toContain('no-face');
     });
@@ -636,7 +713,7 @@ describe('Camera Analysis Edge Cases', () => {
         w: 100,
         h: 100,
       };
-      
+
       const result = analyzeFacePosition(faceBox, 640, 480);
       expect(result.horizontalOffset).toBeCloseTo(0, 1);
     });
@@ -647,9 +724,9 @@ describe('Camera Analysis Edge Cases', () => {
       // 45 degree tilt
       const leftEye = { x: 100, y: 100 };
       const rightEye = { x: 200, y: 200 }; // deltaY = deltaX = 100
-      
+
       const result = analyzeHeadTilt(leftEye, rightEye);
-      
+
       // atan2(100, 100) = 45 degrees
       expect(Math.abs(result.tiltAngle)).toBeCloseTo(45, 0);
     });
@@ -660,9 +737,9 @@ describe('Camera Analysis Edge Cases', () => {
       // Viewport center = 200
       // Offset = (150 - 200) / 200 = -0.25
       const faceBox = { x: 100, y: 100, w: 100, h: 100 };
-      
+
       const result = analyzeFacePosition(faceBox, 400, 400);
-      
+
       expect(result.horizontalOffset).toBeCloseTo(-0.25, 1);
     });
   });

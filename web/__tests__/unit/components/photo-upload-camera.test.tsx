@@ -42,6 +42,7 @@ describe('PhotoUpload Camera Tests', () => {
         scale: jest.fn(),
         drawImage: jest.fn(),
       };
+      // @ts-expect-error - Partial mock of canvas context for testing
       HTMLCanvasElement.prototype.getContext = jest.fn(() => mockContext);
       HTMLCanvasElement.prototype.toBlob = jest.fn(function (callback) {
         callback(new Blob(['captured'], { type: 'image/jpeg' }));
@@ -117,6 +118,7 @@ describe('PhotoUpload Camera Tests', () => {
         scale: jest.fn(),
         drawImage: jest.fn(),
       };
+      // @ts-expect-error - Partial mock of canvas context for testing
       HTMLCanvasElement.prototype.getContext = jest.fn(() => mockContext);
       HTMLCanvasElement.prototype.toBlob = jest.fn(function (callback) {
         callback(null); // Null blob case

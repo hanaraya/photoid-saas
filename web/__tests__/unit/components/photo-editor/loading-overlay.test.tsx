@@ -3,7 +3,10 @@
  */
 import React from 'react';
 import { render, screen, act } from '@testing-library/react';
-import { LoadingOverlay, BgRemovalProgress } from '@/components/photo-editor/LoadingOverlay';
+import {
+  LoadingOverlay,
+  BgRemovalProgress,
+} from '@/components/photo-editor/LoadingOverlay';
 
 describe('LoadingOverlay', () => {
   beforeEach(() => {
@@ -20,7 +23,9 @@ describe('LoadingOverlay', () => {
     expect(screen.getByText('Detecting face')).toBeInTheDocument();
     expect(screen.getByText('Analyzing photo quality')).toBeInTheDocument();
     expect(screen.getByText('Preparing editor')).toBeInTheDocument();
-    expect(screen.getByText('All processing happens on your device')).toBeInTheDocument();
+    expect(
+      screen.getByText('All processing happens on your device')
+    ).toBeInTheDocument();
   });
 
   it('should animate through steps over time', () => {

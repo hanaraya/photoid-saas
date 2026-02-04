@@ -3,7 +3,10 @@
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { ModerationBlocker, ModerationWarning } from '@/components/moderation-blocker';
+import {
+  ModerationBlocker,
+  ModerationWarning,
+} from '@/components/moderation-blocker';
 import { type ModerationResult } from '@/lib/content-moderation';
 
 // Mock lucide-react icons
@@ -76,7 +79,9 @@ describe('ModerationBlocker', () => {
 
     expect(screen.getByText('Photo Cannot Be Used')).toBeInTheDocument();
     expect(screen.getByText('Inappropriate Content')).toBeInTheDocument();
-    expect(screen.getByText('Photo contains inappropriate content')).toBeInTheDocument();
+    expect(
+      screen.getByText('Photo contains inappropriate content')
+    ).toBeInTheDocument();
     expect(screen.getByText('Try Another Photo')).toBeInTheDocument();
   });
 

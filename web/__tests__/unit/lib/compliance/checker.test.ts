@@ -3,9 +3,19 @@
  * These tests ensure the compliance system is accurate and reliable
  */
 
-import { PassportPhotoComplianceChecker, verifyPassportPhoto } from '@/lib/compliance/checker';
-import { ImageAnalysis, CountryCode, ComplianceResult } from '@/lib/compliance/types';
-import { COUNTRY_REQUIREMENTS, getSupportedCountries } from '@/lib/compliance/requirements';
+import {
+  PassportPhotoComplianceChecker,
+  verifyPassportPhoto,
+} from '@/lib/compliance/checker';
+import {
+  ImageAnalysis,
+  CountryCode,
+  ComplianceResult,
+} from '@/lib/compliance/types';
+import {
+  COUNTRY_REQUIREMENTS,
+  getSupportedCountries,
+} from '@/lib/compliance/requirements';
 
 // ============================================================
 // TEST FIXTURES
@@ -14,7 +24,9 @@ import { COUNTRY_REQUIREMENTS, getSupportedCountries } from '@/lib/compliance/re
 /**
  * Create a valid compliant photo analysis for testing
  */
-const createValidAnalysis = (overrides: Partial<ImageAnalysis> = {}): ImageAnalysis => ({
+const createValidAnalysis = (
+  overrides: Partial<ImageAnalysis> = {}
+): ImageAnalysis => ({
   width: 600,
   height: 600,
   aspectRatio: 1,
@@ -64,8 +76,8 @@ describe('Face Detection', () => {
   test('should pass when face is clearly detected', () => {
     const analysis = createValidAnalysis();
     const result = checker.verify(analysis);
-    
-    const faceCheck = result.checks.find(c => c.id === 'face_detected');
+
+    const faceCheck = result.checks.find((c) => c.id === 'face_detected');
     expect(faceCheck?.status).toBe('pass');
   });
 
@@ -78,8 +90,8 @@ describe('Face Detection', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const faceCheck = result.checks.find(c => c.id === 'face_detected');
+
+    const faceCheck = result.checks.find((c) => c.id === 'face_detected');
     expect(faceCheck?.status).toBe('fail');
     expect(faceCheck?.severity).toBe('critical');
     expect(result.isCompliant).toBe(false);
@@ -93,8 +105,8 @@ describe('Face Detection', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const faceCheck = result.checks.find(c => c.id === 'face_detected');
+
+    const faceCheck = result.checks.find((c) => c.id === 'face_detected');
     expect(faceCheck?.status).toBe('warn');
   });
 
@@ -106,8 +118,8 @@ describe('Face Detection', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const countCheck = result.checks.find(c => c.id === 'face_count');
+
+    const countCheck = result.checks.find((c) => c.id === 'face_count');
     expect(countCheck?.status).toBe('fail');
     expect(countCheck?.severity).toBe('critical');
   });
@@ -133,8 +145,8 @@ describe('Head Size Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const sizeCheck = result.checks.find(c => c.id === 'head_size');
+
+    const sizeCheck = result.checks.find((c) => c.id === 'head_size');
     expect(sizeCheck?.status).toBe('pass');
   });
 
@@ -151,8 +163,8 @@ describe('Head Size Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const sizeCheck = result.checks.find(c => c.id === 'head_size');
+
+    const sizeCheck = result.checks.find((c) => c.id === 'head_size');
     expect(sizeCheck?.status).toBe('fail');
     expect(sizeCheck?.message).toContain('too small');
   });
@@ -170,8 +182,8 @@ describe('Head Size Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const sizeCheck = result.checks.find(c => c.id === 'head_size');
+
+    const sizeCheck = result.checks.find((c) => c.id === 'head_size');
     expect(sizeCheck?.status).toBe('fail');
     expect(sizeCheck?.message).toContain('too large');
   });
@@ -188,8 +200,8 @@ describe('Eye Position Compliance', () => {
     // Eye at y=200 in 600px image = 400/600 = 66.7% from bottom
     const analysis = createValidAnalysis();
     const result = checker.verify(analysis);
-    
-    const eyeCheck = result.checks.find(c => c.id === 'eye_position');
+
+    const eyeCheck = result.checks.find((c) => c.id === 'eye_position');
     expect(eyeCheck?.status).toBe('pass');
   });
 
@@ -207,8 +219,8 @@ describe('Eye Position Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const eyeCheck = result.checks.find(c => c.id === 'eye_position');
+
+    const eyeCheck = result.checks.find((c) => c.id === 'eye_position');
     expect(eyeCheck?.status).toBe('fail');
     expect(eyeCheck?.message).toContain('too low');
   });
@@ -227,8 +239,8 @@ describe('Eye Position Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const eyeCheck = result.checks.find(c => c.id === 'eye_position');
+
+    const eyeCheck = result.checks.find((c) => c.id === 'eye_position');
     expect(eyeCheck?.status).toBe('fail');
     expect(eyeCheck?.message).toContain('too high');
   });
@@ -249,8 +261,8 @@ describe('Face Rotation Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const rotationCheck = result.checks.find(c => c.id === 'face_rotation');
+
+    const rotationCheck = result.checks.find((c) => c.id === 'face_rotation');
     expect(rotationCheck?.status).toBe('pass');
   });
 
@@ -262,8 +274,8 @@ describe('Face Rotation Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const rotationCheck = result.checks.find(c => c.id === 'face_rotation');
+
+    const rotationCheck = result.checks.find((c) => c.id === 'face_rotation');
     expect(rotationCheck?.status).toBe('fail');
     expect(rotationCheck?.message).toContain('turned left');
   });
@@ -276,8 +288,8 @@ describe('Face Rotation Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const rotationCheck = result.checks.find(c => c.id === 'face_rotation');
+
+    const rotationCheck = result.checks.find((c) => c.id === 'face_rotation');
     expect(rotationCheck?.status).toBe('fail');
     expect(rotationCheck?.message).toContain('tilted');
   });
@@ -290,8 +302,8 @@ describe('Face Rotation Compliance', () => {
       },
     });
     const result = checker.verify(analysis);
-    
-    const rotationCheck = result.checks.find(c => c.id === 'face_rotation');
+
+    const rotationCheck = result.checks.find((c) => c.id === 'face_rotation');
     expect(rotationCheck?.status).toBe('pass');
   });
 });
@@ -305,8 +317,8 @@ describe('Background Compliance', () => {
     const checker = new PassportPhotoComplianceChecker('US');
     const analysis = createValidAnalysis({ backgroundColor: '#FFFFFF' });
     const result = checker.verify(analysis);
-    
-    const bgCheck = result.checks.find(c => c.id === 'background');
+
+    const bgCheck = result.checks.find((c) => c.id === 'background');
     expect(bgCheck?.status).toBe('pass');
   });
 
@@ -314,8 +326,8 @@ describe('Background Compliance', () => {
     const checker = new PassportPhotoComplianceChecker('US');
     const analysis = createValidAnalysis({ backgroundColor: '#F5F5F5' });
     const result = checker.verify(analysis);
-    
-    const bgCheck = result.checks.find(c => c.id === 'background');
+
+    const bgCheck = result.checks.find((c) => c.id === 'background');
     expect(bgCheck?.status).toBe('pass');
   });
 
@@ -323,8 +335,8 @@ describe('Background Compliance', () => {
     const checker = new PassportPhotoComplianceChecker('US');
     const analysis = createValidAnalysis({ backgroundColor: '#87CEEB' }); // Sky blue
     const result = checker.verify(analysis);
-    
-    const bgCheck = result.checks.find(c => c.id === 'background');
+
+    const bgCheck = result.checks.find((c) => c.id === 'background');
     expect(bgCheck?.status).toBe('fail');
     expect(bgCheck?.severity).toBe('critical');
   });
@@ -336,8 +348,8 @@ describe('Background Compliance', () => {
       backgroundUniformity: 0.7,
     });
     const result = checker.verify(analysis);
-    
-    const bgCheck = result.checks.find(c => c.id === 'background');
+
+    const bgCheck = result.checks.find((c) => c.id === 'background');
     expect(bgCheck?.status).toBe('warn');
     expect(bgCheck?.message).toContain('not uniform');
   });
@@ -346,8 +358,8 @@ describe('Background Compliance', () => {
     const checker = new PassportPhotoComplianceChecker('UK');
     const analysis = createValidAnalysis({ backgroundColor: '#D3D3D3' });
     const result = checker.verify(analysis);
-    
-    const bgCheck = result.checks.find(c => c.id === 'background');
+
+    const bgCheck = result.checks.find((c) => c.id === 'background');
     expect(bgCheck?.status).toBe('pass');
   });
 });
@@ -362,16 +374,16 @@ describe('Image Quality Checks', () => {
   test('should pass with good lighting', () => {
     const analysis = createValidAnalysis({ brightness: 150 });
     const result = checker.verify(analysis);
-    
-    const lightCheck = result.checks.find(c => c.id === 'brightness');
+
+    const lightCheck = result.checks.find((c) => c.id === 'brightness');
     expect(lightCheck?.status).toBe('pass');
   });
 
   test('should fail when too dark', () => {
     const analysis = createValidAnalysis({ brightness: 50 });
     const result = checker.verify(analysis);
-    
-    const lightCheck = result.checks.find(c => c.id === 'brightness');
+
+    const lightCheck = result.checks.find((c) => c.id === 'brightness');
     expect(lightCheck?.status).toBe('fail');
     expect(lightCheck?.message).toContain('too dark');
   });
@@ -379,8 +391,8 @@ describe('Image Quality Checks', () => {
   test('should fail when overexposed', () => {
     const analysis = createValidAnalysis({ brightness: 240 });
     const result = checker.verify(analysis);
-    
-    const lightCheck = result.checks.find(c => c.id === 'brightness');
+
+    const lightCheck = result.checks.find((c) => c.id === 'brightness');
     expect(lightCheck?.status).toBe('fail');
     expect(lightCheck?.message).toContain('overexposed');
   });
@@ -388,16 +400,16 @@ describe('Image Quality Checks', () => {
   test('should pass with sharp image', () => {
     const analysis = createValidAnalysis({ sharpness: 0.9 });
     const result = checker.verify(analysis);
-    
-    const sharpCheck = result.checks.find(c => c.id === 'sharpness');
+
+    const sharpCheck = result.checks.find((c) => c.id === 'sharpness');
     expect(sharpCheck?.status).toBe('pass');
   });
 
   test('should fail with blurry image', () => {
     const analysis = createValidAnalysis({ sharpness: 0.3 });
     const result = checker.verify(analysis);
-    
-    const sharpCheck = result.checks.find(c => c.id === 'sharpness');
+
+    const sharpCheck = result.checks.find((c) => c.id === 'sharpness');
     expect(sharpCheck?.status).toBe('fail');
     expect(sharpCheck?.message).toContain('blurry');
   });
@@ -413,16 +425,16 @@ describe('Image Dimensions', () => {
   test('should pass with correct dimensions (600x600)', () => {
     const analysis = createValidAnalysis({ width: 600, height: 600 });
     const result = checker.verify(analysis);
-    
-    const dimCheck = result.checks.find(c => c.id === 'dimensions');
+
+    const dimCheck = result.checks.find((c) => c.id === 'dimensions');
     expect(dimCheck?.status).toBe('pass');
   });
 
   test('should fail with low resolution', () => {
     const analysis = createValidAnalysis({ width: 300, height: 300 });
     const result = checker.verify(analysis);
-    
-    const dimCheck = result.checks.find(c => c.id === 'dimensions');
+
+    const dimCheck = result.checks.find((c) => c.id === 'dimensions');
     expect(dimCheck?.status).toBe('fail');
     expect(dimCheck?.message).toContain('too low');
   });
@@ -430,8 +442,8 @@ describe('Image Dimensions', () => {
   test('should warn with very high resolution', () => {
     const analysis = createValidAnalysis({ width: 2000, height: 2000 });
     const result = checker.verify(analysis);
-    
-    const dimCheck = result.checks.find(c => c.id === 'dimensions');
+
+    const dimCheck = result.checks.find((c) => c.id === 'dimensions');
     expect(dimCheck?.status).toBe('warn');
   });
 });
@@ -445,8 +457,8 @@ describe('Glasses Detection', () => {
     const checker = new PassportPhotoComplianceChecker('US');
     const analysis = createValidAnalysis({ hasGlasses: false });
     const result = checker.verify(analysis);
-    
-    const glassesCheck = result.checks.find(c => c.id === 'glasses');
+
+    const glassesCheck = result.checks.find((c) => c.id === 'glasses');
     expect(glassesCheck?.status).toBe('pass');
   });
 
@@ -454,8 +466,8 @@ describe('Glasses Detection', () => {
     const checker = new PassportPhotoComplianceChecker('US');
     const analysis = createValidAnalysis({ hasGlasses: true });
     const result = checker.verify(analysis);
-    
-    const glassesCheck = result.checks.find(c => c.id === 'glasses');
+
+    const glassesCheck = result.checks.find((c) => c.id === 'glasses');
     expect(glassesCheck?.status).toBe('fail');
     expect(glassesCheck?.severity).toBe('critical');
   });
@@ -471,16 +483,16 @@ describe('Expression Detection', () => {
   test('should pass with neutral expression', () => {
     const analysis = createValidAnalysis({ hasSmile: false });
     const result = checker.verify(analysis);
-    
-    const expressionCheck = result.checks.find(c => c.id === 'expression');
+
+    const expressionCheck = result.checks.find((c) => c.id === 'expression');
     expect(expressionCheck?.status).toBe('pass');
   });
 
   test('should fail with smile', () => {
     const analysis = createValidAnalysis({ hasSmile: true });
     const result = checker.verify(analysis);
-    
-    const expressionCheck = result.checks.find(c => c.id === 'expression');
+
+    const expressionCheck = result.checks.find((c) => c.id === 'expression');
     expect(expressionCheck?.status).toBe('fail');
     expect(expressionCheck?.message).toContain('Smile detected');
   });
@@ -488,16 +500,16 @@ describe('Expression Detection', () => {
   test('should pass with eyes open', () => {
     const analysis = createValidAnalysis({ eyesOpen: true });
     const result = checker.verify(analysis);
-    
-    const eyesCheck = result.checks.find(c => c.id === 'eyes_open');
+
+    const eyesCheck = result.checks.find((c) => c.id === 'eyes_open');
     expect(eyesCheck?.status).toBe('pass');
   });
 
   test('should fail with eyes closed', () => {
     const analysis = createValidAnalysis({ eyesOpen: false });
     const result = checker.verify(analysis);
-    
-    const eyesCheck = result.checks.find(c => c.id === 'eyes_open');
+
+    const eyesCheck = result.checks.find((c) => c.id === 'eyes_open');
     expect(eyesCheck?.status).toBe('fail');
     expect(eyesCheck?.severity).toBe('critical');
   });
@@ -513,7 +525,7 @@ describe('Overall Compliance Result', () => {
   test('should be compliant when all critical checks pass', () => {
     const analysis = createValidAnalysis();
     const result = checker.verify(analysis);
-    
+
     expect(result.isCompliant).toBe(true);
     expect(result.criticalFailures).toHaveLength(0);
     expect(result.overallScore).toBeGreaterThanOrEqual(80);
@@ -524,7 +536,7 @@ describe('Overall Compliance Result', () => {
       face: { detected: false, count: 0, confidence: 0 },
     });
     const result = checker.verify(analysis);
-    
+
     expect(result.isCompliant).toBe(false);
     expect(result.criticalFailures.length).toBeGreaterThan(0);
   });
@@ -532,16 +544,17 @@ describe('Overall Compliance Result', () => {
   test('should include recommendations for failures', () => {
     const analysis = createValidAnalysis({ brightness: 50 });
     const result = checker.verify(analysis);
-    
+
     expect(result.recommendations.length).toBeGreaterThan(0);
   });
 
   test('should calculate correct pass/fail/warning counts', () => {
     const analysis = createValidAnalysis();
     const result = checker.verify(analysis);
-    
-    expect(result.passedCount + result.failedCount + result.warningCount)
-      .toBe(result.checks.length);
+
+    expect(result.passedCount + result.failedCount + result.warningCount).toBe(
+      result.checks.length
+    );
   });
 });
 
@@ -564,13 +577,21 @@ describe('Multi-Country Support', () => {
   test('should use correct background for each country', () => {
     // US requires white
     const usChecker = new PassportPhotoComplianceChecker('US');
-    const usResult = usChecker.verify(createValidAnalysis({ backgroundColor: '#FFFFFF' }));
-    expect(usResult.checks.find(c => c.id === 'background')?.status).toBe('pass');
+    const usResult = usChecker.verify(
+      createValidAnalysis({ backgroundColor: '#FFFFFF' })
+    );
+    expect(usResult.checks.find((c) => c.id === 'background')?.status).toBe(
+      'pass'
+    );
 
     // UK requires light grey
     const ukChecker = new PassportPhotoComplianceChecker('UK');
-    const ukResult = ukChecker.verify(createValidAnalysis({ backgroundColor: '#D3D3D3' }));
-    expect(ukResult.checks.find(c => c.id === 'background')?.status).toBe('pass');
+    const ukResult = ukChecker.verify(
+      createValidAnalysis({ backgroundColor: '#D3D3D3' })
+    );
+    expect(ukResult.checks.find((c) => c.id === 'background')?.status).toBe(
+      'pass'
+    );
   });
 });
 
@@ -582,7 +603,7 @@ describe('verifyPassportPhoto convenience function', () => {
   test('should work with default country (US)', () => {
     const analysis = createValidAnalysis();
     const result = verifyPassportPhoto(analysis);
-    
+
     expect(result.country).toBe('US');
     expect(result.isCompliant).toBe(true);
   });
@@ -590,7 +611,7 @@ describe('verifyPassportPhoto convenience function', () => {
   test('should work with specified country', () => {
     const analysis = createValidAnalysis({ backgroundColor: '#D3D3D3' });
     const result = verifyPassportPhoto(analysis, 'UK');
-    
+
     expect(result.country).toBe('UK');
   });
 });
@@ -613,7 +634,7 @@ describe('Edge Cases', () => {
       },
     });
     const result = checker.verify(analysis);
-    
+
     // Should not crash, should have warning for eye position
     expect(result).toBeDefined();
   });
@@ -630,9 +651,9 @@ describe('Edge Cases', () => {
       },
     });
     const result = checker.verify(analysis);
-    
+
     expect(result).toBeDefined();
-    const rotationCheck = result.checks.find(c => c.id === 'face_rotation');
+    const rotationCheck = result.checks.find((c) => c.id === 'face_rotation');
     expect(rotationCheck?.status).toBe('warn');
   });
 
@@ -646,7 +667,7 @@ describe('Edge Cases', () => {
       },
     });
     const result = checker.verify(analysis);
-    
+
     expect(result).toBeDefined();
   });
 });

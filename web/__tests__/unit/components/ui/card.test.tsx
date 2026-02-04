@@ -158,7 +158,7 @@ describe('Card Component', () => {
 
     const card = screen
       .getByText('Clickable card')
-      .closest('[data-slot="card"]');
+      .closest('[data-slot="card"]') as HTMLElement | null;
     card?.click();
 
     expect(handleClick).toHaveBeenCalled();

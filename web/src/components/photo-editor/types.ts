@@ -3,12 +3,25 @@ import { type FaceData } from '@/lib/face-detection';
 import { type ComplianceCheck } from '@/lib/compliance';
 import { type BgAnalysis } from '@/lib/bg-analysis';
 import { type ImageAnalysis } from '@/lib/image-analysis';
-import { type ModerationResult, type FinalComplianceResult } from '@/lib/content-moderation';
+import {
+  type ModerationResult,
+  type FinalComplianceResult,
+} from '@/lib/content-moderation';
 import { type MeasurementState } from '../compliance-overlay';
 import { type PhotoStandard } from '@/lib/photo-standards';
 
 // Re-export for convenience
-export type { FaceData, CropParams, ComplianceCheck, BgAnalysis, ImageAnalysis, ModerationResult, FinalComplianceResult, MeasurementState, PhotoStandard };
+export type {
+  FaceData,
+  CropParams,
+  ComplianceCheck,
+  BgAnalysis,
+  ImageAnalysis,
+  ModerationResult,
+  FinalComplianceResult,
+  MeasurementState,
+  PhotoStandard,
+};
 
 export interface EditState {
   zoom: number;

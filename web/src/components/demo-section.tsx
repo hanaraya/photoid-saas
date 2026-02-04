@@ -97,7 +97,9 @@ export function DemoSection() {
                         />
                       </div>
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-1">2×2 in</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      2×2 in
+                    </p>
                   </div>
 
                   {/* 4x6 Print Sheet */}
@@ -119,7 +121,9 @@ export function DemoSection() {
                         ))}
                       </div>
                     </div>
-                    <p className="text-[10px] text-muted-foreground mt-1">4×6 sheet</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      4×6 sheet
+                    </p>
                   </div>
                 </div>
               </div>

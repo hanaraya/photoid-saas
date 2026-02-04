@@ -47,7 +47,9 @@ describe('content-moderation', () => {
 
       expect(result.allowed).toBe(false);
       expect(result.severity).toBe('block');
-      expect(result.violations.some(v => v.code === VIOLATION_CODES.NO_FACE)).toBe(true);
+      expect(
+        result.violations.some((v) => v.code === VIOLATION_CODES.NO_FACE)
+      ).toBe(true);
     });
 
     it('should allow face even without eye landmarks (trust face detection)', () => {
@@ -76,9 +78,9 @@ describe('content-moderation', () => {
         { id: 'face', status: 'pass', message: 'Face detected' },
         { id: 'head_size', status: 'pass', message: 'Head size OK' },
       ];
-      
+
       const result = checkFinalCompliance(checks);
-      
+
       expect(result.canProceed).toBe(true);
       expect(result.issues).toHaveLength(0);
     });
@@ -88,9 +90,9 @@ describe('content-moderation', () => {
         { id: 'face', status: 'pass', message: 'Face detected' },
         { id: 'head_size', status: 'fail', message: 'Head too large' },
       ];
-      
+
       const result = checkFinalCompliance(checks);
-      
+
       expect(result.canProceed).toBe(false);
       expect(result.issues).toHaveLength(1);
       expect(result.issues[0].severity).toBe('error');
@@ -101,9 +103,9 @@ describe('content-moderation', () => {
         { id: 'face', status: 'pass', message: 'Face detected' },
         { id: 'lighting', status: 'warn', message: 'Uneven lighting' },
       ];
-      
+
       const result = checkFinalCompliance(checks);
-      
+
       expect(result.canProceed).toBe(true);
       expect(result.issues).toHaveLength(1);
       expect(result.issues[0].severity).toBe('warning');
@@ -115,13 +117,17 @@ describe('content-moderation', () => {
         { id: 'head_size', status: 'fail', message: 'Head too small' },
         { id: 'lighting', status: 'warn', message: 'Shadows detected' },
       ];
-      
+
       const result = checkFinalCompliance(checks);
-      
+
       expect(result.canProceed).toBe(false);
       expect(result.issues).toHaveLength(3);
-      expect(result.issues.filter(i => i.severity === 'error')).toHaveLength(2);
-      expect(result.issues.filter(i => i.severity === 'warning')).toHaveLength(1);
+      expect(result.issues.filter((i) => i.severity === 'error')).toHaveLength(
+        2
+      );
+      expect(
+        result.issues.filter((i) => i.severity === 'warning')
+      ).toHaveLength(1);
     });
   });
 
@@ -154,7 +160,6 @@ describe('content-moderation', () => {
 
       expect(hasBlockingViolation(allowedResult)).toBe(false);
     });
-
   });
 
   describe('getBlockedMessage', () => {

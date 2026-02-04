@@ -122,7 +122,7 @@ export function useLiveFaceDetection(
 
     try {
       const results = videoFaceDetector.detectForVideo(video, now);
-      
+
       if (!results?.detections?.length) {
         setFaceData(null);
       } else {
@@ -145,8 +145,10 @@ export function useLiveFaceDetection(
           if (kp.x !== undefined && kp.y !== undefined) {
             const px = kp.x * video.videoWidth;
             const py = kp.y * video.videoHeight;
-            if (kp.label === 'leftEye' || kp.index === 0) leftEye = { x: px, y: py };
-            if (kp.label === 'rightEye' || kp.index === 1) rightEye = { x: px, y: py };
+            if (kp.label === 'leftEye' || kp.index === 0)
+              leftEye = { x: px, y: py };
+            if (kp.label === 'rightEye' || kp.index === 1)
+              rightEye = { x: px, y: py };
           }
         }
 
@@ -173,7 +175,6 @@ export function useLiveFaceDetection(
     }
 
     animationFrameRef.current = requestAnimationFrame(detectFace);
-     
   }, [videoRef, intervalMs]);
 
   // Run detection loop when active

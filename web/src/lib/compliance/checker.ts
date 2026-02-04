@@ -46,16 +46,18 @@ export class PassportPhotoComplianceChecker {
     this.checkHeadwear(analysis);
 
     // Calculate results
-    const passedCount = this.checks.filter(c => c.status === 'pass').length;
-    const failedCount = this.checks.filter(c => c.status === 'fail').length;
-    const warningCount = this.checks.filter(c => c.status === 'warn').length;
+    const passedCount = this.checks.filter((c) => c.status === 'pass').length;
+    const failedCount = this.checks.filter((c) => c.status === 'fail').length;
+    const warningCount = this.checks.filter((c) => c.status === 'warn').length;
 
     const criticalFailures = this.checks
-      .filter(c => c.status === 'fail' && c.severity === 'critical')
-      .map(c => c.name);
+      .filter((c) => c.status === 'fail' && c.severity === 'critical')
+      .map((c) => c.name);
 
-    const isCompliant = criticalFailures.length === 0 && 
-      this.checks.filter(c => c.status === 'fail' && c.severity === 'major').length === 0;
+    const isCompliant =
+      criticalFailures.length === 0 &&
+      this.checks.filter((c) => c.status === 'fail' && c.severity === 'major')
+        .length === 0;
 
     const overallScore = this.calculateScore();
     const recommendations = this.generateRecommendations();
@@ -146,7 +148,8 @@ export class PassportPhotoComplianceChecker {
       return;
     }
 
-    const headHeightPercent = (analysis.face.boundingBox.height / analysis.height) * 100;
+    const headHeightPercent =
+      (analysis.face.boundingBox.height / analysis.height) * 100;
     const { minPercent, maxPercent } = this.requirements.headSize;
 
     check.value = `${headHeightPercent.toFixed(1)}%`;
@@ -186,10 +189,14 @@ export class PassportPhotoComplianceChecker {
     }
 
     // Calculate eye center position from bottom
-    const eyeY = (analysis.face.landmarks.leftEye.y + analysis.face.landmarks.rightEye.y) / 2;
-    const eyeFromBottomPercent = ((analysis.height - eyeY) / analysis.height) * 100;
+    const eyeY =
+      (analysis.face.landmarks.leftEye.y + analysis.face.landmarks.rightEye.y) /
+      2;
+    const eyeFromBottomPercent =
+      ((analysis.height - eyeY) / analysis.height) * 100;
 
-    const { minFromBottomPercent, maxFromBottomPercent } = this.requirements.eyePosition;
+    const { minFromBottomPercent, maxFromBottomPercent } =
+      this.requirements.eyePosition;
 
     check.value = `${eyeFromBottomPercent.toFixed(1)}%`;
     check.expected = `${minFromBottomPercent}% - ${maxFromBottomPercent}%`;
@@ -266,11 +273,16 @@ export class PassportPhotoComplianceChecker {
       severity: 'critical',
     };
 
-    const { allowedColors, colorTolerance, uniformityThreshold } = this.requirements.background;
+    const { allowedColors, colorTolerance, uniformityThreshold } =
+      this.requirements.background;
 
     // Check background color
     const bgColor = analysis.backgroundColor.toUpperCase();
-    const isColorAllowed = this.isColorWithinTolerance(bgColor, allowedColors, colorTolerance);
+    const isColorAllowed = this.isColorWithinTolerance(
+      bgColor,
+      allowedColors,
+      colorTolerance
+    );
 
     check.value = analysis.backgroundColor;
     check.expected = allowedColors.join(', ');
@@ -302,7 +314,7 @@ export class PassportPhotoComplianceChecker {
       severity: 'critical',
     };
 
-    const { widthPixelsMin, widthPixelsMax, heightPixelsMin, heightPixelsMax } = 
+    const { widthPixelsMin, widthPixelsMax, heightPixelsMin, heightPixelsMax } =
       this.requirements.dimensions;
 
     check.value = `${analysis.width}x${analysis.height}`;
@@ -311,7 +323,10 @@ export class PassportPhotoComplianceChecker {
     if (analysis.width < widthPixelsMin || analysis.height < heightPixelsMin) {
       check.message = 'Image resolution is too low';
       check.details = 'Use a higher resolution camera or photo';
-    } else if (analysis.width > widthPixelsMax || analysis.height > heightPixelsMax) {
+    } else if (
+      analysis.width > widthPixelsMax ||
+      analysis.height > heightPixelsMax
+    ) {
       check.status = 'warn';
       check.message = 'Image resolution is higher than needed';
       check.details = 'Photo will be resized';
@@ -321,13 +336,16 @@ export class PassportPhotoComplianceChecker {
     }
 
     // Check aspect ratio
-    const expectedRatio = this.requirements.dimensions.widthMm / this.requirements.dimensions.heightMm;
+    const expectedRatio =
+      this.requirements.dimensions.widthMm /
+      this.requirements.dimensions.heightMm;
     const actualRatio = analysis.aspectRatio;
     const ratioDiff = Math.abs(actualRatio - expectedRatio);
 
     if (ratioDiff > 0.05) {
       check.status = check.status === 'pass' ? 'warn' : check.status;
-      check.details = (check.details || '') + ' Aspect ratio may need adjustment.';
+      check.details =
+        (check.details || '') + ' Aspect ratio may need adjustment.';
     }
 
     this.checks.push(check);
@@ -417,10 +435,13 @@ export class PassportPhotoComplianceChecker {
 
     if (analysis.hasGlasses && !this.requirements.allowGlasses) {
       check.message = 'Glasses detected';
-      check.details = 'Remove glasses for the photo (required since 2016 for US passports)';
+      check.details =
+        'Remove glasses for the photo (required since 2016 for US passports)';
     } else {
       check.status = 'pass';
-      check.message = this.requirements.allowGlasses ? 'Glasses allowed' : 'No glasses detected';
+      check.message = this.requirements.allowGlasses
+        ? 'Glasses allowed'
+        : 'No glasses detected';
     }
 
     this.checks.push(check);
@@ -530,7 +551,8 @@ export class PassportPhotoComplianceChecker {
     let maxScore = 0;
 
     for (const check of this.checks) {
-      const weight = check.severity === 'critical' ? 3 : check.severity === 'major' ? 2 : 1;
+      const weight =
+        check.severity === 'critical' ? 3 : check.severity === 'major' ? 2 : 1;
       maxScore += weight;
 
       if (check.status === 'pass') {
@@ -556,7 +578,10 @@ export class PassportPhotoComplianceChecker {
     }
 
     // Add general recommendations if few failures
-    if (recommendations.length === 0 && this.checks.some(c => c.status === 'warn')) {
+    if (
+      recommendations.length === 0 &&
+      this.checks.some((c) => c.status === 'warn')
+    ) {
       recommendations.push('Minor adjustments recommended for best results');
     }
 
@@ -580,8 +605,8 @@ export class PassportPhotoComplianceChecker {
 
       const diff = Math.sqrt(
         Math.pow(rgb.r - allowedRgb.r, 2) +
-        Math.pow(rgb.g - allowedRgb.g, 2) +
-        Math.pow(rgb.b - allowedRgb.b, 2)
+          Math.pow(rgb.g - allowedRgb.g, 2) +
+          Math.pow(rgb.b - allowedRgb.b, 2)
       );
 
       if (diff <= tolerance * Math.sqrt(3)) {

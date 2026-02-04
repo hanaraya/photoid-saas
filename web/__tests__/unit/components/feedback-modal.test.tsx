@@ -68,7 +68,13 @@ describe('FeedbackModal', () => {
   });
 
   it('should submit feedback and show thank you message', async () => {
-    render(<FeedbackModal isOpen={true} onClose={jest.fn()} photoStandard="US Passport" />);
+    render(
+      <FeedbackModal
+        isOpen={true}
+        onClose={jest.fn()}
+        photoStandard="US Passport"
+      />
+    );
 
     // Select rating
     const star5 = screen.getByRole('button', { name: 'Rate 5 stars' });
@@ -86,10 +92,13 @@ describe('FeedbackModal', () => {
       expect(screen.getByText('Thank you!')).toBeInTheDocument();
     });
 
-    expect(global.fetch).toHaveBeenCalledWith('/api/feedback', expect.objectContaining({
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-    }));
+    expect(global.fetch).toHaveBeenCalledWith(
+      '/api/feedback',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
   });
 
   it('should show error message on submit failure', async () => {

@@ -31,18 +31,23 @@ export function ComplianceSummary({
   const totalCount = checks.length;
   const allPassed = passedCount === totalCount;
   // Filter out background check from failedChecks since we handle it separately with bgNeedsAction
-  const failedChecks = checks.filter((c) => (c.status === 'fail' || c.status === 'warn') && c.id !== 'background');
-  
+  const failedChecks = checks.filter(
+    (c) => (c.status === 'fail' || c.status === 'warn') && c.id !== 'background'
+  );
+
   const suggestions = getRetakeSuggestions(checks);
   const requiresRetake = needsRetake(suggestions);
-  
+
   // Determine if background needs attention
   const bgNeedsAction = bgAnalysis && bgAnalysis.needsRemoval && !bgRemoved;
-  
+
   if (totalCount === 0) return null;
 
   return (
-    <div className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden" data-testid="compliance-checker">
+    <div
+      className="rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden"
+      data-testid="compliance-checker"
+    >
       {/* Summary header - always visible */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
@@ -50,19 +55,33 @@ export function ComplianceSummary({
         data-testid="compliance-summary-toggle"
       >
         <div className="flex items-center gap-3">
-          <div className={`flex items-center justify-center w-10 h-10 rounded-full ${
-            allPassed && !bgNeedsAction
-              ? 'bg-emerald-500/10 text-emerald-500'
-              : requiresRetake
-                ? 'bg-red-500/10 text-red-500'
-                : 'bg-amber-500/10 text-amber-500'
-          }`}>
+          <div
+            className={`flex items-center justify-center w-10 h-10 rounded-full ${
+              allPassed && !bgNeedsAction
+                ? 'bg-emerald-500/10 text-emerald-500'
+                : requiresRetake
+                  ? 'bg-red-500/10 text-red-500'
+                  : 'bg-amber-500/10 text-amber-500'
+            }`}
+          >
             {allPassed && !bgNeedsAction ? (
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             ) : (
-              <span className="text-lg font-semibold">{failedChecks.length + (bgNeedsAction ? 1 : 0)}</span>
+              <span className="text-lg font-semibold">
+                {failedChecks.length + (bgNeedsAction ? 1 : 0)}
+              </span>
             )}
           </div>
           <div className="text-left">
@@ -84,7 +103,12 @@ export function ComplianceSummary({
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </button>
 
@@ -97,8 +121,12 @@ export function ComplianceSummary({
               <div className="flex items-center gap-3">
                 <span className="text-amber-500">🎨</span>
                 <div>
-                  <div className="text-sm font-medium text-amber-600 dark:text-amber-400">Background removal needed</div>
-                  <div className="text-xs text-muted-foreground">{bgAnalysis.reason}</div>
+                  <div className="text-sm font-medium text-amber-600 dark:text-amber-400">
+                    Background removal needed
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {bgAnalysis.reason}
+                  </div>
                 </div>
               </div>
               <Button
@@ -108,7 +136,11 @@ export function ComplianceSummary({
                 disabled={bgRemoving || bgModelLoading}
                 className="shrink-0"
               >
-                {bgRemoving ? 'Removing...' : bgModelLoading ? 'Loading...' : 'Fix'}
+                {bgRemoving
+                  ? 'Removing...'
+                  : bgModelLoading
+                    ? 'Loading...'
+                    : 'Fix'}
               </Button>
             </div>
           )}
@@ -125,12 +157,24 @@ export function ComplianceSummary({
                   : 'bg-amber-500/5 border border-amber-500/20'
               }`}
             >
-              <span className={`mt-0.5 ${check.status === 'fail' ? 'text-red-500' : 'text-amber-500'}`}>
+              <span
+                className={`mt-0.5 ${check.status === 'fail' ? 'text-red-500' : 'text-amber-500'}`}
+              >
                 {check.status === 'fail' ? '✗' : '!'}
               </span>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium" data-testid={`check-${check.id}-label`}>{check.label}</div>
-                <div className="text-xs text-muted-foreground" data-testid={`check-${check.id}-message`}>{check.message}</div>
+                <div
+                  className="text-sm font-medium"
+                  data-testid={`check-${check.id}-label`}
+                >
+                  {check.label}
+                </div>
+                <div
+                  className="text-xs text-muted-foreground"
+                  data-testid={`check-${check.id}-message`}
+                >
+                  {check.message}
+                </div>
               </div>
             </div>
           ))}
@@ -139,23 +183,40 @@ export function ComplianceSummary({
           {checks.filter((c) => c.status === 'pass').length > 0 && (
             <details className="group">
               <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground transition-colors list-none flex items-center gap-1">
-                <svg className="w-3 h-3 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg
+                  className="w-3 h-3 transition-transform group-open:rotate-90"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
                 </svg>
                 {passedCount} passed checks
               </summary>
-              <div className="mt-2 space-y-1.5 pl-4" data-testid="passed-checks">
-                {checks.filter((c) => c.status === 'pass').map((check) => (
-                  <div 
-                    key={check.id} 
-                    data-testid={`check-${check.id}`}
-                    data-check-status="pass"
-                    className="flex items-center gap-2 text-xs text-muted-foreground"
-                  >
-                    <span className="text-emerald-500">✓</span>
-                    <span data-testid={`check-${check.id}-label`}>{check.label}</span>
-                  </div>
-                ))}
+              <div
+                className="mt-2 space-y-1.5 pl-4"
+                data-testid="passed-checks"
+              >
+                {checks
+                  .filter((c) => c.status === 'pass')
+                  .map((check) => (
+                    <div
+                      key={check.id}
+                      data-testid={`check-${check.id}`}
+                      data-check-status="pass"
+                      className="flex items-center gap-2 text-xs text-muted-foreground"
+                    >
+                      <span className="text-emerald-500">✓</span>
+                      <span data-testid={`check-${check.id}-label`}>
+                        {check.label}
+                      </span>
+                    </div>
+                  ))}
               </div>
             </details>
           )}

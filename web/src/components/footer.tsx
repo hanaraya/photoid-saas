@@ -90,9 +90,7 @@ export function Footer() {
               </li>
               <li className="flex items-start gap-2">
                 <span>💬</span>
-                <span>
-                  Questions? We typically respond within 24 hours.
-                </span>
+                <span>Questions? We typically respond within 24 hours.</span>
               </li>
             </ul>
           </div>

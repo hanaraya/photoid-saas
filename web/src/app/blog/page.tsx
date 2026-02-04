@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Blog — SafePassportPic',
-    description: 'Tips, guides, and insights about passport photos and privacy.',
+    description:
+      'Tips, guides, and insights about passport photos and privacy.',
     images: ['https://safepassportpic.com/og-image.png'],
   },
   alternates: {
@@ -28,8 +29,7 @@ export const metadata: Metadata = {
 const posts = [
   {
     slug: 'passport-photo-at-home',
-    title:
-      'How to Take a Perfect Passport Photo at Home (2026 Guide)',
+    title: 'How to Take a Perfect Passport Photo at Home (2026 Guide)',
     description:
       'Learn how to take a passport photo at home with your smartphone. Complete guide covers lighting, background, positioning & official requirements. Save $15+ today!',
     date: '2026-02-02',
@@ -63,7 +63,8 @@ export default function BlogPage() {
                 Blog
               </h1>
               <p className="mt-4 text-lg text-muted-foreground">
-                Passport photo tips, privacy insights, and travel documentation guides
+                Passport photo tips, privacy insights, and travel documentation
+                guides
               </p>
             </div>
 
@@ -92,7 +93,9 @@ export default function BlogPage() {
                       <h2 className="text-xl font-semibold group-hover:text-primary transition-colors">
                         {post.title}
                       </h2>
-                      <p className="text-muted-foreground">{post.description}</p>
+                      <p className="text-muted-foreground">
+                        {post.description}
+                      </p>
                       <span className="text-sm font-medium text-primary">
                         Read more →
                       </span>

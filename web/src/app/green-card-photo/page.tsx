@@ -12,11 +12,15 @@ import {
 
 const breadcrumbs = [
   { name: 'Home', url: 'https://safepassportpic.com' },
-  { name: 'Green Card Photo', url: 'https://safepassportpic.com/green-card-photo' },
+  {
+    name: 'Green Card Photo',
+    url: 'https://safepassportpic.com/green-card-photo',
+  },
 ];
 
 export const metadata: Metadata = {
-  title: 'Green Card Photo Online — USCIS 2x2 Compliant in 60 Seconds | SafePassportPic',
+  title:
+    'Green Card Photo Online — USCIS 2x2 Compliant in 60 Seconds | SafePassportPic',
   description:
     'Create a compliant Green Card photo online in 60 seconds. Meet all USCIS 2×2 inch requirements for I-485, I-130, I-765, and other immigration forms. 100% private — $4.99 one-time.',
   keywords: [
@@ -49,7 +53,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Green Card Photo Online — USCIS 2x2 Compliant in 60 Seconds',
-    description: 'Create a compliant Green Card photo instantly. AI-powered, 100% private.',
+    description:
+      'Create a compliant Green Card photo instantly. AI-powered, 100% private.',
     images: ['https://safepassportpic.com/og-image.png'],
   },
   alternates: {
@@ -66,27 +71,32 @@ const requirements = [
   {
     icon: '⬜',
     title: 'Plain White Background',
-    description: 'White or off-white background only, no patterns, shadows, or other objects',
+    description:
+      'White or off-white background only, no patterns, shadows, or other objects',
   },
   {
     icon: '👤',
     title: '1-1⅜ Inch Head Height',
-    description: 'Your head (chin to top of hair) must be 1 to 1⅜ inches in the photo',
+    description:
+      'Your head (chin to top of hair) must be 1 to 1⅜ inches in the photo',
   },
   {
     icon: '👁️',
     title: 'Eyes Open, Forward Facing',
-    description: 'Look directly at camera with neutral expression, both eyes visible',
+    description:
+      'Look directly at camera with neutral expression, both eyes visible',
   },
   {
     icon: '🚫',
     title: 'No Glasses',
-    description: 'Remove all glasses — USCIS no longer allows glasses in photos since 2016',
+    description:
+      'Remove all glasses — USCIS no longer allows glasses in photos since 2016',
   },
   {
     icon: '📅',
     title: 'Recent Photo',
-    description: 'Must be taken within the last 6 months and reflect your current appearance',
+    description:
+      'Must be taken within the last 6 months and reflect your current appearance',
   },
 ];
 
@@ -101,7 +111,8 @@ const formTypes = [
 
 const faqs = [
   {
-    question: 'What are the USCIS photo requirements for Green Card applications?',
+    question:
+      'What are the USCIS photo requirements for Green Card applications?',
     answer:
       'USCIS requires 2×2 inch (51×51mm) photos with a plain white background. Your head must be 1 to 1⅜ inches from chin to top of hair. Eyes must be open and looking directly at camera. No glasses allowed. Photos must be in color and taken within the last 6 months.',
   },
@@ -113,7 +124,7 @@ const faqs = [
   {
     question: 'How many photos do I need for my Green Card application?',
     answer:
-      'Most USCIS forms require 2 identical photos. SafePassportPic provides a printable sheet with multiple photos, so you\'ll have plenty for your application.',
+      "Most USCIS forms require 2 identical photos. SafePassportPic provides a printable sheet with multiple photos, so you'll have plenty for your application.",
   },
   {
     question: 'Can I wear glasses in my Green Card photo?',
@@ -138,7 +149,7 @@ const faqs = [
   {
     question: 'Where can I print my Green Card photo?',
     answer:
-      'You\'ll receive a 4×6 inch printable sheet with multiple photos. You can print this at CVS, Walgreens, Costco, Walmart, or any photo printing service. Most cost less than $0.50.',
+      "You'll receive a 4×6 inch printable sheet with multiple photos. You can print this at CVS, Walgreens, Costco, Walmart, or any photo printing service. Most cost less than $0.50.",
   },
   {
     question: 'What forms require USCIS photos?',
@@ -210,7 +221,8 @@ const jsonLd = {
       '@type': 'Product',
       '@id': 'https://safepassportpic.com/green-card-photo#product',
       name: 'Green Card Photo Service',
-      description: 'Create a compliant 2×2 inch USCIS Green Card photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
+      description:
+        'Create a compliant 2×2 inch USCIS Green Card photo online in 60 seconds. AI-powered background removal, instant compliance checking, and print-ready download.',
       brand: {
         '@type': 'Brand',
         name: 'SafePassportPic',
@@ -256,8 +268,9 @@ export default function GreenCardPhotoPage() {
                 Green Card Photo — Online in 60 Seconds
               </h1>
               <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-                Create a compliant 2×2 inch USCIS photo from your phone. Works for I-485, I-130, 
-                I-765, and all immigration forms. AI-powered, 100% private.
+                Create a compliant 2×2 inch USCIS photo from your phone. Works
+                for I-485, I-130, I-765, and all immigration forms. AI-powered,
+                100% private.
               </p>
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
                 <Link
@@ -274,7 +287,8 @@ export default function GreenCardPhotoPage() {
                 </a>
               </div>
               <p className="mt-4 text-sm text-muted-foreground">
-                ✅ 30-day money-back guarantee • 🔒 Photos never leave your device
+                ✅ 30-day money-back guarantee • 🔒 Photos never leave your
+                device
               </p>
             </div>
           </div>
@@ -299,7 +313,9 @@ export default function GreenCardPhotoPage() {
                 >
                   <div className="text-3xl mb-3">{req.icon}</div>
                   <h3 className="font-semibold text-lg">{req.title}</h3>
-                  <p className="mt-2 text-muted-foreground">{req.description}</p>
+                  <p className="mt-2 text-muted-foreground">
+                    {req.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -324,10 +340,14 @@ export default function GreenCardPhotoPage() {
                   className="rounded-lg border border-border bg-card p-4 flex items-center justify-between"
                 >
                   <div>
-                    <span className="font-mono font-semibold text-primary">{form.form}</span>
+                    <span className="font-mono font-semibold text-primary">
+                      {form.form}
+                    </span>
                     <p className="text-sm text-muted-foreground">{form.name}</p>
                   </div>
-                  <span className="text-sm bg-primary/10 px-2 py-1 rounded">{form.photos}</span>
+                  <span className="text-sm bg-primary/10 px-2 py-1 rounded">
+                    {form.photos}
+                  </span>
                 </div>
               ))}
             </div>
@@ -352,7 +372,8 @@ export default function GreenCardPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">Snap a Selfie</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Use your phone camera or upload an existing photo. Good lighting helps!
+                  Use your phone camera or upload an existing photo. Good
+                  lighting helps!
                 </p>
               </div>
               <div className="text-center">
@@ -361,7 +382,8 @@ export default function GreenCardPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">AI Does the Work</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Our AI removes the background, crops to 2×2 inches, and validates USCIS compliance.
+                  Our AI removes the background, crops to 2×2 inches, and
+                  validates USCIS compliance.
                 </p>
               </div>
               <div className="text-center">
@@ -370,7 +392,8 @@ export default function GreenCardPhotoPage() {
                 </div>
                 <h3 className="font-semibold text-lg">Download & Print</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Download your print-ready sheet and print at any photo shop for under $0.50.
+                  Download your print-ready sheet and print at any photo shop
+                  for under $0.50.
                 </p>
               </div>
             </div>
@@ -400,16 +423,22 @@ export default function GreenCardPhotoPage() {
               <table className="w-full border-collapse">
                 <thead>
                   <tr className="border-b">
-                    <th className="text-left py-4 px-4 font-semibold">Service</th>
+                    <th className="text-left py-4 px-4 font-semibold">
+                      Service
+                    </th>
                     <th className="text-left py-4 px-4 font-semibold">Price</th>
                     <th className="text-left py-4 px-4 font-semibold">Time</th>
-                    <th className="text-left py-4 px-4 font-semibold">Privacy</th>
+                    <th className="text-left py-4 px-4 font-semibold">
+                      Privacy
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr className="border-b bg-primary/5">
                     <td className="py-4 px-4 font-semibold">SafePassportPic</td>
-                    <td className="py-4 px-4 text-green-600 font-semibold">$4.99</td>
+                    <td className="py-4 px-4 text-green-600 font-semibold">
+                      $4.99
+                    </td>
                     <td className="py-4 px-4">60 seconds</td>
                     <td className="py-4 px-4">✅ 100% private</td>
                   </tr>
@@ -476,7 +505,8 @@ export default function GreenCardPhotoPage() {
               Ready to Create Your Green Card Photo?
             </h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Join thousands who&apos;ve saved time and money with SafePassportPic
+              Join thousands who&apos;ve saved time and money with
+              SafePassportPic
             </p>
             <div className="mt-10">
               <Link
@@ -487,7 +517,8 @@ export default function GreenCardPhotoPage() {
               </Link>
             </div>
             <p className="mt-4 text-sm text-muted-foreground">
-              ✅ 30-day money-back guarantee • 🔒 Photos never leave your device • 🇺🇸 USCIS compliant
+              ✅ 30-day money-back guarantee • 🔒 Photos never leave your device
+              • 🇺🇸 USCIS compliant
             </p>
           </div>
         </section>

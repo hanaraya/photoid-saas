@@ -1,7 +1,7 @@
 import { type FaceData } from './face-detection';
-import { 
-  type SpecPx, 
-  specToPx, 
+import {
+  type SpecPx,
+  specToPx,
   type PhotoStandard,
   HEAD_TO_FACE_RATIO,
   CROWN_CLEARANCE_RATIO,
@@ -21,20 +21,28 @@ export interface CropParams {
 export interface CropSimulationResult {
   // Will the crop succeed without issues?
   isValid: boolean;
-  
+
   // Quality metrics
-  headHeightPercent: number;     // Head height as % of output (spec wants 50-69% for US)
-  eyePositionPercent: number;    // Eye position from bottom as % of output
-  
+  headHeightPercent: number; // Head height as % of output (spec wants 50-69% for US)
+  eyePositionPercent: number; // Eye position from bottom as % of output
+
   // Issues that would occur
   issues: CropIssue[];
-  
+
   // What to tell the user - precise guidance based on analysis
-  guidance: 'perfect' | 'move-closer' | 'move-back' | 'center-face' | 'move-up' | 'move-down' | 'tilt-head' | 'no-face';
-  
+  guidance:
+    | 'perfect'
+    | 'move-closer'
+    | 'move-back'
+    | 'center-face'
+    | 'move-up'
+    | 'move-down'
+    | 'tilt-head'
+    | 'no-face';
+
   // The calculated crop params (for preview)
   cropParams: CropParams | null;
-  
+
   // Padding that would be added (0 = no padding = good)
   paddingTop: number;
   paddingBottom: number;
@@ -42,7 +50,7 @@ export interface CropSimulationResult {
   paddingRight: number;
 }
 
-export type CropIssue = 
+export type CropIssue =
   | 'no-face'
   | 'head-too-small'
   | 'head-too-large'
@@ -65,7 +73,7 @@ export function simulateCrop(
 ): CropSimulationResult {
   const spec = specToPx(standard);
   const issues: CropIssue[] = [];
-  
+
   if (!faceData) {
     return {
       isValid: false,
@@ -80,10 +88,10 @@ export function simulateCrop(
       paddingRight: 0,
     };
   }
-  
+
   const face = faceData;
   const faceCenterX = face.x + face.w / 2;
-  
+
   // Eye position
   let eyeY: number;
   if (face.leftEye && face.rightEye) {
@@ -91,54 +99,62 @@ export function simulateCrop(
   } else {
     eyeY = face.y + face.h * 0.35;
   }
-  
+
   // Head estimation
   const estimatedHeadH = face.h * HEAD_TO_FACE_RATIO;
   const crownY = face.y - face.h * CROWN_CLEARANCE_RATIO;
   const crownToEye = eyeY - crownY;
-  
+
   // Spec requirements
   const targetEyeFromTop = spec.h - spec.eyeFromBottom;
   const minTopMargin = spec.h * 0.05;
-  
+
   // Calculate scale bounds (same logic as calculateCrop)
   const minScaleHead = spec.headMin / estimatedHeadH;
   const maxScaleHead = spec.headMax / estimatedHeadH;
-  const maxScaleCrown = crownToEye > 0 
-    ? (targetEyeFromTop - minTopMargin) / crownToEye 
-    : maxScaleHead;
+  const maxScaleCrown =
+    crownToEye > 0
+      ? (targetEyeFromTop - minTopMargin) / crownToEye
+      : maxScaleHead;
   const minScaleCropY = eyeY > 0 ? targetEyeFromTop / eyeY : minScaleHead;
-  
+
   // CRITICAL: Ensure crop fits within source (no white padding!)
   const minScaleFitWidth = spec.w / sourceWidth;
   const minScaleFitHeight = spec.h / sourceHeight;
   const minScaleFit = Math.max(minScaleFitWidth, minScaleFitHeight);
-  
+
   const minScale = Math.max(minScaleHead, minScaleCropY, minScaleFit);
   const maxScale = Math.min(maxScaleHead, maxScaleCrown);
-  
+
   // Pick target scale
   let scale: number;
   if (minScale <= maxScale) {
     scale = minScale + (maxScale - minScale) * 0.35;
   } else {
     // Constraints conflict - MUST include minScaleFit to prevent padding!
-    scale = Math.max(minScaleHead, minScaleFit, Math.min(maxScaleHead, maxScaleCrown));
+    scale = Math.max(
+      minScaleHead,
+      minScaleFit,
+      Math.min(maxScaleHead, maxScaleCrown)
+    );
   }
-  
+
   // Calculate crop dimensions
   const cropW = spec.w / scale;
   const cropH = spec.h / scale;
-  
+
   // Position crop
   const eyeFromTopInSrc = targetEyeFromTop / scale;
   const cropY = eyeY - eyeFromTopInSrc;
   const cropX = faceCenterX - cropW / 2;
-  
+
   // Check for REAL padding issues - only when crop dimensions EXCEED source
   // Position issues are handled by clamping in render, so don't report those as padding
-  let paddingTop = 0, paddingBottom = 0, paddingLeft = 0, paddingRight = 0;
-  
+  let paddingTop = 0,
+    paddingBottom = 0,
+    paddingLeft = 0,
+    paddingRight = 0;
+
   // Only report padding if crop is LARGER than source (can't be fixed by clamping)
   if (cropW > sourceWidth) {
     const excess = cropW - sourceWidth;
@@ -154,38 +170,39 @@ export function simulateCrop(
     issues.push('needs-padding-top');
     issues.push('needs-padding-bottom');
   }
-  
+
   // Calculate output metrics
   const headInOutput = estimatedHeadH * scale;
   const headHeightPercent = (headInOutput / spec.h) * 100;
   const eyePositionPercent = (spec.eyeFromBottom / spec.h) * 100;
-  
+
   // Check head size compliance
   const minHeadPercent = (spec.headMin / spec.h) * 100;
   const maxHeadPercent = (spec.headMax / spec.h) * 100;
-  
+
   // Use a small tolerance to avoid flickering at boundaries
   const headTolerance = HEAD_SIZE_TOLERANCE;
-  
+
   if (headHeightPercent < minHeadPercent - headTolerance) {
     issues.push('head-too-small');
   }
   if (headHeightPercent > maxHeadPercent + headTolerance) {
     issues.push('head-too-large');
   }
-  
+
   // Check centering (face should be roughly centered horizontally)
-  const faceCenterOffset = Math.abs(faceCenterX - sourceWidth / 2) / sourceWidth;
+  const faceCenterOffset =
+    Math.abs(faceCenterX - sourceWidth / 2) / sourceWidth;
   if (faceCenterOffset > 0.15) {
     issues.push('face-not-centered');
   }
-  
+
   // SMART GUIDANCE LOGIC:
   // Distinguish between distance issues and position issues
   // This is critical for giving users the RIGHT advice
-  
+
   let guidance: CropSimulationResult['guidance'] = 'perfect';
-  
+
   // Priority 1: Head size issues (distance)
   if (issues.includes('head-too-small')) {
     guidance = 'move-closer';
@@ -196,8 +213,10 @@ export function simulateCrop(
   // Analyze WHY padding is needed - is it a position issue or size issue?
   else if (paddingTop > 0 || paddingBottom > 0) {
     // If head size is within valid range, this is a POSITION issue, not distance
-    if (headHeightPercent >= minHeadPercent - headTolerance && 
-        headHeightPercent <= maxHeadPercent + headTolerance) {
+    if (
+      headHeightPercent >= minHeadPercent - headTolerance &&
+      headHeightPercent <= maxHeadPercent + headTolerance
+    ) {
       // Face is the right size but wrong vertical position
       if (paddingTop > paddingBottom) {
         // Need more room at top = face is too HIGH, move down
@@ -223,9 +242,9 @@ export function simulateCrop(
   else if (issues.includes('face-not-centered')) {
     guidance = 'center-face';
   }
-  
+
   const isValid = issues.length === 0;
-  
+
   return {
     isValid,
     headHeightPercent,
@@ -270,10 +289,10 @@ export function calculateCrop(
     // Spec requirements (all in output pixels)
     const targetEyeFromTop = spec.h - spec.eyeFromBottom;
     const minTopMargin = spec.h * 0.05; // 5% above crown minimum
-    
+
     // Distance from crown to eyes in source
     const crownToEye = eyeY - crownY;
-    
+
     // CONSTRAINT SOLVING:
     // We need to find a scale that satisfies:
     // 1. Head height in range: scale ∈ [headMin/headH, headMax/headH]
@@ -282,31 +301,32 @@ export function calculateCrop(
     //    Constraint: targetEyeFromTop - crownToEye * scale >= minTopMargin
     //    => crownToEye * scale <= targetEyeFromTop - minTopMargin
     //    => scale <= (targetEyeFromTop - minTopMargin) / crownToEye
-    
+
     // Scale bounds from head height
     const minScaleHead = spec.headMin / estimatedHeadH;
     const maxScaleHead = spec.headMax / estimatedHeadH;
-    
+
     // Scale bound from crown margin (ensure crown doesn't get cut off when eyes are positioned)
-    const maxScaleCrown = crownToEye > 0 
-      ? (targetEyeFromTop - minTopMargin) / crownToEye 
-      : maxScaleHead;
-    
+    const maxScaleCrown =
+      crownToEye > 0
+        ? (targetEyeFromTop - minTopMargin) / crownToEye
+        : maxScaleHead;
+
     // Scale bound to ensure cropY stays non-negative (eyes are low enough in source)
     // cropY = eyeY - targetEyeFromTop/scale >= 0  =>  scale >= targetEyeFromTop/eyeY
     const minScaleCropY = eyeY > 0 ? targetEyeFromTop / eyeY : minScaleHead;
-    
+
     // CRITICAL: Scale bound to ensure crop fits within source (no white padding!)
     // cropW = spec.w / scale <= sourceWidth  =>  scale >= spec.w / sourceWidth
     // cropH = spec.h / scale <= sourceHeight  =>  scale >= spec.h / sourceHeight
     const minScaleFitWidth = spec.w / sourceWidth;
     const minScaleFitHeight = spec.h / sourceHeight;
     const minScaleFit = Math.max(minScaleFitWidth, minScaleFitHeight);
-    
+
     // Final scale bounds - must satisfy ALL constraints
     const minScale = Math.max(minScaleHead, minScaleCropY, minScaleFit);
     const maxScale = Math.min(maxScaleHead, maxScaleCrown);
-    
+
     // Target scale: aim for middle of valid range, biased toward smaller head
     let scale: number;
     if (minScale <= maxScale) {
@@ -315,7 +335,11 @@ export function calculateCrop(
     } else {
       // Constraints conflict - pick best compromise
       // MUST include minScaleFit to prevent padding!
-      scale = Math.max(minScaleHead, minScaleFit, Math.min(maxScaleHead, maxScaleCrown));
+      scale = Math.max(
+        minScaleHead,
+        minScaleFit,
+        Math.min(maxScaleHead, maxScaleCrown)
+      );
     }
 
     // Calculate crop dimensions
@@ -334,7 +358,7 @@ export function calculateCrop(
       cropY = sourceHeight - cropH;
     }
     cropY = Math.max(0, cropY);
-    
+
     if (cropX + cropW > sourceWidth) {
       cropX = sourceWidth - cropW;
     }
@@ -398,19 +422,19 @@ export function renderPassportPhoto(
   // Apply user adjustments
   const srcW = sourceImage.naturalWidth;
   const srcH = sourceImage.naturalHeight;
-  
+
   // Calculate zoom factor, but LIMIT it so crop never exceeds source (no white space!)
   const requestedZoomFactor = 100 / userZoom;
   const maxZoomOutFactor = Math.min(srcW / cropW, srcH / cropH);
   const zoomFactor = Math.min(requestedZoomFactor, maxZoomOutFactor);
-  
+
   const adjCropW = cropW * zoomFactor;
   const adjCropH = cropH * zoomFactor;
   let adjCropX = cropX + (cropW - adjCropW) / 2 - userH * (cropW / spec.w);
   let adjCropY = cropY + (cropH - adjCropH) / 2 - userV * (cropH / spec.h);
 
   // CRITICAL: Keep crop within source image bounds (no white space)
-  
+
   // Horizontal bounds - never show white space on sides
   if (adjCropX < 0) {
     adjCropX = 0;
@@ -423,7 +447,7 @@ export function renderPassportPhoto(
     console.warn('Crop exceeds source width - this should not happen');
     adjCropX = 0; // Clamp to left edge instead of centering
   }
-  
+
   // Vertical bounds - never show white space on top/bottom
   if (adjCropY < 0) {
     adjCropY = 0;
@@ -451,7 +475,10 @@ export function renderPassportPhoto(
     }
 
     // Ensure chin is visible with padding (but respect image bounds)
-    const maxCropY = Math.min(srcH - adjCropH, chinY + minPaddingSrc - adjCropH);
+    const maxCropY = Math.min(
+      srcH - adjCropH,
+      chinY + minPaddingSrc - adjCropH
+    );
     if (adjCropY < maxCropY) {
       adjCropY = Math.max(0, maxCropY);
     }
@@ -460,22 +487,22 @@ export function renderPassportPhoto(
     const faceCenterX = faceData.x + faceData.w / 2;
     const maxHorizontalOffset = adjCropW * 0.15;
     const idealCropX = faceCenterX - adjCropW / 2;
-    
+
     // Calculate allowed range, but ALWAYS clamp to image bounds first
     const absoluteMinX = 0;
     const absoluteMaxX = Math.max(0, srcW - adjCropW);
-    
+
     // Then apply face centering preference within those absolute bounds
     const minX = Math.max(absoluteMinX, idealCropX - maxHorizontalOffset);
     const maxX = Math.min(absoluteMaxX, idealCropX + maxHorizontalOffset);
-    
+
     // Clamp adjCropX to the valid range
     if (adjCropX < minX) {
       adjCropX = Math.max(absoluteMinX, minX);
     } else if (adjCropX > maxX) {
       adjCropX = Math.min(absoluteMaxX, maxX);
     }
-    
+
     // Final safety clamp - NEVER exceed image bounds
     adjCropX = Math.max(0, Math.min(srcW - adjCropW, adjCropX));
   }

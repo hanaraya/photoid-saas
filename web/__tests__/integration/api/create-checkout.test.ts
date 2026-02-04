@@ -5,6 +5,15 @@ import { NextRequest } from 'next/server';
 import { POST } from '@/app/api/create-checkout/route';
 import Stripe from 'stripe';
 
+// Type for our mock instance
+interface MockStripeInstance {
+  checkout: {
+    sessions: {
+      create: jest.Mock;
+    };
+  };
+}
+
 // Mock Stripe
 jest.mock('stripe', () => {
   return jest.fn().mockImplementation(() => ({
@@ -17,7 +26,7 @@ jest.mock('stripe', () => {
 });
 
 describe('Create Checkout API Route', () => {
-  let mockStripeInstance: jest.Mocked<Stripe>;
+  let mockStripeInstance: MockStripeInstance;
   let originalEnv: NodeJS.ProcessEnv;
 
   beforeEach(() => {
@@ -33,10 +42,10 @@ describe('Create Checkout API Route', () => {
           create: jest.fn(),
         },
       },
-    } as any;
+    };
 
     (Stripe as jest.MockedClass<typeof Stripe>).mockImplementation(
-      () => mockStripeInstance
+      () => mockStripeInstance as unknown as Stripe
     );
   });
 

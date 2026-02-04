@@ -11,8 +11,8 @@ interface PhotoUploadProps {
   enableCameraGuides?: boolean;
 }
 
-export function PhotoUpload({ 
-  onImageLoaded, 
+export function PhotoUpload({
+  onImageLoaded,
   countryCode = 'us',
   enableCameraGuides = true,
 }: PhotoUploadProps) {
@@ -21,9 +21,10 @@ export function PhotoUpload({
   const [isDragOver, setIsDragOver] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [cameraConditions, setCameraConditions] = useState<CameraConditions | null>(null);
+  const [cameraConditions, setCameraConditions] =
+    useState<CameraConditions | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
-  
+
   // Real-time face detection for camera preview
   const liveFaceData = useLiveFaceDetection(videoRef, showCamera);
 
@@ -66,41 +67,41 @@ export function PhotoUpload({
       // UK/EU: 35×45mm = 7:9 ≈ 0.78 (portrait)
       // Canada: 50×70mm = 5:7 ≈ 0.71 (portrait)
       const aspectRatios: Record<string, number> = {
-        us: 1,           // 2×2 inches (square)
+        us: 1, // 2×2 inches (square)
         us_visa: 1,
         us_drivers: 1,
         green_card: 1,
-        uk: 35/45,       // 35×45mm (portrait)
-        uk_visa: 35/45,
-        eu: 35/45,       // 35×45mm (portrait)
-        schengen_visa: 35/45,
-        germany: 35/45,
-        france: 35/45,
-        canada: 50/70,   // 50×70mm (portrait)
-        india: 1,        // 2×2 inches (square, same as US)
+        uk: 35 / 45, // 35×45mm (portrait)
+        uk_visa: 35 / 45,
+        eu: 35 / 45, // 35×45mm (portrait)
+        schengen_visa: 35 / 45,
+        germany: 35 / 45,
+        france: 35 / 45,
+        canada: 50 / 70, // 50×70mm (portrait)
+        india: 1, // 2×2 inches (square, same as US)
         india_visa: 1,
-        australia: 35/45,
-        china: 33/48,    // 33×48mm (portrait)
-        china_visa: 33/48,
-        japan: 35/45,
-        south_korea: 35/45,
-        brazil: 50/70,   // 5×7cm (portrait)
-        mexico: 35/45,
+        australia: 35 / 45,
+        china: 33 / 48, // 33×48mm (portrait)
+        china_visa: 33 / 48,
+        japan: 35 / 45,
+        south_korea: 35 / 45,
+        brazil: 50 / 70, // 5×7cm (portrait)
+        mexico: 35 / 45,
       };
-      
+
       const targetAspect = aspectRatios[countryCode] || 1;
       const isPortrait = targetAspect < 1;
-      
+
       // Request camera with country-appropriate aspect ratio
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: facingMode,
           width: { ideal: isPortrait ? 1440 : 1920, min: 1080 },
           height: { ideal: isPortrait ? 1920 : 1920, min: 1080 },
-          aspectRatio: { 
-            ideal: targetAspect, 
-            min: targetAspect * 0.8, 
-            max: targetAspect * 1.25 
+          aspectRatio: {
+            ideal: targetAspect,
+            min: targetAspect * 0.8,
+            max: targetAspect * 1.25,
           },
         },
       });
@@ -153,26 +154,44 @@ export function PhotoUpload({
     // Toggle facing mode
     const newMode = facingMode === 'user' ? 'environment' : 'user';
     setFacingMode(newMode);
-    
+
     // Get new stream with switched camera
     try {
       const aspectRatios: Record<string, number> = {
-        us: 1, us_visa: 1, us_drivers: 1, green_card: 1,
-        uk: 35/45, uk_visa: 35/45, eu: 35/45, schengen_visa: 35/45,
-        germany: 35/45, france: 35/45, canada: 50/70,
-        india: 1, india_visa: 1, australia: 35/45,
-        china: 33/48, china_visa: 33/48, japan: 35/45,
-        south_korea: 35/45, brazil: 50/70, mexico: 35/45,
+        us: 1,
+        us_visa: 1,
+        us_drivers: 1,
+        green_card: 1,
+        uk: 35 / 45,
+        uk_visa: 35 / 45,
+        eu: 35 / 45,
+        schengen_visa: 35 / 45,
+        germany: 35 / 45,
+        france: 35 / 45,
+        canada: 50 / 70,
+        india: 1,
+        india_visa: 1,
+        australia: 35 / 45,
+        china: 33 / 48,
+        china_visa: 33 / 48,
+        japan: 35 / 45,
+        south_korea: 35 / 45,
+        brazil: 50 / 70,
+        mexico: 35 / 45,
       };
       const targetAspect = aspectRatios[countryCode] || 1;
       const isPortrait = targetAspect < 1;
-      
+
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: newMode,
           width: { ideal: isPortrait ? 1440 : 1920, min: 1080 },
           height: { ideal: isPortrait ? 1920 : 1920, min: 1080 },
-          aspectRatio: { ideal: targetAspect, min: targetAspect * 0.8, max: targetAspect * 1.25 },
+          aspectRatio: {
+            ideal: targetAspect,
+            min: targetAspect * 0.8,
+            max: targetAspect * 1.25,
+          },
         },
       });
       setStream(mediaStream);
@@ -267,7 +286,9 @@ export function PhotoUpload({
                 autoPlay
                 playsInline
                 className="w-full max-h-[80vh] rounded-xl object-contain"
-                style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'none' }}
+                style={{
+                  transform: facingMode === 'user' ? 'scaleX(-1)' : 'none',
+                }}
               />
               {/* Camera Guides Overlay */}
               {enableCameraGuides && (
@@ -284,14 +305,18 @@ export function PhotoUpload({
               <button
                 onClick={switchCamera}
                 className="absolute top-3 right-3 p-2 rounded-full bg-black/50 hover:bg-black/70 text-white transition-colors"
-                title={facingMode === 'user' ? 'Switch to back camera' : 'Switch to front camera'}
+                title={
+                  facingMode === 'user'
+                    ? 'Switch to back camera'
+                    : 'Switch to front camera'
+                }
               >
                 🔄
               </button>
             </div>
             <div className="flex gap-3">
-              <Button 
-                onClick={capturePhoto} 
+              <Button
+                onClick={capturePhoto}
                 className="gap-2"
                 variant={cameraConditions?.allGood ? 'default' : 'secondary'}
               >

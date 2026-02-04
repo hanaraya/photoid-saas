@@ -47,9 +47,7 @@ export function LoadingOverlay({ text }: LoadingOverlayProps) {
             <div
               key={step.id}
               className={`flex items-center gap-3 transition-all duration-300 ${
-                index <= currentStep
-                  ? 'opacity-100'
-                  : 'opacity-40'
+                index <= currentStep ? 'opacity-100' : 'opacity-40'
               }`}
             >
               <div
@@ -57,15 +55,17 @@ export function LoadingOverlay({ text }: LoadingOverlayProps) {
                   index < currentStep
                     ? 'bg-green-500 text-white'
                     : index === currentStep
-                    ? 'bg-primary text-primary-foreground animate-pulse'
-                    : 'bg-muted text-muted-foreground'
+                      ? 'bg-primary text-primary-foreground animate-pulse'
+                      : 'bg-muted text-muted-foreground'
                 }`}
               >
                 {index < currentStep ? '✓' : step.id}
               </div>
               <span
                 className={`text-sm transition-all duration-300 ${
-                  index <= currentStep ? 'text-foreground' : 'text-muted-foreground'
+                  index <= currentStep
+                    ? 'text-foreground'
+                    : 'text-muted-foreground'
                 }`}
               >
                 {step.label}
@@ -93,7 +93,7 @@ interface BgRemovalProgressProps {
 
 export function BgRemovalProgress({ isRemoving }: BgRemovalProgressProps) {
   const [step, setStep] = useState(0);
-  
+
   const bgSteps = [
     { label: 'Detecting edges', icon: '🔲' },
     { label: 'Removing background', icon: '✂️' },
@@ -121,9 +121,7 @@ export function BgRemovalProgress({ isRemoving }: BgRemovalProgressProps) {
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-background/90 backdrop-blur-sm rounded-lg z-10">
       <div className="flex flex-col items-center gap-4 text-center px-4">
-        <div className="text-4xl animate-bounce">
-          {bgSteps[step].icon}
-        </div>
+        <div className="text-4xl animate-bounce">{bgSteps[step].icon}</div>
         <div>
           <p className="font-medium">{bgSteps[step].label}</p>
           <p className="text-xs text-muted-foreground mt-1">
@@ -132,7 +130,7 @@ export function BgRemovalProgress({ isRemoving }: BgRemovalProgressProps) {
         </div>
         {/* Progress bar */}
         <div className="w-48 h-1.5 bg-muted rounded-full overflow-hidden">
-          <div 
+          <div
             className="h-full bg-primary rounded-full transition-all duration-1000 ease-linear"
             style={{ width: `${((step + 1) / bgSteps.length) * 100}%` }}
           />

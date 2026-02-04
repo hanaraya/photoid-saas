@@ -24,6 +24,7 @@ CAPTURE_BUFFER = 1.15
 ### Step 1: Output Specification
 
 For US Passport:
+
 - Output size: 600×600 px (2×2 inch at 300 DPI)
 - Head height: 50-69% of photo = 300-414 px
 - Target head: 59.5% = 357 px
@@ -54,20 +55,22 @@ Oval_height = Viewport_height × 0.37
 ## Country-Specific Thresholds
 
 | Country | Head Required | Face in Output | Face in Camera (with buffer) |
-|---------|--------------|----------------|------------------------------|
-| US | 50-69% | 35.7-49.3% | **31-42.8%** |
-| UK | 64-75.5% | 45.7-53.9% | **39.7-46.9%** |
-| EU | 71-80% | 50.7-57.1% | **44.1-49.7%** |
-| Canada | 44-51% | 31.4-36.4% | **27.3-31.7%** |
+| ------- | ------------- | -------------- | ---------------------------- |
+| US      | 50-69%        | 35.7-49.3%     | **31-42.8%**                 |
+| UK      | 64-75.5%      | 45.7-53.9%     | **39.7-46.9%**               |
+| EU      | 71-80%        | 50.7-57.1%     | **44.1-49.7%**               |
+| Canada  | 44-51%        | 31.4-36.4%     | **27.3-31.7%**               |
 
 ## Why Capture Buffer?
 
 Without buffer (1.0):
+
 - Face fills exactly what's needed
 - No room for error
 - Cropping has no flexibility
 
 With buffer (1.15):
+
 - Face is smaller in frame (more visible content)
 - User can adjust crop position after capture
 - Zoom in/out works in editor
@@ -108,6 +111,7 @@ Face center at 40% from top:
 ```
 
 This ensures:
+
 - Hair and margin above face visible
 - Shoulders visible below chin
 - Eye line lands at correct position after crop
