@@ -333,9 +333,7 @@ describe('Face Detection', () => {
           width: 200,
           height: 250,
         },
-        keypoints: [
-          { label: 'rightEye', x: 0.25, y: 0.25 },
-        ],
+        keypoints: [{ label: 'rightEye', x: 0.25, y: 0.25 }],
       };
 
       mockFaceDetector.detect.mockReturnValue({
@@ -367,9 +365,7 @@ describe('Face Detection', () => {
           width: 200,
           height: 250,
         },
-        keypoints: [
-          { label: 'leftEye', x: 0.15, y: 0.25 },
-        ],
+        keypoints: [{ label: 'leftEye', x: 0.15, y: 0.25 }],
       };
 
       mockFaceDetector.detect.mockReturnValue({

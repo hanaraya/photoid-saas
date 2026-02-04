@@ -9,7 +9,9 @@ describe('BreadcrumbSchema', () => {
     const items = [{ name: 'Home', url: 'https://safepassportpic.com' }];
     const { container } = render(<BreadcrumbSchema items={items} />);
 
-    const script = container.querySelector('script[type="application/ld+json"]');
+    const script = container.querySelector(
+      'script[type="application/ld+json"]'
+    );
     expect(script).toBeInTheDocument();
 
     const jsonLd = JSON.parse(script?.textContent || '{}');
@@ -32,7 +34,9 @@ describe('BreadcrumbSchema', () => {
     ];
     const { container } = render(<BreadcrumbSchema items={items} />);
 
-    const script = container.querySelector('script[type="application/ld+json"]');
+    const script = container.querySelector(
+      'script[type="application/ld+json"]'
+    );
     const jsonLd = JSON.parse(script?.textContent || '{}');
 
     expect(jsonLd.itemListElement).toHaveLength(3);
@@ -72,7 +76,9 @@ describe('BreadcrumbSchema', () => {
 
   it('should have BREADCRUMBS.canadianPassport config', () => {
     expect(BREADCRUMBS.canadianPassport).toHaveLength(2);
-    expect(BREADCRUMBS.canadianPassport[1].name).toBe('Canadian Passport Photo');
+    expect(BREADCRUMBS.canadianPassport[1].name).toBe(
+      'Canadian Passport Photo'
+    );
   });
 
   it('should have BREADCRUMBS.indianPassport config', () => {
@@ -106,7 +112,10 @@ describe('BreadcrumbSchema', () => {
   });
 
   it('should generate blogPost breadcrumb dynamically', () => {
-    const blogPostBreadcrumb = BREADCRUMBS.blogPost('Test Article', 'test-article');
+    const blogPostBreadcrumb = BREADCRUMBS.blogPost(
+      'Test Article',
+      'test-article'
+    );
     expect(blogPostBreadcrumb).toHaveLength(3);
     expect(blogPostBreadcrumb[2]).toEqual({
       name: 'Test Article',

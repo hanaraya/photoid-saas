@@ -37,7 +37,8 @@ jest.mock('@/lib/face-detection', () => ({
 }));
 
 jest.mock('@/lib/bg-removal', () => ({
-  removeImageBackground: (...args: unknown[]) => mockRemoveImageBackground(...args),
+  removeImageBackground: (...args: unknown[]) =>
+    mockRemoveImageBackground(...args),
   initBgRemoval: jest.fn().mockResolvedValue(undefined),
   isBgRemovalReady: jest.fn().mockReturnValue(true),
   resetBgRemoval: jest.fn(),
@@ -46,21 +47,44 @@ jest.mock('@/lib/bg-removal', () => ({
 
 jest.mock('@/lib/image-analysis', () => ({
   analyzeImage: jest.fn().mockReturnValue({
-    quality: { sharpness: 85, noise: 10, contrast: 70, brightness: 128, overall: 80 },
-    compliance: { eyeLinePercent: 62.5, headHeightPercent: 55, topMarginPercent: 10, bottomMarginPercent: 10 },
+    quality: {
+      sharpness: 85,
+      noise: 10,
+      contrast: 70,
+      brightness: 128,
+      overall: 80,
+    },
+    compliance: {
+      eyeLinePercent: 62.5,
+      headHeightPercent: 55,
+      topMarginPercent: 10,
+      bottomMarginPercent: 10,
+    },
   }),
 }));
 
 jest.mock('@/lib/crop', () => ({
   renderPassportPhoto: (...args: unknown[]) => mockRenderPassportPhoto(...args),
   renderSheet: (...args: unknown[]) => mockRenderSheet(...args),
-  calculateCrop: jest.fn().mockReturnValue({ cropX: 0, cropY: 0, cropW: 100, cropH: 100 }),
+  calculateCrop: jest
+    .fn()
+    .mockReturnValue({ cropX: 0, cropY: 0, cropW: 100, cropH: 100 }),
 }));
 
 jest.mock('@/lib/compliance', () => ({
   checkCompliance: jest.fn().mockReturnValue([
-    { id: 'face', label: 'Face Detection', status: 'pass', message: 'Face detected' },
-    { id: 'head_size', label: 'Head Size', status: 'pass', message: 'Good size' },
+    {
+      id: 'face',
+      label: 'Face Detection',
+      status: 'pass',
+      message: 'Face detected',
+    },
+    {
+      id: 'head_size',
+      label: 'Head Size',
+      status: 'pass',
+      message: 'Good size',
+    },
   ]),
 }));
 
@@ -80,7 +104,8 @@ jest.mock('@/lib/content-moderation', () => ({
     violations: [],
     summary: 'Content check passed',
   }),
-  checkFinalCompliance: (...args: unknown[]) => mockCheckFinalCompliance(...args),
+  checkFinalCompliance: (...args: unknown[]) =>
+    mockCheckFinalCompliance(...args),
 }));
 
 // Mock URL.createObjectURL
@@ -148,7 +173,9 @@ describe('PhotoEditor Callbacks', () => {
       canProceed: true,
       issues: [],
     });
-    mockRemoveImageBackground.mockResolvedValue(new Blob(['removed'], { type: 'image/png' }));
+    mockRemoveImageBackground.mockResolvedValue(
+      new Blob(['removed'], { type: 'image/png' })
+    );
   });
 
   it('should call handleBgRemoval when Remove Background button clicked', async () => {
