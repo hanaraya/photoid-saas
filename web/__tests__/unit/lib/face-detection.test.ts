@@ -322,6 +322,148 @@ describe('Face Detection', () => {
 
       await expect(detectFace(mockImage)).rejects.toThrow('Detector error');
     });
+
+    it('should estimate left eye when only right eye is detected', async () => {
+      const mockFaceDetector = getMockFaceDetector();
+
+      const mockDetection = {
+        boundingBox: {
+          originX: 100,
+          originY: 150,
+          width: 200,
+          height: 250,
+        },
+        keypoints: [
+          { label: 'rightEye', x: 0.25, y: 0.25 },
+        ],
+      };
+
+      mockFaceDetector.detect.mockReturnValue({
+        detections: [mockDetection],
+      });
+
+      const result = await detectFace(mockImage);
+
+      // Left eye should be estimated from right eye position
+      expect(result).toEqual({
+        x: 100,
+        y: 150,
+        w: 200,
+        h: 250,
+        leftEye: { x: 170, y: 200 }, // rightEye.x - eyeSpacing (0.25*1000 - 80)
+        rightEye: { x: 250, y: 200 }, // 0.25 * 1000, 0.25 * 800
+        nose: null,
+        mouth: null,
+      });
+    });
+
+    it('should estimate right eye when only left eye is detected', async () => {
+      const mockFaceDetector = getMockFaceDetector();
+
+      const mockDetection = {
+        boundingBox: {
+          originX: 100,
+          originY: 150,
+          width: 200,
+          height: 250,
+        },
+        keypoints: [
+          { label: 'leftEye', x: 0.15, y: 0.25 },
+        ],
+      };
+
+      mockFaceDetector.detect.mockReturnValue({
+        detections: [mockDetection],
+      });
+
+      const result = await detectFace(mockImage);
+
+      // Right eye should be estimated from left eye position
+      expect(result).toEqual({
+        x: 100,
+        y: 150,
+        w: 200,
+        h: 250,
+        leftEye: { x: 150, y: 200 }, // 0.15 * 1000, 0.25 * 800
+        rightEye: { x: 230, y: 200 }, // leftEye.x + eyeSpacing (150 + 80)
+        nose: null,
+        mouth: null,
+      });
+    });
+
+    it('should detect nose and mouth keypoints', async () => {
+      const mockFaceDetector = getMockFaceDetector();
+
+      const mockDetection = {
+        boundingBox: {
+          originX: 100,
+          originY: 150,
+          width: 200,
+          height: 250,
+        },
+        keypoints: [
+          { label: 'leftEye', x: 0.15, y: 0.25 },
+          { label: 'rightEye', x: 0.25, y: 0.25 },
+          { label: 'noseTip', x: 0.2, y: 0.4 },
+          { label: 'mouth', x: 0.2, y: 0.55 },
+        ],
+      };
+
+      mockFaceDetector.detect.mockReturnValue({
+        detections: [mockDetection],
+      });
+
+      const result = await detectFace(mockImage);
+
+      expect(result).toMatchObject({
+        x: 100,
+        y: 150,
+        w: 200,
+        h: 250,
+        leftEye: { x: 150, y: 200 },
+        rightEye: { x: 250, y: 200 },
+        nose: { x: 200, y: 320 },
+      });
+      expect(result?.mouth?.x).toBe(200);
+      expect(result?.mouth?.y).toBeCloseTo(440, 0);
+    });
+
+    it('should handle keypoints with index-based labels', async () => {
+      const mockFaceDetector = getMockFaceDetector();
+
+      const mockDetection = {
+        boundingBox: {
+          originX: 100,
+          originY: 150,
+          width: 200,
+          height: 250,
+        },
+        keypoints: [
+          { index: 0, x: 0.15, y: 0.25 }, // leftEye
+          { index: 1, x: 0.25, y: 0.25 }, // rightEye
+          { index: 2, x: 0.2, y: 0.4 }, // nose
+          { index: 3, x: 0.2, y: 0.55 }, // mouth
+        ],
+      };
+
+      mockFaceDetector.detect.mockReturnValue({
+        detections: [mockDetection],
+      });
+
+      const result = await detectFace(mockImage);
+
+      expect(result).toMatchObject({
+        x: 100,
+        y: 150,
+        w: 200,
+        h: 250,
+        leftEye: { x: 150, y: 200 },
+        rightEye: { x: 250, y: 200 },
+        nose: { x: 200, y: 320 },
+      });
+      expect(result?.mouth?.x).toBe(200);
+      expect(result?.mouth?.y).toBeCloseTo(440, 0);
+    });
   });
 
   describe('isFaceDetectorReady', () => {

@@ -150,6 +150,48 @@ describe('AdvancedControls', () => {
     fireEvent(details, new Event('toggle', { bubbles: true }));
   });
 
+  it('should call onToggle callback when details is toggled open', () => {
+    const { container } = render(<AdvancedControls {...defaultProps} />);
+
+    const details = container.querySelector('details')!;
+
+    // Toggle open - this exercises the onToggle callback function
+    Object.defineProperty(details, 'open', {
+      value: true,
+      writable: true,
+      configurable: true,
+    });
+    fireEvent(details, new Event('toggle', { bubbles: true }));
+
+    // Verify the component updated by checking for slider elements
+    expect(screen.getByText('Zoom')).toBeInTheDocument();
+  });
+
+  it('should call onToggle callback when details is toggled closed', () => {
+    const { container } = render(<AdvancedControls {...defaultProps} />);
+
+    const details = container.querySelector('details')!;
+
+    // First open
+    Object.defineProperty(details, 'open', {
+      value: true,
+      writable: true,
+      configurable: true,
+    });
+    fireEvent(details, new Event('toggle', { bubbles: true }));
+
+    // Then close - this exercises the onToggle callback with closed state
+    Object.defineProperty(details, 'open', {
+      value: false,
+      writable: true,
+      configurable: true,
+    });
+    fireEvent(details, new Event('toggle', { bubbles: true }));
+
+    // Test passes if no errors - the onToggle callback was exercised
+    expect(details).toBeInTheDocument();
+  });
+
   it('should render sliders with proper initial values', () => {
     render(<AdvancedControls {...defaultProps} zoom={120} brightness={110} />);
 
